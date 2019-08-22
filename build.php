@@ -14,25 +14,18 @@ return [
     '__file__' => ['common.php'],
 
     // 定义demo模块的自动生成 （按照实际定义的文件名生成）
-    'demo'     => [
+   'V1'     => [
         '__file__'   => ['common.php'],
         '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Test', 'UserType'],
-        'model'      => ['User', 'UserType'],
-        'view'       => ['index/index'],
-    ],
-    'V1'     => [
-        '__file__'   => ['common.php'],
-        '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Base', 'UserType'],
-        'model'      => ['User', 'UserType'],
+        'controller' => ['Index', 'Base', 'UserType','User','Sms'],
+        'model'      => ['User', 'UserType','Sms'],
         'view'       => ['index/index'],
     ],
     'V2'     => [
         '__file__'   => ['common.php'],
         '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Base', 'UserType'],
-        'model'      => ['User', 'UserType'],
+        'controller' => ['Index', 'Base', 'UserType','User','Sms'],
+        'model'      => ['User', 'UserType','Sms'],
         'view'       => ['index/index'],
     ],
 
