@@ -12,7 +12,129 @@
 // +----------------------------------------------------------------------
 // | 应用设置
 // +----------------------------------------------------------------------
+define('TIMESTAMP',time());
+define('DS','/');
+define('DYMall',true);
+define('StartTime',microtime(true));
+define('DIR_SHOP','mall');
+define('DIR_VENDOR','vendor');
+define('DIR_DIAN','dian');
+define('DIR_CMS','cms');
+define('DIR_SNS','sns');
+define('DIR_WXSHOP','wxshop');
+define('DIR_API','api');
+define('DIR_MOBILE','mobile');
+define('DIR_WAP','wap');
 
+define('DIR_RESOURCE','data/resource');
+define('DIR_UPLOAD','data/upload');
+
+define('ATTACH_PATH','mall');
+define('ATTACH_COMMON','mall/common');
+define('ATTACH_AVATAR','mall/avatar');
+define('ATTACH_EDITOR','mall/editor');
+define('ATTACH_MEMBERTAG','mall/membertag');
+define('ATTACH_STORE','mall/store');
+define('ATTACH_STORE_video','upload/mall/store/video');
+define('ATTACH_STORE_file','upload/mall/store/file');
+define('ATTACH_GOODS','mall/store/goods');
+define('ATTACH_GOODS_CLASS','mall/goods_class');
+define('ATTACH_LOGIN','mall/login');
+define('ATTACH_ARTICLE','mall/article');
+define('ATTACH_BRAND','mall/brand');
+define('ATTACH_MOBILE_PIC','mall/mobile');
+define('ATTACH_ADV','mall/asdsv');
+define('ATTACH_ACTIVITY','mall/activity');
+define('ATTACH_WATERMARK','mall/watermark');
+define('ATTACH_POINTPROD','mall/pointprod');
+define('ATTACH_TUAN','mall/tuan');
+define('ATTACH_SLIDE','mall/store/slide');
+define('ATTACH_VOUCHER','mall/voucher');
+define('ATTACH_STORE_JOININ','mall/store_joinin');
+define('ATTACH_REC_POSITION','mall/rec_position');
+define('ATTACH_MOBILE','mobile');//指向data/upload/mobile
+define('UPLOAD_WEBIM','webim');//指向 data/upload/webim
+define('ATTACH_SNS','sns');
+define('ATTACH_CMS','cms');
+define('ATTACH_MALBUM','mall/member');
+define('ATTACH_WXSHOP','wxshop');
+define('TPL_SNS_NAME', 'default');
+define('TPL_WXSHOP_NAME', 'default');
+define('TPL_CMS_NAME', 'default');
+define('TPL_ADMIN_NAME', 'default');
+define('FIXTURE_PATH','fixture');
+
+/*
+ * 商家入驻状态定义
+ */
+//新申请
+define('STORE_JOIN_STATE_NEW', 10);
+//完成付款
+define('STORE_JOIN_STATE_PAY', 11);
+//初审成功
+define('STORE_JOIN_STATE_VERIFY_SUCCESS', 20);
+//初审失败
+define('STORE_JOIN_STATE_VERIFY_FAIL', 30);
+//付款审核失败
+define('STORE_JOIN_STATE_PAY_FAIL', 31);
+//开店成功
+define('STORE_JOIN_STATE_FINAL', 40);
+
+//默认颜色规格id(前台显示图片的规格)
+define('DEFAULT_SPEC_COLOR_ID', 1);
+
+
+/**
+ * 商品图片
+ */
+define('GOODS_IMAGES_WIDTH', '60,240,350,1280');
+define('GOODS_IMAGES_HEIGHT', '60,240,350,12800');
+define('GOODS_IMAGES_EXT', '_60,_240,_350,_1280');
+
+/**
+ *  订单状态
+ */
+//已取消
+define('ORDER_STATE_CANCEL', 0);
+//已产生但未支付
+define('ORDER_STATE_NEW', 10);
+//已支付
+define('ORDER_STATE_PAY', 20);
+//已发货
+define('ORDER_STATE_SEND', 30);
+//已收货，交易成功
+define('ORDER_STATE_SUCCESS', 40);
+
+//订单结束后可评论时间，15天，60*60*24*15
+define('ORDER_EVALUATE_TIME', 1296000);
+
+
+//订单超过N小时未支付自动取消
+define('ORDER_AUTO_CANCEL_TIME', 3);
+//订单超过N天未收货自动收货
+define('ORDER_AUTO_RECEIVE_DAY', 10);
+
+//预订尾款支付期限(小时)
+define('BOOK_AUTO_END_TIME', 72);
+
+//门店支付订单支付提货期限(天)
+define('CHAIN_ORDER_PAYPUT_DAY', 7);
+/**
+ * 订单删除状态
+ */
+//默认未删除
+define('ORDER_DEL_STATE_DEFAULT', 0);
+//已删除
+define('ORDER_DEL_STATE_DELETE', 1);
+//彻底删除
+define('ORDER_DEL_STATE_DROP', 2);
+
+//OSS
+define('OSS_ID', 'LTAIITPH93chXaGR');
+define('OSS_KEY', '1nK6SnnIQZkSrfiNSmLHu2Hw0wlFcA');
+define('OSS_HOST', 'http://oss-cn-beijing.aliyuncs.com');
+define('OSS_HOST_FULL', 'http://sld-huanyun.oss-cn-beijing.aliyuncs.com');
+define('OSS_BACKET', 'sld-huanyun');
 return [
     // 应用名称
     'app_name'               => '',
