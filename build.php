@@ -17,15 +17,15 @@ return [
     'V1'     => [
         '__file__'   => ['common.php'],
         '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Base', 'UserType','User','Sms'],
-        'model'      => ['User', 'UserType','Sms','UserToken'],
+        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order'],
+        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder'],
         'view'       => ['index/index'],
     ],
     'V2'     => [
         '__file__'   => ['common.php'],
         '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Base', 'UserType','User','Sms','UserToken'],
-        'model'      => ['User', 'UserType','Sms'],
+        'controller' => ['Index', 'Base', 'UserType','User','Sms','UserToken','Cart','Order'],
+        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder'],
         'view'       => ['index/index'],
     ],
 

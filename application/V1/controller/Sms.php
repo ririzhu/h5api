@@ -6,8 +6,10 @@ class Sms extends Base
 {
     /**
      * 获取短信验证码
+     * TODO
      */
     public  function getSmsMessage(){
+        //TODO
         $type = input("type");//1注册，2登录，3找回密码
         $mobile = input("mobile");
         $sms = new Smslog();

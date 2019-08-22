@@ -3,6 +3,8 @@ namespace app\V1\model;
 
 use think\Model;
 use think\Db;
+use Yunpian\Sdk\YunpianClient;
+use Yunpian\Sdk\Constant\YunpianConstant as YC;
 class Sms extends Model
 {
 
@@ -39,6 +41,7 @@ class Sms extends Model
    */
     public function send($mobile,$content,$tpl_id) {
         $mobile_host_type=Config('mobile_host_type');
+        //TODO
         if($mobile_host_type==1)
         {
             return $this->mysend_smsbao($mobile,$content,$tpl_id);
@@ -62,8 +65,8 @@ class Sms extends Model
     */
     private function mysend_smsbao($mobile,$content,$tpl_id){
 
-        $user_id = urlencode(C('mobile_username')); // 这里填写用户名
-        $pass = urlencode(C('mobile_pwd')); // 这里填登陆密码
+        $user_id = urlencode(Config('mobile_username')); // 这里填写用户名
+        $pass = urlencode(Config('mobile_pwd')); // 这里填登陆密码
         if(!$mobile || !$content || !$user_id || !$pass) return false;
         if(is_array($mobile)) $mobile = implode(",",$mobile);
         $mobile=urlencode($mobile);
@@ -118,17 +121,25 @@ class Sms extends Model
     -57 用户开通过固定签名功能，但签名未设置 	联系客服或技术支持设置固定签名 	技术支持
      */
     private function mysend_yunpian($mobile,$content,$tpl_id) {
-        $yunpian='yunpian';
-        $plugin = str_replace('\\', '', str_replace('/', '', str_replace('.', '',$yunpian)));
-        if (!empty($plugin)) {
-            define('PLUGIN_ROOT', BASE_LIBRARY_PATH . DS .'api/smsapi');
-            require_once(PLUGIN_ROOT . DS . $plugin . DS . 'Send.php');
-            $re = send_sms($content, $mobile,$tpl_id);
-            return $re;
+        $ch = curl_init();
+        $url = "https://sms.yunpian.com/v1/sms/send.json";
+        curl_setopt($ch,CURLOPT_URL,$url);
+        $code = $content;
+        $paramArr = array('apikey'=>'a77aec4378aec8c1caec0a4b73a4adc4','mobile'=>$mobile,'text'=>$code);
+        $param = '';
+        foreach($paramArr as $key => $value){
+            $param .= $key .="=" . $value ."&";
         }
-        else
-        {
-            return false;
-        }
+        $param = substr($param ,0,strlen($param)-1);
+        curl_setopt($ch,CURLOPT_POSTFIELDS,$param);
+        curl_setopt($ch,CURLOPT_HEADER,0);
+        curl_setopt($ch,CURLOPT_POST,1);
+        curl_setopt($ch,CURLOPT_SSL_VERIFYHOST,false);
+        curl_setopt($ch,CURLOPT_SSL_VERIFYPEER,false);
+        curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+        $re = curl_exec($ch);
+        curl_close($ch);
+        return $re;
+
     }
 }
