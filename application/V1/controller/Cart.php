@@ -42,6 +42,7 @@ class Cart extends Base
         $cart_list	= $model_cart->listCart('db',array('buyer_id'=>$member_id,'sld_is_supplier'=>$cart_show_type));
         $data['cart_list'] = $cart_list;
 
+
         if ($cart_show_type) {
             // 批发商品 购物车
 
@@ -93,7 +94,7 @@ class Cart extends Base
             $data['free_freight_list'] = $free_freight_list;
         }else{
             //取商品最新的在售信息
-            $cart_list = $model_cart->getOnlineCartList($cart_list);
+             $cart_list = $model_cart->getOnlineCartList($cart_list);
 
             //得到团购信息
             $cart_list = $model_cart->getTuanCartList($cart_list);
@@ -110,7 +111,7 @@ class Cart extends Base
             $store_cart_list[] = array();
             foreach ($cart_list as $cart) {
                 //团购商品的话 超出限购数量会按照原价去购买
-                if($cart['promotion_type'] == 'tuan'){
+                if(isset($cart['promotion_type']) && $cart['promotion_type'] == 'tuan'){
                     if($cart['goods_num']>$cart['upper_limit']){
                         $cart['goods_total'] = sldPriceFormat($cart['promotion_price'] * $cart['upper_limit']+$cart['goods_price'] * ($cart['goods_num']-$cart['upper_limit']));
                     }else{
@@ -130,8 +131,8 @@ class Cart extends Base
             $mansong_rule_list = $model_cart->getMansongRuleList(array_keys($store_cart_list));
             $data['mansong_rule_list'] = $mansong_rule_list;
             //取得哪些店铺有满免运费活动
-            //$free_freight_list = $model_cart->getFreeFreightActiveList(array_keys($store_cart_list));
-            //$data['free_freight_list'] = $free_freight_list;
+            $free_freight_list = $model_cart->getFreeFreightActiveList(array_keys($store_cart_list));
+            $data['free_freight_list'] = $free_freight_list;
         }
         return json_encode($data,true);
     }

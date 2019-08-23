@@ -2,7 +2,7 @@
 namespace app\V1\model;
 
 use think\Model;
-
+use think\db;
 /**
  * Class Favorable
  * @package app\V1\model
@@ -35,7 +35,7 @@ class Favorable extends Model
      *
      */
     public function getMansongList($condition, $page=null, $order='', $field='*') {
-        $mansong_list = $this->field($field)->where($condition)->page($page)->order($order)->select();
+        $mansong_list = DB::table("bbc_p_mansong")->field($field)->where($condition)->page($page)->order($order)->select();
         if(!empty($mansong_list)) {
             for($i =0, $j = count($mansong_list); $i < $j; $i++) {
                 $mansong_list[$i] = $this->getMansongExtendInfo($mansong_list[$i]);
@@ -101,7 +101,7 @@ class Favorable extends Model
      */
     public function getMansongInfoByStoreID($vid) {
         if(intval($vid) <= 0) {
-            return null;
+            //return null;
         }
 
         $condition = array();
@@ -110,14 +110,14 @@ class Favorable extends Model
         $condition['start_time'] = array('lt', TIMESTAMP);
         $condition['end_time'] = array('gt', TIMESTAMP);
         $mansong_list = $this->getMansongList($condition, null, 'start_time asc');
-
+        if(isset($mansong_list[0]))
         $mansong_info = $mansong_list[0];
 
         if(empty($mansong_info)) {
             return null;
         }
 
-        $model_mansong_rule = Model('p_mansong_rule');
+        $model_mansong_rule = new FavorableRule();
         $mansong_info['rules'] = $model_mansong_rule->getMansongRuleListByID($mansong_info['mansong_id']);
 
         return $mansong_info;

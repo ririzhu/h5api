@@ -357,18 +357,9 @@ class UserCart extends Model
      */
     public function listCart($type, $condition = array()) {
         if ($type == 'db') {
-            $cart_list = DB::table("bbc_cart")->where($condition)->order('cart_id desc')->select(array('cache'=>false));
-        } elseif ($type == 'cache') {
-            $obj_cache = Cache::getInstance(Config('cache.type'));
-            $cart_list = $obj_cache->get($_COOKIE['PHPSESSID'],'cart_');
-            $cart_list = @unserialize($cart_list);
-        } elseif ($type == 'cookie') {
-            //去除斜杠
-            $cart_str = get_magic_quotes_gpc() ? stripslashes(cookie('cart')) : cookie('cart');
-            $cart_str = base64_decode(decrypt($cart_str));
-            $cart_list = @unserialize($cart_str);
+            $cart_list = DB::table("bbc_cart")->where($condition)->order('cart_id desc')->select();
         }
-        $cart_list = is_array($cart_list) ? $cart_list : array();
+       // $cart_list = is_array($cart_list) ? $cart_list : array();
         //顺便设置购物车商品数和总金额
         $this->cart_goods_num =  count($cart_list);
         $cart_all_price = 0;
@@ -378,7 +369,7 @@ class UserCart extends Model
             }
         }
         $this->cart_all_price = sldPriceFormat($cart_all_price);
-        return !is_array($cart_list) ? array() : $cart_list;
+        return $cart_list;
     }
 
     /**
@@ -704,15 +695,19 @@ class UserCart extends Model
         if (empty($cart_list) || !is_array($cart_list)) return $cart_list;
         //验证商品是否有效
         $goods_id_array = array();
+        $ids = '';
         foreach ($cart_list as $key => $cart_info) {
             if (!intval($cart_info['bl_id'])) {
                 $goods_id_array[] = $cart_info['gid'];
+                $ids .= $cart_info['gid'] .",";
             }
         }
-        $model_goods = Model('goods');
-        $goods_online_list = $model_goods->getGoodsOnlineList(array('gid'=>array(in,$goods_id_array)));
+        $ids = substr($ids,0,strlen($ids)-1);
+        $model_goods = new Goods();
+        $goods_online_list = $model_goods->getGoodsOnlineList(array('gid'=>array("in",$ids)));
         //会员等级价格--start
-        $goods_online_list = Model('goods_activity')->rebuild_goods_data($goods_online_list,'',['grade'=>1]);
+        $goodsActivity = new GoodsActivity();
+        $goods_online_list = $goodsActivity->rebuild_goods_data($goods_online_list,'',['grade'=>1]);
         //会员等级价格--end
         $goods_online_array = array();
         foreach ($goods_online_list as $goods) {
@@ -781,7 +776,8 @@ class UserCart extends Model
                         // 多规格 校验库存
                         $supplier_goods_storage = 0;
                         // 有规格 (获取规格信息)
-                        $spec_array = Model('goods')->getGoodsList(array('goods_commonid' => $goods_online_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage,goods_storage_alarm');
+                        $goodsModel = new Goods();
+                        $spec_array = $goodsModel>getGoodsList(array('goods_commonid' => $goods_online_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage,goods_storage_alarm');
                         $spec_list = array();       // 各规格商品地址，js使用
                         foreach ($spec_array as $s_key => $value) {
                             $s_array = unserialize($value['goods_spec']);
@@ -820,7 +816,8 @@ class UserCart extends Model
                         // 多规格 校验库存
                         $supplier_goods_storage = 0;
                         // 有规格 (获取规格信息)
-                        $spec_array = Model('goods')->getGoodsList(array('goods_commonid' => $goods_online_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage,goods_storage_alarm');
+                        $goodsModel = new Goods();
+                        $spec_array = $goodsModel->getGoodsList(array('goods_commonid' => $goods_online_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage,goods_storage_alarm');
                         $spec_list = array();       // 各规格商品地址，js使用
 
                         //当前规格
@@ -918,12 +915,12 @@ class UserCart extends Model
      */
     public function getXianshiCartList($cart_list) {
         if (!Config('promotion_allow') || empty($cart_list) || !is_array($cart_list)) return $cart_list;
-        $model_xianshi = Model('p_xianshi_goods');
-        $model_goods = Model('goods');
+        $model_xianshi = new Pxianshigoods();
+        $model_goods = new Goods();
         foreach ($cart_list as $key => $cart_info) {
             if (intval($cart_info['bl_id'])) continue;
             //如果该商品参与了别的促销活动，则不进行限时折扣的判断
-            if($cart_info['promotion_price']*1)continue;
+            if(isset($cart_info['promotion_price']))continue;
             $xianshi_info = $model_xianshi->getXianshiGoodsInfoByGoodsID($cart_info['gid']);
             if (!empty($xianshi_info)) {
                 if ($cart_info['goods_num'] >= $xianshi_info['lower_limit']) {
@@ -956,7 +953,7 @@ class UserCart extends Model
         foreach ($cart_list as $key => $cart_info) {
             if (intval($cart_info['bl_id'])) continue;
             //如果该商品参与了别的促销活动，则不进行近日抢购的判断
-            if($cart_info['promotion_price']*1)continue;
+            if(isset($cart_info['promotion_price']))continue;
             $tobuy_detail_info = $tobuy_detail_model->getList(array('item_id' => $cart_info['gid'], 'today_buy_detail_state' => "1",'today_buy_date'=>"date('Y-m-d')"));
             if (!empty($tobuy_detail_info)) {
                 $today_buy_time_id = $tobuy_detail_info[0]['today_buy_time_id'];
@@ -990,8 +987,8 @@ class UserCart extends Model
      */
     public function getBundlingCartList($cart_list) {
         if (!Config('promotion_allow') || empty($cart_list) || !is_array($cart_list)) return $cart_list;
-        $model_bl = Model('p_bundling');
-        $model_goods = Model('goods');
+        $model_bl = new Pbundling();
+        $model_goods = new Goods();
         foreach ($cart_list as $key => $cart_info) {
             if (!intval($cart_info['bl_id'])) continue;
             $cart_list[$key]['state'] = true;
@@ -1148,8 +1145,9 @@ class UserCart extends Model
      */
     public function getMansongRuleList($store_id_array) {
         if (!Config('promotion_allow') || empty($store_id_array) || !is_array($store_id_array)) return array();
-        $model_mansong = Model('Favorable');
+        $model_mansong = new Favorable();
         $mansong_rule_list = array();
+
         foreach ($store_id_array as $vid) {
             $store_mansong_rule = $model_mansong->getMansongInfoByStoreID($vid);
             if (!empty($store_mansong_rule['rules']) && is_array($store_mansong_rule['rules'])) {
@@ -1269,8 +1267,15 @@ class UserCart extends Model
         $store_free_freight_active = array();
 
         //如果商品金额未达到免运费设置下线，则需要计算运费
-        $condition = array('vid' => array('in',$store_id_array));
-        $store_list = Model('vendor')->getStoreOnlineList($condition,null,'','vid,store_free_price');
+        $ids = "";
+        foreach ($store_id_array as $k=>$v)
+        {
+            $ids .= $v .",";
+        }
+        $ids = substr($ids,0,strlen($ids)-1);
+        $condition['vid'] = array('in',$ids);
+        $vendorModel = new VendorInfo();
+        $store_list = $vendorModel->getStoreOnlineList($condition,null,'','vid,store_free_price');
         foreach ($store_list as $store_info) {
             $limit_price = floatval($store_info['store_free_price']);
             if ($limit_price > 0) {

@@ -23,7 +23,7 @@ class FavorableRule extends Model
         $condition['mansong_id'] = $mansong_id;
         $mansong_rule_list = $this->where($condition)->order('price desc')->select();
         if(!empty($mansong_rule_list)) {
-            $model_goods = Model('goods');
+            $model_goods = new Goods();
 
             for($i =0, $j = count($mansong_rule_list); $i < $j; $i++) {
                 $gid = intval($mansong_rule_list[$i]['gid']);

@@ -51,7 +51,7 @@ class Goods extends Model
      */
     public function getGoodsList($condition, $field = '*', $group = '',$order = '', $limit = 0, $page = 0, $lock = false, $count = 0) {
         $condition = $this->_getRecursiveClass($condition);
-        $result = $this->table('goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
+        $result = $this->table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
         return $result;
     }
 
@@ -151,9 +151,9 @@ class Goods extends Model
     public function getGoodsOnlineList($condition, $field = '*', $page = 0, $order = 'gid desc', $limit = 0, $group = '', $lock = false, $count = 0) {
         $condition['goods_state']   = self::STATE1;
         $condition['goods_verify']  = self::VERIFY1;
-        if(APP_ID=='mall' || APP_ID=='cmobile'){
+        //if(APP_ID=='mall' || APP_ID=='cmobile'){
             $condition['sites'] = ['exp',"FIND_IN_SET('".LANG_TYPE."',sites)"];
-        }
+        //}
         return $this->getGoodsList($condition, $field, $group, $order, $limit, $page, $lock, $count);
     }
 

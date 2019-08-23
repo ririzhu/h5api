@@ -6,6 +6,9 @@ use think\Db;
 
 class VendorInfo extends Model
 {
+    public function __construct(){
+        parent::__construct('vendor');
+    }
     /**
      * 删除缓存自营店铺的ID
      */
@@ -54,7 +57,7 @@ class VendorInfo extends Model
      * @return array
      */
     public function getStoreList($condition, $page = null, $order = 'store_time desc', $field = '*', $limit = '') {
-        $result = $this->field($field)->where($condition)->order($order)->limit($limit)->page($page)->select();
+        $result = DB::table("bbc_vendor")->field($field)->where($condition)->order($order)->limit($limit)->page($page)->select();
         return $result;
     }
 
@@ -156,7 +159,7 @@ class VendorInfo extends Model
         $store_info = rcache($vid, 'store_info');
         if(empty($store_info)) {
             $store_info = $this->getStoreInfo(array('vid' => $vid));
-            wmemcache($vid, $store_info, 'store_info');
+            //wmemcache($vid, $store_info, 'store_info');
         }
 
 

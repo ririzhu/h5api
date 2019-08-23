@@ -12,6 +12,111 @@
 // +----------------------------------------------------------------------
 // | 应用设置
 // +----------------------------------------------------------------------
+$source = '';//$_SERVER['HTTP_HOST'];   //判断是否是http或者https
+$http_source = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')) ? 'https://' : 'http://';
+$url = $http_source.$source;
+//获取动态二级域名--end
+$config = array();
+$config['mall_url'] = $url; //用于生产动态URL
+//配置一个主域名，当二级域名不允许的情况下直接跳转主域名
+$config['main_url_main'] = 'hyz.com';//'hyshop.55jimu.com';//商城主域名
+$config['main_url'] = $http_source . $config['main_url_main'];//商城主域名
+$config['mall_site_url'] = $url . '/mall';
+$config['base_site_url'] = $url . '/mall';
+$config['base_vendor_url'] = $url . '/vendor';
+$config['base_dian_url'] = $url . '/dian';
+$config['sns_site_url'] = $url . '/sns';
+$config['admin_site_url'] = $url . '/SystemManage';
+$config['mobile_site_url'] = $url . '/cmobile';
+$config['wap_site_url'] = $url . '/cwap';
+$config['upload_site_url'] = $url . '/data/upload';
+$config['static_site_url'] = $url . '/static';
+$config['version'] = '2016.08.01-V8.0.0';
+$config['setup_date'] = '2016-08-01 21:18:47';
+$config['gip'] = 0;
+$config['dbdriver'] = 'mysqli';
+$config['tablepre'] = 'bbc_';
+$config['db'][1]['dbhost'] = '127.0.0.1';
+$config['db'][1]['dbport'] = '3306';
+$config['db'][1]['dbuser'] = 'root';
+$config['db'][1]['dbpwd'] = '54709488';//'2012586';
+$config['db'][1]['dbname'] = 'projekt';//'sld_hyshop';
+$config['db'][1]['dbcharset'] = 'UTF-8';
+$config['db']['slave'] = array();
+$config['session_expire'] = 3600;
+$config['lang_type'] = 'zh_cn';
+$config['cookie_pre'] = '0D59_';
+$config['tpl_name'] = 'default';
+$config['thumb']['cut_type'] = 'gd';
+$config['thumb']['impath'] = '';
+//$config['cache']['type'] = 'file';
+//$config['cache_open'] = true;
+$config['cache']['type'] = 'file';
+//$config['redis']['prefix']        = 'sld_';
+//$config['redis']['master']['port']        = 6379;
+//$config['redis']['master']['host']        = '127.0.0.1';
+//$config['redis']['master']['pconnect']    = 0;
+//$config['redis']['slave']             = array();
+$config['debug'] = false;
+$config['default_store_id'] = '1';
+// 是否开启伪静态
+$config['url_model'] = false;
+// 二级域名后缀
+$config['subdomain_suffix'] = '';
+
+
+//是否开启404_debug  调试功能
+$config['debug_404'] = false;
+$config['dian'] = false;  //门店开关
+$config['distribution'] = true;  //是否开启分销
+$config['sld_city_site'] = false;//是否开启城市分站
+$config['sld_supplier_isuse'] = false;// 是否开启 批发中心
+$config['sld_xcx'] = true;// 是否开启 微信小程序功能
+$config['sld_is_wap'] = true;// 是否有微商城，有的话会有微信公众号的配置
+$config['sld_is_collection'] = false;// 是否开启采集商品功能
+$config['member_grade_open'] = false;//会员等级折扣
+$config['collection_cct_system'] = false;//采集评论开关
+$config['pc_system_open'] = true;//pc端是否禁用
+
+//更新商品二维码
+$config['is_update_qr'] = true;
+
+// addons
+$config['sld_spreader'] = false;//是否开启推手系统
+$config['spreader_wap_site_url'] = $url . '/ts';
+$config['sld_cashersystem'] = false;//是否开启收银系统
+$config['sld_pintuan'] = false;// 是否拼团的功能
+$config['sld_pintuan_ladder'] = false;//是否开启阶梯拼团
+$config['sld_presale_system'] = true;// 是否预售的功能
+$config['points_wap_site_url'] = $url . '/points';
+$config['sld_red'] = true;// 是否开启优惠券功能
+$config['sld_ldjsystem'] = false;//是否开启联到家系统
+
+
+/*********************七牛和OSS只能开启一个***************************/
+$config['sld_oss_open'] = 0;// 是否有使用oss
+$config['sld_oss_pre'] = '';// 是否有使用oss
+
+
+$config['sld_qiniu_open'] = 0; //是否启用七牛云存储
+$config['bucket'] = 'www-slodon-cn'; //七牛云存储桶
+$config['accessKey'] = 'YI4n8HNWkyRxt8lA_5n_-ZIp4CBnd6ZR6xckTxNK'; //七牛云存储桶
+$config['secretKey'] = '1gRffxkgdcI3uL_8fdl0KmVGRJFm2qqq70zrnCjH'; //七牛云存储桶
+/******************************************************************/
+
+//聊天系统配置
+$config['service_url'] = 'http://newim.55jimu.com/';//聊天系统访问地址
+$config['service_wsHost'] = 'newim.55jimu.com';//后面不可以带/
+$config['service_port'] = '9090';//配置端口，要跟安装聊天系统的端口一致
+$config['service_appid'] = 'b054014693241bcd9c20';//无需修改
+
+$config['service_dbname'] = 'new_im2';//聊天系统数据库名
+
+//推送配置
+$config['jpush_open'] = true;
+$config['jpush_appkey'] = 'b660716da4a05e0dc4c4904e';
+$config['jpush_secret'] = 'e20e956981b0dca619a73f70';
+define('BASE_ROOT_PATH',str_replace('\\','/',dirname(__FILE__)));
 define('TIMESTAMP',time());
 define('DS','/');
 define('DYMall',true);
@@ -135,6 +240,60 @@ define('OSS_KEY', '1nK6SnnIQZkSrfiNSmLHu2Hw0wlFcA');
 define('OSS_HOST', 'http://oss-cn-beijing.aliyuncs.com');
 define('OSS_HOST_FULL', 'http://sld-huanyun.oss-cn-beijing.aliyuncs.com');
 define('OSS_BACKET', 'sld-huanyun');
+
+
+//if((APP_ID == 'mall' || APP_ID == 'mobile')){
+    $config['lang_type'] = "zh";
+//}
+define('DEFAULT_PLATFORM_STORE_ID', $config['default_store_id']);
+
+define('URL_MODEL',$config['url_model']);
+define('SUBDOMAIN_SUFFIX', $config['subdomain_suffix']);
+define('MALL_URL',$config['mall_url']);
+define('BASE_SITE_URL', $config['base_site_url']);
+define('MALL_SITE_URL', $config['mall_site_url']);
+define('TPL_SHOP_NAME',$config['tpl_name']);//前台展示的模板
+define('BASE_VENDOR_URL', $config['base_vendor_url']);
+define('BASE_DIAN_URL', $config['base_dian_url']);
+define('CMS_SITE_URL', '');
+define('SNS_SITE_URL', $config['sns_site_url']);
+define('WXSHOP_SITE_URL', '');
+define('ADMIN_SITE_URL', $config['admin_site_url']);
+define('MOBILE_SITE_URL', $config['mobile_site_url']);
+define('WAP_SITE_URL', $config['wap_site_url']);
+define('STATIC_SITE_URL',$config['static_site_url']);
+define('LOGIN_SITE_URL', $config['base_site_url']);
+
+define('BASE_NEW_SHOP_PATH',BASE_ROOT_PATH.'/shop');//shop目录
+define('BASE_DATA_PATH',BASE_ROOT_PATH.'/data');
+define('BASE_LIBRARY_PATH',BASE_ROOT_PATH.'/library');
+define('BASE_STATIC_PATH',BASE_ROOT_PATH.'/static');//根目录下面的static
+//define('STATIC_SITE_URL',$config['static_site_url']);//根目录下面的
+define('BASE_UPLOAD_PATH',BASE_DATA_PATH.'/upload');
+define('BASE_RESOURCE_PATH',BASE_DATA_PATH.'/resource');
+//define('BASE_RESOURCE_PATH',BASE_STATIC_PATH.'/resource');
+define('BASE_WAP_PATH',BASE_ROOT_PATH.'/cwap');
+define('NODE_SITE_URL','');
+define('CHAT_SITE_URL','');
+define('WEBIM_SITE_URL','');
+define('WEBIM_SOCKET','');
+define('CHARSET','');
+define('DBDRIVER',$config['dbdriver']);
+define('SESSION_EXPIRE',$config['session_expire']);
+define('LANG_TYPE',$config['lang_type']);
+define('COOKIE_PRE',$config['cookie_pre']);
+// define('XCX_APPID',$config['xcx_appid']);//微信小程序的appid
+// define('XCX_SECRET',$config['xcx_secret']);//微信小程序的secret
+// define('GZH_APPID',$config['gzh_appid']);//微信公众号的appid
+// define('GZH_SECRET',$config['gzh_secret']);//微信公众号的secret
+
+
+define('QINIU_BUCKET', $config['bucket']);
+define('QINIU_ACCESSKEY', $config['accessKey']);
+define('QINIU_SECRETKEY', $config['secretKey']);
+
+define('DBPRE',($config['db'][1]['dbname']).'`.`'.($config['tablepre']));
+
 return [
     // 应用名称
     'app_name'               => '',

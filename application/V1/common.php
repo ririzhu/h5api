@@ -5,6 +5,7 @@
  *
  * @return string 字符串类型的返回结果
  */
+
 function getIp()
 {
     if (@$_SERVER['HTTP_CLIENT_IP'] && $_SERVER['HTTP_CLIENT_IP'] != 'unknown') {
@@ -81,4 +82,55 @@ function cthumb($file, $type = '', $vid = false) {
     }
     $thumb_host = UPLOAD_SITE_URL . '/' . ATTACH_GOODS;
     return $thumb_host . '/' . $vid . '/' . ($type == '' ? $file : str_ireplace('.', '_' . $type . '.', $file));
+}
+/**
+ * KV缓存 读
+ *
+ * @param string $key 缓存名称
+ * @param boolean $callback 缓存读取失败时是否使用回调 true代表使用cache.model中预定义的缓存项 默认不使用回调
+ * @param callable $callback 传递非boolean值时 通过is_callable进行判断 失败抛出异常 成功则将$key作为参数进行回调
+ * @return mixed
+ */
+function rkcache($key, $callback = false)
+{
+
+    if (Config('cache_open')) {
+        $cacher = Cache::getInstance(Config('cache.type'));
+    } else {
+        $cacher = Cache::getInstance("cache", true);
+    }
+    if (!$cacher) {
+        throw new Exception('Cannot fetch cache object!');
+    }
+
+    $value = $cacher->get($key);
+    if (($value === false || empty($value)) && $callback !== false) {
+        if ($callback === true) {
+            $callback = array(Model('cache'), 'call');
+        }
+        if (!is_callable($callback)) {
+            throw new Exception('Invalid rkcache callback!');
+        }
+        $value = call_user_func($callback, $key);
+        wkcache($key, $value);
+    }
+    return $value;
+}
+/**
+ * KV缓存 删
+ *
+ * @param string $key 缓存名称
+ * @return boolean
+ */
+function dkcache($key)
+{
+    if (C('cache_open')) {
+        $cacher = Cache::getInstance(C('cache.type'));
+    } else {
+        $cacher = Cache::getInstance(C('cache.type'), null);
+    }
+    if (!$cacher) {
+        throw new Exception('Cannot fetch cache object!');
+    }
+    return $cacher->rm($key);
 }
