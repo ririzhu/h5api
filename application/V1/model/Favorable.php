@@ -107,12 +107,11 @@ class Favorable extends Model
         $condition = array();
         $condition['state'] = self::MANSONG_STATE_NORMAL;
         $condition['vid'] = $vid;
-        $condition['start_time'] = array('lt', TIMESTAMP);
-        $condition['end_time'] = array('gt', TIMESTAMP);
+        //$condition['start_time'] = array('lt', TIMESTAMP);
+        //$condition['end_time'] = array('gt', TIMESTAMP);
         $mansong_list = $this->getMansongList($condition, null, 'start_time asc');
         if(isset($mansong_list[0]))
         $mansong_info = $mansong_list[0];
-
         if(empty($mansong_info)) {
             return null;
         }

@@ -2,7 +2,7 @@
 namespace app\V1\model;
 
 use think\Model;
-
+use think\db;
 class GoodsActivity extends Model
 {
     public function __construct(){
@@ -27,7 +27,6 @@ class GoodsActivity extends Model
             // 单个商品
             $goods_item = $goods_data;
             $goods_item_id = $goods_data['gid'];
-
             //活动标识
             if(in_array($goods_item_id,$keys)){
                 if(empty($activity_g[$goods_item_id]['end_time']) && $activity_g[$goods_item_id]['promotion_type']=='p_mbuy'){
@@ -54,7 +53,7 @@ class GoodsActivity extends Model
 
                         // 获取限时折扣 购买下限 (根据商品ID 获取 所在限时折扣活动 的购买下限限制)
                         $xianshi_condition['gid'] = $activity_g[$goods_item_id]['gid'];
-                        $xianshi_detail = Model()->table('bbc_p_xianshi_goods')->where($xianshi_condition)->find();
+                        $xianshi_detail = DB::table('bbc_p_xianshi_goods')->where($xianshi_condition)->find();
                         if (!empty($xianshi_detail['lower_limit'])) {
                             $xianshi_low_limit = $xianshi_detail['lower_limit'];
                         }else{
@@ -92,7 +91,7 @@ class GoodsActivity extends Model
 
                         if ($activity_g[$goods_item_id]['start_time'] <= time() && $activity_g[$goods_item_id]['end_time'] >= time()) {
                             // 获取 团购商品详细数据
-                            $model_tuan = Model('tuan');
+                            $model_tuan = new Tuan();
                             $tuanCondition['gid'] = $activity_g[$goods_item_id]['gid'];
                             $tuan_goods_info = $model_tuan->getTuanOnlineInfo($tuanCondition);
 
@@ -108,7 +107,7 @@ class GoodsActivity extends Model
 
                         }else{
                             $goods_item['promotion_type'] = 'none';
-                            unset($goods_item['show_price']);
+                            //unset($goods_item['show_price']);
                         }
                     }else if($activity_g[$goods_item_id]['promotion_type'] == 'pin_tuan' && !empty($activity_g[$goods_item_id]['start_time']) && !empty($activity_g[$goods_item_id]['end_time']) ){
                         $goods_item['promotion_start_time']=date('Y/m/d H:i:s',$activity_g[$goods_item_id]['start_time']);
@@ -125,10 +124,12 @@ class GoodsActivity extends Model
 
             switch ($from) {
                 case 'pc':
+                    if(isset($goods_item['show_price']))
                     $goods_item['show_price'] = $goods_item['show_price'] ? $goods_item['show_price'] : sldPriceFormat($goods_item['goods_price']);
                     break;
 
                 default:
+                    if(isset($goods_item['show_price']))
                     $goods_item['show_price'] = $goods_item['show_price'] ? $goods_item['show_price'] : $goods_item['goods_price']*1;
                     break;
             }

@@ -237,7 +237,7 @@ class Pxianshigoods extends Model
         $condition['end_time']=array('gt', TIMESTAMP);
         $condition['state']=1;
 
-        $xianshi_goods_list = $this->field($field)->where($condition)->order($order)->limit($limit)->select();
+        $xianshi_goods_list = DB::table("bbc_p_xianshi_goods")->field($field)->where($condition)->order($order)->limit($limit)->select();
 
         if(!empty($xianshi_goods_list)) {
             for($i=0, $j=count($xianshi_goods_list); $i < $j; $i++) {

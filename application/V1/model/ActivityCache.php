@@ -1,6 +1,7 @@
 <?php
 namespace app\V1\model;
 
+use app\V1\controller\Base;
 use think\Model;
 
 class ActivityCache extends Model
@@ -232,7 +233,7 @@ class ActivityCache extends Model
         if (in_array('tuan', $need_activity_arr)) {
             $cache_time['tuan'] = $cache_time_model->getNewCacheTime('tuan');
 
-            /*$tuan_gid = rkcache('tuan_gid',true);
+            $tuan_gid = Base::rkcache('tuan_gid',true);
             $tuan_key_gid = array();
 
             // 校验 获取文件时间 是否与 服务器最新时间一样
@@ -240,8 +241,8 @@ class ActivityCache extends Model
                 unset($tuan_gid['create_time']);
                 $tuan_gid = $tuan_gid['data'];
             }else{
-                dkcache('tuan_gid');
-                $tuan_gid = rkcache('tuan_gid',true);
+                Base::dkcache('tuan_gid');
+                $tuan_gid = Base::rkcache('tuan_gid',true);
                 unset($tuan_gid['create_time']);
                 $tuan_gid = $tuan_gid['data'];
             }
@@ -250,12 +251,12 @@ class ActivityCache extends Model
                 $tuan_gid = array();
             }else{
                 $result = array_merge($result, $tuan_gid);
-            }*/
+            }
         }
         if (in_array('xianshi', $need_activity_arr)) {
             $cache_time['xianshi'] = $cache_time_model->getNewCacheTime('xianshi');
 
-            /*$xianshi_gid = rkcache('xianshi_gid',true);
+            $xianshi_gid = Base::rkcache('xianshi_gid',true);
             $xianshi_key_gid = array();
 
             // 校验 获取文件时间 是否与 服务器最新时间一样
@@ -263,8 +264,8 @@ class ActivityCache extends Model
                 unset($xianshi_gid['create_time']);
                 $xianshi_gid = $xianshi_gid['data'];
             }else{
-                dkcache('xianshi_gid');
-                $xianshi_gid = rkcache('xianshi_gid',true);
+                Base::dkcache('xianshi_gid');
+                $xianshi_gid = Base::rkcache('xianshi_gid',true);
                 unset($xianshi_gid['create_time']);
                 $xianshi_gid = $xianshi_gid['data'];
             }
@@ -273,12 +274,12 @@ class ActivityCache extends Model
                 $xianshi_gid = array();
             }else{
                 $result = array_merge($result, $xianshi_gid);
-            }*/
+            }
         }
         if (in_array('p_mbuy', $need_activity_arr)) {
             $cache_time['p_mbuy'] = $cache_time_model->getNewCacheTime('p_mbuy');
 
-            /*$p_mbuy_gid = rkcache('p_mbuy_gid',true);
+            $p_mbuy_gid = Base::rkcache('p_mbuy_gid',true);
             $p_mbuy_key_gid = array();
 
             // 校验 获取文件时间 是否与 服务器最新时间一样
@@ -286,8 +287,8 @@ class ActivityCache extends Model
                 unset($p_mbuy_gid['create_time']);
                 $p_mbuy_gid = $p_mbuy_gid['data'];
             }else{
-                dkcache('p_mbuy_gid');
-                $p_mbuy_gid = rkcache('p_mbuy_gid',true);
+                Base::dkcache('p_mbuy_gid');
+                $p_mbuy_gid = Base::rkcache('p_mbuy_gid',true);
                 unset($p_mbuy_gid['create_time']);
                 $p_mbuy_gid = $p_mbuy_gid['data'];
             }
@@ -296,12 +297,12 @@ class ActivityCache extends Model
                 $p_mbuy_gid = array();
             }else{
                 $result = array_merge($result, $p_mbuy_gid);
-            }*/
+            }
         }
         if (in_array('pin_tuan', $need_activity_arr)) {
-            $cache_time['pin_tuan'] = $cache_time_model->getNewCacheTime('pin_tuan');
+            /*$cache_time['pin_tuan'] = $cache_time_model->getNewCacheTime('pin_tuan');
 
-            /*$pin_tuan_gid = rkcache('pin_tuan_gid',true);
+            $pin_tuan_gid = Base::rkcache('pin_tuan_gid',true);
 
             $pin_tuan_key_gid = array();
 
@@ -310,8 +311,8 @@ class ActivityCache extends Model
                 unset($pin_tuan_gid['create_time']);
                 $pin_tuan_gid = $pin_tuan_gid['data'];
             }else{
-                dkcache('pin_tuan_gid');
-                $pin_tuan_gid = rkcache('pin_tuan_gid',true);
+                Base::dkcache('pin_tuan_gid');
+                $pin_tuan_gid = Base::rkcache('pin_tuan_gid',true);
                 unset($pin_tuan_gid['create_time']);
                 $pin_tuan_gid = $pin_tuan_gid['data'];
             }
@@ -325,15 +326,15 @@ class ActivityCache extends Model
         //阶梯拼团
         if (in_array('pin_ladder_tuan', $need_activity_arr)) {
             $cache_time['pin_tuan'] = $cache_time_model->getNewCacheTime('pin_ladder_tuan');
-            /*$pin_tuan_gid = rkcache('pin_ladder_tuan_gid',true);
+            $pin_tuan_gid = Base::rkcache('pin_ladder_tuan_gid',true);
             $pin_tuan_key_gid = array();
             // 校验 获取文件时间 是否与 服务器最新时间一样
             if(isset($pin_tuan_gid['create_time']) && $pin_tuan_gid['create_time'] == $cache_time['pin_tuan']){
                 unset($pin_tuan_gid['create_time']);
                 $pin_tuan_gid = $pin_tuan_gid['data'];
             }else{
-                dkcache('pin_ladder_tuan_gid');
-                $pin_tuan_gid = rkcache('pin_ladder_tuan_gid',true);
+                Base::dkcache('pin_ladder_tuan_gid');
+                $pin_tuan_gid = Base::rkcache('pin_ladder_tuan_gid',true);
                 unset($pin_tuan_gid['create_time']);
                 $pin_tuan_gid = $pin_tuan_gid['data'];
             }
@@ -341,20 +342,20 @@ class ActivityCache extends Model
                 $pin_tuan_gid = array();
             }else{
                 $result = array_merge($result, $pin_tuan_gid);
-            }*/
+            }
         }
         //预售活动
-        if (in_array('sld_presale', $need_activity_arr)) {
+        /*if (in_array('sld_presale', $need_activity_arr)) {
             $cache_time['presale'] = $cache_time_model->getNewCacheTime('sld_presale');
-            /*$pin_tuan_gid = rkcache('sld_presale',true);
+            $pin_tuan_gid = Base::rkcache('sld_presale',true);
             $pin_tuan_key_gid = array();
             // 校验 获取文件时间 是否与 服务器最新时间一样
             if(isset($pin_tuan_gid['create_time']) && $pin_tuan_gid['create_time'] == $cache_time['presale']){
                 unset($pin_tuan_gid['create_time']);
                 $pin_tuan_gid = $pin_tuan_gid['data'];
             }else{
-                dkcache('sld_presale');
-                $pin_tuan_gid = rkcache('sld_presale',true);
+                Base::dkcache('sld_presale');
+                $pin_tuan_gid = Base::rkcache('sld_presale',true);
                 unset($pin_tuan_gid['create_time']);
                 $pin_tuan_gid = $pin_tuan_gid['data'];
             }
@@ -362,8 +363,8 @@ class ActivityCache extends Model
                 $pin_tuan_gid = array();
             }else{
                 $result = array_merge($result, $pin_tuan_gid);
-            }*/
-        }
+            }
+        }*/
         $new_arr = array();
         foreach ($result as $key => $value) {
             $nums = count($value);
@@ -383,7 +384,8 @@ class ActivityCache extends Model
         }
         if (in_array('bl', $need_activity_arr)) {
             // 获取所有优惠套装的 商品ID
-            $goods_data = Model('p_bundling')->getBundlingGoodsList(1);
+            $pbModel = new Pbundling();
+            $goods_data = $pbModel->getBundlingGoodsList(1);
             // $bl_gid = low_array_column($goods_data,'gid');
 
             $bl_gid = array();
@@ -399,7 +401,8 @@ class ActivityCache extends Model
         }
         if (in_array('suite', $need_activity_arr)) {
             // 获取所有产品组合的 商品ID
-            $goods_data = Model('p_suite_goods')->getComboGoodsList(1);
+            $suiteModel = new SuiteGoods();
+            $goods_data = $suiteModel->getComboGoodsList(1);
             // $suite_gid = low_array_column($goods_data,'combo_goodsid');
 
             $suite_gid = array();

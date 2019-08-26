@@ -2,7 +2,7 @@
 namespace app\V1\model;
 
 use think\Model;
-
+use think\db;
 class FavorableRule extends Model
 {
     public function __construct(){
@@ -21,7 +21,7 @@ class FavorableRule extends Model
     public function getMansongRuleListByID($mansong_id) {
         $condition = array();
         $condition['mansong_id'] = $mansong_id;
-        $mansong_rule_list = $this->where($condition)->order('price desc')->select();
+        $mansong_rule_list = DB::table("bbc_p_mansong_rule")->where($condition)->order('price desc')->select();
         if(!empty($mansong_rule_list)) {
             $model_goods = new Goods();
 

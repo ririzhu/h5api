@@ -2,7 +2,7 @@
 namespace app\V1\model;
 
 use think\Model;
-
+use think\db;
 class Goods extends Model
 {
     public function __construct(){
@@ -507,7 +507,7 @@ class Goods extends Model
     public function getGoodsOnlineInfo($condition, $field = '*') {
         $condition['goods_state']   = self::STATE1;
         $condition['goods_verify']  = self::VERIFY1;
-        $goods_info =  $this->table('goods')->field($field)->where($condition)->find();
+        $goods_info =  DB::table('bbc_goods')->field($field)->where($condition)->find();
 
 
         return $goods_info;

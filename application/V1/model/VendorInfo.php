@@ -97,7 +97,7 @@ class VendorInfo extends Model
             $ids .=$v .",";
         }
         $ids = substr($ids,0,strlen($ids)-1);
-        $store_list = DB::table('bbc_vendor')->where(array('vid'=> array('in', $ids)))->field('vid,member_id,store_domain')->select();
+        $store_list = DB::table('bbc_vendor')->where("vid in ($ids)")->field('vid,member_id,store_domain')->select();
         return json_encode($store_list,true);
     }
 

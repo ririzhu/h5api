@@ -342,7 +342,7 @@ class UserCart extends Model
      * @param	array	$param 商品信息
      */
     public function editCart($data,$condition) {
-        $result	= $this->where($condition)->update($data);
+        $result	= DB::table("bbc_cart")->where($condition)->update($data);
         if ($result) {
             $this->getCartNum('db',array('buyer_id'=>$condition['buyer_id']));
         }
@@ -384,15 +384,15 @@ class UserCart extends Model
         $condition['sld_is_supplier'] = isset($condition['is_supplier']) ? $condition['is_supplier'] : 0;
         unset($condition['is_supplier']);
         if ($type == 'db') {
-            $result =  $this->where($condition)->delete();
+            $result =  DB::table("bbc_cart")->where($condition)->delete();
         } elseif ($type == 'cache') {
-            $obj_cache = Cache::getInstance(C('cache.type'));
+            $obj_cache = Cache::getInstance(Config('cache.type'));
             $cart_array = $obj_cache->get($_COOKIE['PHPSESSID'],'cart_');
             $cart_array = @unserialize($cart_array);
             if (!is_array($cart_array)) return true;
             if (key_exists($condition['gid'],$cart_array)) {
                 unset($cart_array[$condition['gid']]);
-                $obj_cache = Cache::getInstance(C('cache.type'));
+                $obj_cache = Cache::getInstance(Config('cache.type'));
                 $obj_cache->set($_COOKIE['PHPSESSID'], serialize($cart_array), 'cart_', 24*3600);
                 $result = true;
             }
@@ -403,7 +403,6 @@ class UserCart extends Model
             if (key_exists($condition['gid'],(array)$cart_array)) {
                 unset($cart_array[$condition['gid']]);
             }
-            setBbcCookie('cart',encrypt(base64_encode(serialize($cart_array))),24*3600);
             $result = true;
         }
         //重新计算购物车商品数和总金额
@@ -452,7 +451,7 @@ class UserCart extends Model
             $this->cart_all_price = sldPriceFormat($cart_all_price);
 
         } elseif ($type == 'cache') {
-            $obj_cache = Cache::getInstance(C('cache.type'));
+            $obj_cache = Cache::getInstance(Config('cache.type'));
             $cart_array = $obj_cache->get($_COOKIE['PHPSESSID'],'cart_');
             $cart_array = @unserialize($cart_array);
             $cart_array = !is_array($cart_array) ? array() : $cart_array;
@@ -477,7 +476,6 @@ class UserCart extends Model
             }
             $this->cart_all_price = $cart_all_price;
         }
-        setBbcCookie('cart_goods_num',$this->cart_goods_num,2*3600);
         return $this->cart_goods_num;
     }
 
@@ -488,9 +486,10 @@ class UserCart extends Model
      * @return array,如果该商品未正在进行限时折扣，返回空数组
      */
     public function getXianshiInfo($buy_goods_info, $quantity) {
-        if (!C('promotion_allow') || empty($buy_goods_info) || !is_array($buy_goods_info)) return $buy_goods_info;
+        if (!Config('promotion_allow') || empty($buy_goods_info) || !is_array($buy_goods_info)) return $buy_goods_info;
         //定义返回数组
-        $xianshi_info = Model('p_xianshi_goods')->getXianshiGoodsInfoByGoodsID($buy_goods_info['gid']);
+        $PModel = new Pxianshigoods();
+        $xianshi_info = $PModel->getXianshiGoodsInfoByGoodsID($buy_goods_info['gid']);
         if (!empty($xianshi_info)) {
             if ($quantity >= $xianshi_info['lower_limit']) {
                 $buy_goods_info['goods_price'] = $xianshi_info['xianshi_price'];
@@ -508,8 +507,9 @@ class UserCart extends Model
      */
     public function getTuanInfo($buy_goods_info = array()) {
 //	    print_r($buy_goods_info);die;
-        if (!C('tuan_allow') || empty($buy_goods_info) || !is_array($buy_goods_info)) return $buy_goods_info;
-        $tuan_info = Model('tuan')->getTuanInfoByGoodsCommonID($buy_goods_info['goods_commonid']);
+        if (!Config('tuan_allow') || empty($buy_goods_info) || !is_array($buy_goods_info)) return $buy_goods_info;
+        $tuan = new Tuan();
+        $tuan_info = $tuan->getTuanInfoByGoodsCommonID($buy_goods_info['goods_commonid']);
 //        print_r($tuan_info);die;
         if (!empty($tuan_info)) {
             $buy_goods_info['goods_price'] = $tuan_info['tuan_price'];
