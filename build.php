@@ -17,15 +17,15 @@ return [
     'V1'     => [
         '__file__'   => ['common.php'],
         '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order','Goods','Store','Vendor'],
-        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache','MBuy'],
+        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order','Goods','Store','Vendor','Buy'],
+        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache','MBuy','Stats','UserBuy'],
         'view'       => ['index/index'],
     ],
     'V2'     => [
         '__file__'   => ['common.php'],
         '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order','Goods','Store','Vendor'],
-        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache',"MBuy"],
+        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order','Goods','Store','Vendor','Buy'],
+        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache',"MBuy","Stats",'UserBuy'],
         'view'       => ['index/index'],
     ],
 

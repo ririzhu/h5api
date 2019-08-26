@@ -73,8 +73,8 @@ class UserCart extends Model
     private function _addCartDb($goods_info = array(),$quantity) {
         //验证购物车商品是否已经存在
         $condition = array();
-//	    $condition['gid'] = $goods_info['gid'];
-        $condition['goods_commonid'] = $goods_info['goods_commonid'];
+	    $condition['gid'] = $goods_info['gid'];
+        //$condition['goods_commonid'] = $goods_info['goods_commonid'];
         $condition['buyer_id'] = $goods_info['buyer_id'];
         if (isset($goods_info['bl_id'])) {
             $condition['bl_id'] = $goods_info['bl_id'];
@@ -85,7 +85,7 @@ class UserCart extends Model
 
         // 阶梯价格
         $now_price = 0;
-        if ($goods_info['sld_ladder_price']) {
+        if (isset($goods_info['sld_ladder_price'])) {
             $sld_ladder_price = unserialize($goods_info['sld_ladder_price']);
             ksort($sld_ladder_price);
             // 计算单价
@@ -124,7 +124,7 @@ class UserCart extends Model
 
         if (!empty($check_cart)){
 
-            if ($check_cart['sld_is_supplier']) {
+            if (isset($check_cart['sld_is_supplier'])) {
                 $old_spec_num = unserialize($check_cart['spec_num']);
                 $old_num=$check_cart['goods_num'];
                 $new_num = $old_num+array_sum($quantity);
@@ -164,6 +164,7 @@ class UserCart extends Model
                 $new_spec_num = serialize($new_spec_num);
                 return $this->editCart(array('goods_num'=>$new_num,'goods_price'=>$now_price,'spec_num'=>$new_spec_num),array('buyer_id'=>$goods_info['buyer_id'],'gid'=>$goods_info['gid']));
             }else{
+                if(isset($check_cart['goods_num']))
                 $old_num=$check_cart['goods_num'];
 //                if($goods_info['course_type']==2){
 //                    $new_num=1;
@@ -175,7 +176,7 @@ class UserCart extends Model
 
                 //执行修改购物车数量操作
                 //检测购物车是否超过库存
-                $goods_storage = model()->table('goods')->where(['gid'=>$goods_info['gid']])->field('goods_storage')->find();
+                $goods_storage = db::table('bbc_goods')->where(['gid'=>$goods_info['gid']])->field('goods_storage')->find();
 
 
                 if($goods_storage['goods_storage'] < $new_num){
@@ -183,7 +184,11 @@ class UserCart extends Model
                 }
 
                 //执行修改购物车列表的数量操作
-                return $this->editCart(array('goods_num'=>$new_num,'goods_price'=>$goods_info['goods_price'],'gid'=>$goods_info['gid']),array('buyer_id'=>$goods_info['buyer_id'],'goods_commonid'=>$goods_info['goods_commonid']));
+                if(isset($goods_info['goods_commonid'])){
+                    return $this->editCart(array('goods_num'=>$new_num,'goods_price'=>$goods_info['goods_price'],'gid'=>$goods_info['gid']),array('buyer_id'=>$goods_info['buyer_id'],'goods_commonid'=>$goods_info['goods_commonid']));
+                }else {
+                    return $this->editCart(array('goods_num' => $new_num, 'goods_price' => $goods_info['goods_price'], 'gid' => $goods_info['gid']), array('buyer_id' => $goods_info['buyer_id']));
+                }
             }
         }
 
@@ -192,14 +197,23 @@ class UserCart extends Model
         $array['vid']	= $goods_info['vid'];
         $array['gid']	= $goods_info['gid'];
         $array['goods_name'] = $goods_info['goods_name'];
+        if(isset($goods_info['sld_ladder_price']))
         $array['goods_price'] = $goods_info['sld_ladder_price'] ? $now_price : $goods_info['goods_price'];
+        else
+            $array['goods_price'] = $now_price ? $now_price : $goods_info['goods_price'];
         $array['goods_num']   = (is_array($quantity) && !empty($quantity)) ? array_sum($quantity) : $quantity ;
         $array['goods_image'] = $goods_info['goods_image'];
         $array['store_name'] = $goods_info['store_name'];
         $array['sld_is_supplier'] = (isset($goods_info['goods_type']) && $goods_info['goods_type'] == 1) ? 1 : 0;
+        if(isset($goods_info['goods_commonid']))
         $array['goods_commonid'] = $goods_info['goods_commonid'];
+        else
+            $array['goods_commonid'] = 0;
         // 批发商品处理
+        if(isset($goods_info['goods_spec']))
         $goods_spec = unserialize($goods_info['goods_spec']) ? unserialize($goods_info['goods_spec']) : array();
+        else
+            $goods_spec = array();
         if(is_array($goods_spec) && !empty($goods_spec)){
             $array['has_spec'] =1;
         }else{
@@ -207,7 +221,7 @@ class UserCart extends Model
         }
         $array['spec_num'] = (is_array($quantity) && !empty($quantity)) ? serialize($quantity) : '' ;
         $array['bl_id'] = isset($goods_info['bl_id']) ? $goods_info['bl_id'] : 0;
-        return $this->insert($array);
+        return DB::table("bbc_cart")->insert($array);
     }
 
     /**
@@ -736,7 +750,9 @@ class UserCart extends Model
                 $cart_list[$key]['is_free'] = $goods_online_info['is_free'];
                 $cart_list[$key]['course_type'] = $goods_online_info['course_type'];
                 //会员等级折扣
-                $cart_list[$key]['grade_discount'] = $goods_online_info['grade_discount'];
+                if(isset($goods_online_info['grade_discount'])) {
+                    $cart_list[$key]['grade_discount'] = $goods_online_info['grade_discount'];
+                }
                 $cart_list[$key]['goods_storage_alarm'] = $goods_online_info['goods_storage_alarm'];
                 // 批发商品 多规格 处理
                 if ($goods_online_info['goods_type'] == 1) {
@@ -1005,10 +1021,13 @@ class UserCart extends Model
 
             //取最新在售商品信息
             $goods_id_array = array();
+            $ids = "";
             foreach ($cart_list[$key]['bl_goods_list'] as $goods_info) {
                 $goods_id_array[] = $goods_info['gid'];
+                $ids .=$goods_info['gid'].",";
             }
-            $goods_list = $model_goods->getGoodsOnlineList(array('gid'=>array(in,$goods_id_array)));
+            $ids = substr($ids,0,strlen($ids) - 1);
+            $goods_list = $model_goods->getGoodsOnlineList(array('gid'=>array("in",$ids)));
             $goods_online_list = array();
             foreach ($goods_list as $goods_info) {
                 $goods_online_list[$goods_info['gid']] = $goods_info;

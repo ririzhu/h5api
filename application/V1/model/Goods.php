@@ -50,8 +50,10 @@ class Goods extends Model
      * @return array 二维数组
      */
     public function getGoodsList($condition, $field = '*', $group = '',$order = '', $limit = 0, $page = 0, $lock = false, $count = 0) {
-        $condition = $this->_getRecursiveClass($condition);
-        $result = $this->table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
+        //$condition = $this->_getRecursiveClass($condition);
+        $result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
+       // echo DB::table("bbc_goods")->getLastSql();
+
         return $result;
     }
 
@@ -148,11 +150,11 @@ class Goods extends Model
      * @param boolean $lock 是否锁定
      * @return array
      */
-    public function getGoodsOnlineList($condition, $field = '*', $page = 0, $order = 'gid desc', $limit = 0, $group = '', $lock = false, $count = 0) {
+    public function getGoodsOnlineList($condition, $field = '*', $page = 0, $order = 'gid desc', $limit = 50, $group = '', $lock = false, $count = 0) {
         $condition['goods_state']   = self::STATE1;
         $condition['goods_verify']  = self::VERIFY1;
         //if(APP_ID=='mall' || APP_ID=='cmobile'){
-            $condition['sites'] = ['exp',"FIND_IN_SET('".LANG_TYPE."',sites)"];
+         //   $condition['sites'] = ['exp',"FIND_IN_SET('".LANG_TYPE."',sites)"];
         //}
         return $this->getGoodsList($condition, $field, $group, $order, $limit, $page, $lock, $count);
     }

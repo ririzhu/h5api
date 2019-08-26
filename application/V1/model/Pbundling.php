@@ -3,7 +3,7 @@
 
 namespace app\V1\model;
 use think\Model;
-
+use think\db;
 class Pbundling extends Model
 {
     const STATE1 = 1;       // 开启
@@ -60,7 +60,7 @@ class Pbundling extends Model
      */
     public function getBundlingInfo($condition)
     {
-        return $this->table('p_bundling')->where($condition)->find();
+        return DB::table('bbc_p_bundling')->where($condition)->find();
     }
 
     /**
@@ -294,7 +294,7 @@ class Pbundling extends Model
      */
     public function getBundlingGoodsList($condition, $field = '*', $order = 'bl_gid asc', $group = '')
     {
-        return $this->table('p_bundling_goods')->field($field)->where($condition)->group($group)->order($order)->select();
+        return DB::table('bbc_p_bundling_goods')->field($field)->where($condition)->group($group)->order($order)->select();
     }
 
     /**

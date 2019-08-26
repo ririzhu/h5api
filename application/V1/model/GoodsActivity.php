@@ -172,7 +172,12 @@ class GoodsActivity extends Model
                         break;
 
                     default:
-                        $goods_item['show_price'] = $goods_item['show_price'] ? $goods_item['show_price'] : $goods_item['goods_price']*1;
+                        if(isset( $goods_item['show_price'])){
+                            $goods_item['show_price'] = $goods_item['show_price'] ? $goods_item['show_price'] : $goods_item['goods_price']*1;
+                        }
+                        else {
+                            $goods_item['show_price'] = $goods_item['goods_price'] * 1;
+                        }
                         break;
                 }
 
