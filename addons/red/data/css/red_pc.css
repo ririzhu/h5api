@@ -1,0 +1,140 @@
+
+.fixclear:after{ clear: both; content: ' '; display: block; }
+.red_status{  background: #f5f5f5; width: 100%;  border-right: 1px #e8e8e8 solid; }
+.red_status .fr { margin: 6px;}
+.red_status .col{ width: 170px; text-align: center; border:1px #e8e8e8 solid; position: relative; display: block; height: 40px; line-height: 40px; float: left; color: #333;}
+.red_status .col+.col{ border-left: 0;}
+.red_status .col.on:before{ position: absolute; width: 100%; top: -1px; left: 0; z-index: 2; background: #e57f11; height: 3px;content: ' '; }
+.red_status .col.on:after{ position: absolute; width: 100%; bottom: -1px; left: 0; z-index: 2; background: #fff; height: 1px;content: ' '; }
+.red_status .col.on{ color: #e57f11; background: #fff;}
+
+
+.bbctouch-red-list{ padding: 37px 37px 37px 0; border-left:1px #e8e8e8 solid; border-right: 1px #e8e8e8 solid; width: calc(100% - 38px); }
+.bbctouch-red-list li { width: 340px; float: left; margin-left: 110px; margin-bottom: 50px; height: 135px; }
+.bbctouch-red-list.ling li { width: 360px; margin-left: 150px;}
+.bbctouch-red-list li.ticket-item .a div:before{ left: -6px;	}
+.bbctouch-red-list li.ticket-item .a div:after{ right: -6px;	}
+.bbctouch-red-list li.ticket-item .a div:before,.bbctouch-red-list li.ticket-item .a div:after{
+    background: #f5f5f5;
+    border-radius: 12px;
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    bottom: -7px;
+    content: ' ';
+}
+
+.bbctouch-red-list li.ticket-item p:after{
+    content: ' ';
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    display: inline-block;
+    border-right: 1px solid #fcd3d5; border-bottom: 1px solid #fcd3d5;
+    width: 7px; height: 7px;
+    transform: rotate(45deg);
+    transition: 0.4s all;
+}
+.bbctouch-red-list li.ticket-item p.on:after{
+    transform: rotate(-135deg);
+    top: 19px;
+}
+.bbctouch-red-list li.ticket-item h1,.bbctouch-red-list li.ticket-item h2,.bbctouch-red-list li.ticket-item h3{ display: inline-block; }
+.bbctouch-red-list li.ticket-item h1{ font-size: 0.6rem; color: #fff; vertical-align: text-top;}
+.bbctouch-red-list li.ticket-item h1 em{ font-size: 2.4rem; font-weight: bold; vertical-align: sub;}
+.bbctouch-red-list li.ticket-item h2{ font-size: 10px; color: #fff; margin-left: 1.5rem; line-height: 0.9rem; vertical-align:middle;}
+.bbctouch-red-list.ling li.ticket-item h2{ vertical-align: bottom;}
+.bbctouch-red-list li.ticket-item h2 em{ font-size: 1rem; display: block; margin-bottom: 10px;}
+.bbctouch-red-list li.ticket-item p{ cursor: pointer; }
+.bbctouch-red-list li.ticket-item p.on{ height: auto; white-space: normal; z-index: 9;}
+.bbctouch-tickets { padding: 0.8rem 0.6rem 0 0.6rem; min-height: 20rem;}
+.bbctouch-norecord dl dt { color: #696969; }
+.ling_btn { border:1px #e74310 solid; border-radius: 3px; margin: 1rem 0.6rem 0 1rem; display: block; text-align: center; padding: 0.4rem 0 0.3rem;}
+.ling_btn img{ width: 50%;}
+
+/*优惠券列表 正常 配色*/
+.bbctouch-red-list li.ticket-item p { color: #84292b ; font-size: 0.45rem; padding:1rem 30px 0.9rem 15px; line-height: 1rem; width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; height: 2.9rem; white-space: nowrap; }
+.bbctouch-red-list li.ticket-item h3 { background: #f4d7da; color: #ec5667; border-radius: 3px; font-size: 0.6rem; line-height: 0.6rem; padding: 6px 10px; vertical-align: top;  position: absolute; right: 1.2rem; top: 1.2rem; }
+.bbctouch-red-list li.ticket-item h5 { position: absolute; color: #fffc04; font-size: 0.5rem; right: 1.2rem; top: 2.9rem; }
+.bbctouch-red-list li.ticket-item h5 em{ background: #bc4452; border-radius: 2px; padding: 0px 5px; text-align: center; margin: 0 3px; line-height: 17px; display: inline-block;  }
+.bbctouch-red-list li.ticket-item .a div s{ background: url(../images/red_zhuce.png) no-repeat right top; position: absolute; display: block; width: 102px; height: 23px; background-size: cover; top:0; left: 15px; }
+.bbctouch-red-list li.ticket-item .a div{
+    padding: 25px 15px 24px 25px;
+    position: relative;
+    background:#ea5165; /* 一些不支持背景渐变的浏览器 */
+    background:-moz-linear-gradient(left, #ff8580, #ea5165);
+    background:-webkit-gradient(linear,25% 100%, 75% 100%, from(#FF8580), to(#EA5165));
+    background:-o-linear-gradient(top, #ff8580, #ea5165);
+    border-radius: 16px 16px 0 0;
+    z-index: 2;
+}
+.bbctouch-red-list li.ticket-item p{
+    position: relative;
+    background:#ea5165; /* 一些不支持背景渐变的浏览器 */
+    background:-moz-linear-gradient(left, #d6706b, #c44654);
+    background:-webkit-gradient(linear,25% 100%, 75% 100%, from(#d6706b), to(#c44654));
+    background:-o-linear-gradient(top, #d6706b, #c44654);
+    border-radius: 0 0 16px 16px;
+}
+.bbctouch-red-list li.ticket-item p:before{
+    position: absolute;
+    display: block;
+    width: 100%;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: url(../images/dian.png) repeat-x left;
+    background-size: 5px;
+    content: ' ';
+}
+/*优惠券 灰色 配色*/
+.bbctouch-red-list li.ticket-item.dis .a div{
+    background:#b1bccb; /* 一些不支持背景渐变的浏览器 */
+    background:-moz-linear-gradient(left, #c1cdd8, #a2adbe);
+    background:-webkit-gradient(linear,25% 100%, 75% 100%, from(#c1cdd8), to(#a2adbe));
+    background:-o-linear-gradient(top, #c1cdd8, #a2adbe);
+}
+.bbctouch-red-list li.ticket-item.dis p{
+    background:#969eab; /* 一些不支持背景渐变的浏览器 */
+    background:-moz-linear-gradient(left, #a1a9b4, #8990a0);
+    background:-webkit-gradient(linear,25% 100%, 75% 100%, from(#a1a9b4), to(#8990a0));
+    background:-o-linear-gradient(top, #a1a9b4, #8990a0);
+}
+.bbctouch-red-list li.ticket-item.dis p:before{
+    background: url(../images/dian_g.png) repeat-x left;
+}
+.bbctouch-red-list li.ticket-item.dis p { color: #5e6679;}
+.bbctouch-red-list li.ticket-item.dis .a div s{ background-image: url(../images/red_zhuce_g.png);}
+.bbctouch-red-list li.ticket-item.dis p:after{
+    border-right: 1px solid #c4c8d1; border-bottom: 1px solid #c4c8d1;
+}
+
+/* 领券中心 */
+.bbctouch-red-list li.ticket-item h6{ position: absolute; right: 1.2rem;}
+.bbctouch-red-list li.ticket-item h6.a1 { background: url(../images/ok_w.png) no-repeat left center ; padding-left: 16px; font-size: 0.5rem; color: #fff; top: 1.3rem; background-size: 12px; width: 4rem; box-sizing: border-box;}
+.bbctouch-red-list li.ticket-item h6.a2{ background: #f9ccd1; color: #ec5667; width: 4rem; border-radius: 2px; font-size: 0.6rem; line-height: 16px; padding: 0.4rem 0; text-align: center; top: 2.9rem;}
+.bbctouch-red-list li.ticket-item h6.a3{  font-size: 0.45rem;  top: 0.8rem; color: #fff; width: 4rem; text-align: center; line-height: 21px; font-weight: normal; }
+.bbctouch-red-list li.ticket-item h6.a3 em{ background: #eaaa6c; display: block; height: 6px; width: 100%; border-radius: 10px; line-height: 18px;}
+.bbctouch-red-list li.ticket-item h6.a3 i{ background: #e57f11; display: block; height: 6px; border-radius: 10px;}
+.bbctouch-red-list li.ticket-item h6.a4 em{ display: block; font-size: 0.6rem;}
+.bbctouch-red-list li.ticket-item h6.a4{ text-align: center; background: #e6cd10; width: 4rem; color: #333; border-radius: 2px; font-size: 0.45rem; line-height: 15px; padding: 0.2rem 0 0.1rem; top: 3rem;}
+
+/*翻页*/
+.pagination { border-bottom: 1px #e8e8e8 solid; border-left: 1px #e8e8e8 solid; display: block; float:none;  border-right: 1px #e8e8e8 solid; width: calc( 100% - 5px)}
+.pagination ul{ display: inline-block; padding: 20px;}
+
+.red_ling_index{ width: 100%; overflow: hidden; position: relative;}
+.red_ling_index img { position: relative; left: 50%; margin-left: -960px;}
+
+/*优惠券 选择*/
+.big_row_radio { position: relative; border:1px #c53b3b solid; border-radius: 3px; color: #c53b3b; display: block;  text-align: center; font-size: 0.75rem; padding: 0.9rem 0; margin: 25px 48px 0;}
+.bbctouch-sel-box input{ display: none;}
+.big_row_radio:after{ border:1px #c4c4c4 solid; width: 20px; height: 20px; position: absolute; right: 10px; border-radius: 50px; content: ' '; display: block; top: 10px;}
+input[type="radio"]:checked+.big_row_radio:after,input[type="radio"]:checked+.circle_radio.a  h4{ border-color: #c53b3b; background:url(../images/ok.png) no-repeat center 3px #fff; background-size: 70%;}
+.bbctouch-red-list li.ticket-item h4{ border:1px #fff solid; width: 23px; height: 23px; position: absolute; right: 10px; border-radius: 50px; content: ' '; display: block; top: 10px; }
+#red-list input[type="radio"]{ display: none; }
+#red-list .bbctouch-red-list {padding-bottom: 60px;}
+#red-list .pickup-bomb-btn{ position: fixed; bottom: 0; z-index: 99; border-top: 18px #f5f5f5 solid;}
+#red-list .pickup-bomb-btn a{  background: #ea5165; line-height: 50px; height: 50px; }
+#red-list input{ display: none;}
+#red-list.bbctouch-tickets li{ margin-left: 35px; width: 273px;}

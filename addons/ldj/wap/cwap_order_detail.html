@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_public.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_order_detail.css">
+</head>
+<body>
+<header id="header_user" class="fixed" style="position: fixed">
+    <div class="header-wrap green">
+        <div class="header-l"><a href="javascript:history.go(-1)"> <i class="white"></i> </a></div>
+        <div class="header-title">
+            <h1>订单详情</h1>
+        </div>
+        <div class="header-r">
+            <!--<a id="header-nav" href="javascript:void(0);"><img src="./images/alerty@2x.png" alt=""></a>-->
+            <a href="javascript:;" class="all_call">
+                <img src="./images/kefu1@2x.png" alt="">
+            </a>
+        </div>
+    </div>
+</header>
+<div class="taitou">
+
+</div>
+
+<div class="express_type">
+
+</div>
+
+<div class="orderList">
+
+</div>
+<div class="heji">
+
+</div>
+<div class="order_detail_ls">
+
+</div>
+
+<div id="alert">
+
+</div>
+
+<!--订单状态-->
+<script type="text/html" id="order_state">
+    <div class="bgcolor"></div>
+    <div class="panel">
+        <h1><%=order_state_str%><em class="radius"></em></h1>
+        <%if(order_state==0){%>
+        <p>您的订单已取消成功</p>
+        <div class="btn_order">
+            <a href="javascript:;" data-id="<%=order_id%>" class="come_again">再来一单</a>
+        </div>
+        <%}else if(order_state==10){%>
+        <div class="btn_order mar">
+            <a href="javascript:;" data-id="<%=order_id%>" class="cancel_order" >取消订单</a>
+            <a href="cwap_pay.html?pay_sn=<%=pay_sn%>" class="red_btn"></a>
+        </div>
+        <%}else if(order_state==20){%>
+        <p>商品准备中，<%=sd_time%></p>
+        <div class="btn_order">
+            <a href="javascript:;" data-id="<%=order_id%>" class="cancel_order">取消订单</a>
+        </div>
+        <%}else if(order_state==30){%>
+            <%if(express_type==1){%>
+            <p>等待您到店自取</p>
+            <p class="gree"><%=sd_time%></p>
+            <div class="btn_order">
+                <a href="javascript:;" data-id="<%=order_id%>" class="cancel_order">取消订单</a>
+            </div>
+            <%}else{%>
+            <p>商家准备完毕，开始为您配送</p>
+            <p class="gree"><%=sd_time%></p>
+            <div class="btn_order">
+                <a href="javascript:;" data-id="<%=order_id%>" class="cancel_order">取消订单</a>
+            </div>
+            <%}%>
+        <%}else if(order_state==40){%>
+        <!--<div class="btn_order mar">
+            &lt;!&ndash;<a href="">申请售后</a>
+            <a href="" class="gre_btn">去评价</a>
+            <a href="">货未收到</a>&ndash;&gt;
+        </div>-->
+        <%}%>
+    </div>
+</script>
+
+<!--订单类型-->
+<script type="text/html" id="order_express">
+    <%if(express_type==1){%>
+    <div class="shop_state">
+        <span><em>到店自取</em></span><p><span>预留电话：</span><%=member_phone%></p>
+    </div>
+    <%}else if(express_type==2){%>
+    <div class="store_send">
+        <div class="s_left">
+            <div class="img">
+                <img src="<%=dian_logo%>" alt="">
+            </div>
+            <div class="left_info">
+                <p><%=store_name%></p>
+                <span>商家自送</span>
+            </div>
+        </div>
+        <div class="call">
+            <img src="./images/trl3@2x.png" alt="">
+            联系
+        </div>
+    </div>
+   <!-- <%}else{%>
+    <div class="shop_state flex">
+        <div class="dadauser">
+            <img src="./images/dada@2x.png" alt="">
+            <p>
+                <span>王旺旺</span>
+                <span class="dada">达达专送</span>
+            </p>
+        </div>
+        <p class="tel"><img src="./images/trl3@2x.png" alt="">联系</p>
+    </div>-->
+    <%}%>
+</script>
+
+<!--商品列表-->
+<script type="text/html" id="order_detail_list">
+    <h1>
+        <span><%=store_name%><em class="radius"></em></span>
+        <span class="call"><img src="./images/trl3@2x.png" alt="">联系</span>
+    </h1>
+    <ul>
+        <%for(var i = 0;i
+        <goods_list.length
+                ;i++){
+                var el=goods_list[i];
+                var sum=el.goods_price*el.goods_num;
+                %>
+            <li>
+                <a href="cwap_goods_details.html?gid=<%=el.gid%>&vid=<%=vid%>">
+                    <dl>
+                        <dt>
+                            <img src="<%=el.goods_image%>" alt="">
+                            <%if(el.goods_error){%>
+                            <div class="wrap"><%=el.goods_error_str%></div>
+                            <%}%>
+                        </dt>
+                        <dd class="xq">
+                            <p><%=el.goods_name%></p>
+                            <p>&yen;<%=el.goods_price%> x <%=el.goods_num%></p>
+                        </dd>
+                        <dd class="jinqian">&yen;<%=sum%></dd>
+                    </dl>
+                </a>
+            </li>
+            <%}%>
+    </ul>
+    <%if(goods_list.length>2){%>
+    <div class="Clickshow">
+        共<%=goods_list.length%>件 <em class="radius Bottom"></em>
+    </div>
+    <%}else{%>
+    <div class="Clickshow">
+        共<%=goods_list.length%>件
+    </div>
+    <%}%>
+</script>
+
+<!--订单金额-->
+<script type="text/html" id="order_total">
+    <p><span>商品金额</span><span>&yen;<%=goods_amount%></span></p>
+    <p><span>配送费</span><span>&yen;<%=shipping_fee%></span></p>
+    <div class="zonger">
+        <span>实际支付 &yen; <ins><%=order_amount%></ins></span>
+    </div>
+</script>
+
+<!--订单信息-->
+<script type="text/html" id="order_detail_info">
+    <div class="List">
+        <ul>
+            <li>配送信息</li>
+            <li>送达时间：<%=sd_time%></li>
+            <% if(finnshed_time){ %>
+            <li>实际送达时间：<%=finnshed_time%></li>
+            <% }%>
+            <%if(express_type!=1){%>
+            <li>收货地址：<%=%> <%=reciver_info.phone%>
+                <p><%=reciver_info.address%></p>
+            </li>
+            <%}%>
+            <li>配送方式：<span><%=express_type_str%></span></li>
+        </ul>
+    </div>
+    <div class="List">
+        <ul>
+            <li>订单信息</li>
+            <li>订单号码：<%=order_sn%></li>
+            <% if(express_type==1){ %>
+            <li>核销码：<%=chain_code%></li>
+            <%}%>
+            <li>下单时间：<%=add_time_str%></li>
+            <li>支付方式：在线支付</li>
+            <%if(order_message){%>
+            <li>订单备注：<%=order_message%></li>
+            <%}else{%>
+            <li>订单备注：无</li>
+            <%}%>
+        </ul>
+    </div>
+</script>
+
+<!--联系-->
+<script type="text/html" id="order_call">
+    <dl>
+        <dt>
+            <%if(dian_phone){%>
+            <p><a href="tel:<%=dian_phone%>">联系配送员</a></p>
+            <%}%>
+            <%if(site_phone){%>
+            <p><a href="tel:<%=site_phone%>">联系平台电话客服（交易纠纷）</a></p>
+            <%}%>
+        </dt>
+        <dd class="cancel_call">取消</dd>
+    </dl>
+</script>
+
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript"
+        src="http://webapi.amap.com/maps?v=1.3&key=b1d1e551839382e38e9eabe2348aa0db&plugin=AMap.Scale,AMap.Driving,AMap.ToolBar"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/order_detail.js"></script>
+<script>
+    //    ------------------d查看更多---------
+
+    $("body").on('click', '.all_call', function () {
+        $("#alert").css({"display": "block"})
+    });
+    $("body").on('click', '.call', function () {
+        $("#alert").css({"display": "block"})
+    });
+    $("body").on('click', '#alert dl .cancel_call', function () {
+        $("#alert").css({"display": "none"})
+    });
+
+    $('#alert').on('touchmove',function (e) {
+        return false;
+    })
+</script>
+</html>

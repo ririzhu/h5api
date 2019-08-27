@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>冻结金额明细</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_Frozen_details.css">
+</head>
+<body>
+<div class="headerA">
+    <p><a href="cwap_user.html"><em class="radius"></em></a>失效金额明细</p>
+    <h1 class="top_user_amount_num disable_yongjin">--</h1>
+</div>
+<div class="list">
+    <ul id="order-list">
+    </ul>
+</div>
+</body>
+<script type="text/javascript">
+    var yj_state = -1;
+</script>
+<script type="text/html" id="order-list-tmpl">
+    <% if (datas.order_group_list.length > 0){%>
+    <% for(var i = 0;i<datas.order_group_list.length;i++){
+    var orderitem = datas.order_group_list[i];
+    %>
+    <li>
+        <span>订单号:<%=orderitem.order_sn%> </span>
+        <time><%=orderitem.add_time_str%></time>
+        <em>+<%=orderitem.yj_amount%>元</em>
+    </li>
+    <%}%>
+    <% if (hasmore) {%>
+    <li class="loading"><div class="spinner"><i></i></div>订单数据读取中...</li>
+    <% } %>
+    <%}else {%>
+    <div style="text-align: center;font-size: 0.5rem;line-height: 0.8rem;padding: 1rem;">
+        <p>您还没有相关的订单</p>
+    </div>
+    <%}%>
+</script>
+<script type="text/javascript" src="jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/simple-plugin.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/cwap_user_yongjin.js"></script>
+<script>
+    var oh = $(document).height();
+    var ow = $(document).width();
+    $(document.body).css({"height":oh,"width":ow});
+</script>
+</html>

@@ -1,0 +1,134 @@
+<html lang="en" style="font-size: 20px;"><head>
+    <meta charset="UTF-8">
+    <title>积分购物车</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_child.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_cart.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_shopping_cart.css">
+</head>
+<body>
+<header id="header_user" class="fixed">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1)">
+                <i class="back"></i>
+            </a>
+        </div>
+        <div class="header-title">
+            <h1>积分购物车</h1>
+        </div>
+        <div class="header-r">
+            <a id="header-nav" href="javascript:void(0);">编辑</a>
+        </div>
+    </div>
+</header>
+
+<div class="show_data">
+
+</div>
+<script type="text/html" id="suite_tmp">
+    <div class="order_list">
+        <ul>
+            <% if(data) { %>
+            <% for (var i in data){ %>
+            <li data-gid="<%=data[i].pgid%>">
+                <input class="check_item" type="checkbox" checked data-cartid="<%=data[i].pcart_id%>" data-price="<%=data[i].pgoods_points%>"/>
+                <a href="cwap_goods_datail.html?gid=<%=data[i].pgid%>">
+                    <img src="<%=data[i].image%>" alt="">
+                    <h1><%=data[i].pgoods_name%></h1>
+                    <h2></h2>
+                </a>
+                <div class="jiner">
+                    <span>&yen;<span class="goods-price"><%=data[i].pgoods_points%></span></span>
+                    <p class="cart-num-minus-plus">
+                        <span class="minus">-</span><em class="cart_num" data-cartid="<%=data[i].pcart_id%>"><%=data[i].pgoods_choosenum%></em><span class="plus">+</span>
+                    </p>
+                </div>
+            </li>
+            <% } %>
+            <% } else {%>
+                    <div>暂无数据...</div>
+            <% }%>
+        </ul>
+
+    </div>
+    <div class="show_other_suite" style="padding-bottom: 2.5rem;">
+
+    </div>
+
+    <div class="bbctouch-cart-bottom" style="bottom:2.2rem;">
+        <div class="all-check"><input class="all_checkbox" type="checkbox" checked></div>
+        <div class="total">
+            <dl class="total-money"><dt>应付：</dt><dd><em id="cart_money">0.00</em>积分</dd></dl>
+        </div>
+        <div class="buy_now check-out ok">
+            <a href="javascript:void(0)">立即支付</a>
+        </div>
+    </div>
+    <!--<div class="footer">-->
+        <!--<a href="cwap_shopping_cart.html"><img src="images/cart@2x.png" alt="">积分购物车</a>-->
+        <!--<a href="cwap_my_order.html"><img src="images/sld_icon3x@2x1.png" alt="..">积分订单</a>-->
+    <!--</div>-->
+    <div class="delete">
+        <span>删除</span>
+    </div>
+    
+</script>
+<div id="footer"></div>
+<!--<script type="text/html" id="suite_other_tmp">-->
+    <!--<div class="other">-->
+        <!--<div class="title"><span></span>其他组合<span></span></div>-->
+        <!--<% for (var i = 0;i<goods_list.length;i++){ %>-->
+        <!--<% var suite_goods = goods_list[i].goods; %>-->
+        <!--<% var suite_item_price = goods_list[i].total_price; %>-->
+        <!--<% var suite_item_gids = goods_list[i].gids; %>-->
+        <!--<dl>-->
+            <!--<dt class="overflow">-->
+            <!--<div class="goodsBox">-->
+                <!--<% for(var j = 0;j<suite_goods.length;j++){ %>-->
+                <!--<a class="img" href="./cwap_product_detail.html?gid=<%=suite_goods[j].gid%>"><img src="<%=suite_goods[j].goods_image_url %>" alt=""><b>&yen;<%=suite_goods[j].show_price%></b></a>-->
+                <!--<% if(j != suite_goods.length-1){ %>-->
+                <!--<b>+</b>-->
+                <!--<% } %>-->
+                <!--<% } %>-->
+            <!--</div>-->
+            <!--</dt>-->
+            <!--<dd><p>组合价:<ins>&yen;<%=suite_item_price%></ins></p><p data-gids="<%=suite_item_gids%>" class="suite_item_buy">立即购买</p></dd>-->
+        <!--</dl>-->
+        <!--<% } %>-->
+    <!--</div>-->
+<!--</script>-->
+<script type="text/javascript" src="./js/zepto.min.js"></script>
+<script type="text/javascript" src="./js/cwap_config.js"></script>
+<script type="text/javascript" src="./js/template.js"></script>
+<script type="text/javascript" src="./js/cwap_common.js"></script>
+<script type="text/javascript" src="./js/simple-plugin.js"></script>
+<script type="text/javascript" src="./js/layer.js"></script>
+<script type="text/javascript" src="./js/cwap_shopping_cart.js"></script>
+<script type="text/javascript" src="./js/cwap_footer.js"></script>
+</body>
+<script>
+    var add=1;
+    $(".header-r").click(function(){
+        if($('.check_item').length<=0){
+            return ;
+        }
+        if(add==1){
+            $(".delete").css("right","0");
+            add=2;
+        }else{
+                $(".delete").css("right","-16.5rem");
+                add=1;
+
+
+        }
+    });
+
+</script>
+</html>

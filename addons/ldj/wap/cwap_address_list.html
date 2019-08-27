@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>地址管理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_address_search.css">
+    <link rel="stylesheet" href="css/cwap_address.css">
+</head>
+<body>
+<header id="header">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1)">
+                <i class="back"></i>
+            </a>
+        </div>
+        <div class="header-title">
+            <h1>地址管理</h1>
+        </div>
+    </div>
+</header>
+
+<div class="choose_address">
+    <div class="c_my_address">
+        <div class="c_addr_list">
+            <ul></ul>
+        </div>
+    </div>
+</div>
+
+<div class="add_address">
+    新增地址
+</div>
+</body>
+
+<script type="text/html" id="addr_list">
+    <%for(var i = 0;i<data.length;i++){
+        var item = data[i];
+    %>
+    <li class="addr_item">
+        <div class="name">
+            <p><%=item.true_name%></p>
+            <%if(item.is_default==1){%>
+            <span class="default">默认</span>
+            <%}%>
+        </div>
+        <div class="info" data-id="<%=item.address_id%>" data-lng="<%=item.lng%>" data-lat="<%=item.lat%>" data-addr="<%=item.address%>">
+            <p><%=item.mob_phone%></p>
+            <p><%=item.area_info%> <%=item.address%> <%=item.address_precose%></p>
+        </div>
+        <div class="img">
+            <img src="./images/a_edit.png" class="edit" data-id="<%=item.address_id%>" alt="">
+            <img src="./images/del2x.png" class="del" data-id="<%=item.address_id%>" alt="">
+        </div>
+    </li>
+    <%}%>
+</script>
+
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/cwap_address_search.js"></script>
+</html>

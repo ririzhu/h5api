@@ -17,7 +17,6 @@ class Index extends Base
     public function isLogin()
     {
         $list = Db::table('bbc_goods')->order('gid', 'desc')->select();
-        print_r($list);
         return $list;
     }
 

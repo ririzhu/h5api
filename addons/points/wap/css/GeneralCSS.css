@@ -1,0 +1,34 @@
+body{
+    background: #F6F6F6;
+    padding-top:1.9rem;
+}
+header{
+    position: fixed;
+    background: #fff;
+}
+.header{
+    background: #fff;
+    height: 2.086rem;
+    display: flex!important;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    color: #181818;
+    font-size: 0.78rem;
+}
+.jiantou{
+    position: absolute;
+    left: 0;
+    top: 0;
+    background:url(../images/ico_01100.png)center center no-repeat;
+    padding:1rem;
+    background-size:0.304rem 0.565rem;
+}
+.jiantouBai{
+    position: absolute;
+    left: 0;
+    top: 0;
+    background:url(../images/ico_011.png)center center no-repeat;
+    padding:1rem;
+    background-size:0.304rem 0.565rem;
+}

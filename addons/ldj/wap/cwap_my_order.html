@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的订单</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_my_order.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_public.css">
+</head>
+<body>
+<header id="header_user" class="fixed" style="position: fixed">
+    <div class="header-wrap">
+        <div class="header-title">
+            <h1>我的订单</h1>
+        </div>
+    </div>
+</header>
+<div id="orderList">
+
+</div>
+
+<script type="text/html" id="my_order_list">
+    <%if(!data.length){%>
+    <div class="cart_not">
+        <div class="img">
+            <img src="./images/order_w.png" alt="">
+        </div>
+        <p>您还没有订单</p>
+    </div>
+    <%}else{%>
+    <%for(var i=0;i<data.length;i++){
+        var item = data[i];
+        var vclass = 'v'+item.order_id;
+    %>
+    <div class="orderTab">
+        <div class="orderTitle">
+            <a href="cwap_goods_list.html?vid=<%=item.vid%>"> <%=item.store_name%><em class="radius"></em></a><span class="orderState daifu"><%=item.order_state_str%></span>
+        </div>
+        <div class="time"><%=item.add_time_str%></div>
+        <%if(item.order_state==10){%>
+        <div class="orderAlert">
+            <p>待支付</p>
+            <span><b>请在订单提交后尽快完成支付，超时订单将自动取消</b></span>
+        </div>
+        <%}%>
+        <div class="order_Goods" data-oid="<%=item.order_id%>">
+            <div class="order_img">
+                <%
+                var len = item.goods_list.length>4?4:item.goods_list.length;
+                for(var j = 0;j<len;j++){
+                    var el = item.goods_list[j]
+                %>
+                <a href="javascript:;">
+                    <img src="<%=el.goods_image%>" alt="">
+                    <%if(el.goods_error==1){%>
+                    <div class="wrap"><%=el.goods_error_str%></div>
+                    <%}%>
+                </a>
+                <%}%>
+            </div>
+            <dl>
+                <dt>
+                    &yen; <%=item.order_amount%>
+                </dt>
+                <dd>共<%=item.goods_num%>件</dd>
+                <dd><span><%=item.express_type_str%></span></dd>
+            </dl>
+        </div>
+        <%if(item.order_state==10){%>
+        <div class="quzhifu <%=vclass%>">
+            <a href="javascript:;" class="cancel_order" data-id="<%=item.order_id%>">取消订单</a>
+            <a href="cwap_pay.html?pay_sn=<%=item.pay_sn%>" class="pay_t"></a>
+        </div>
+        <%}else{%>
+        <div class="zaicigoumai">
+            <a href="javascript:;" data-id="<%=item.order_id%>" class="come_again">再次购买</a>
+        </div>
+        <%}%>
+    </div>
+    <%}%>
+    <%}%>
+</script>
+
+<script>
+    wap_now = 'sld_cart';
+</script>
+<footer id="footer"></footer>
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/cwap_footer.js"></script>
+<script type="text/javascript" src="js/my_order.js"></script>
+</html>

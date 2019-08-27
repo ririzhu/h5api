@@ -6,6 +6,7 @@ use think\Db;
 
 class VendorInfo extends Model
 {
+    protected $ownShopIds;
     public function __construct(){
         parent::__construct('vendor');
     }
@@ -25,24 +26,22 @@ class VendorInfo extends Model
     public function getOwnShopIds($bind_all_gc = false) {
         $data = $this->ownShopIds;
         // 属性为空则取缓存
-        if (!$data) {
+        //if (!$data) {
             //$data = rkcache('own_shop_ids');
-            $data = H('own_shop_ids')? H('own_shop_ids'):H('own_shop_ids',true);
+            $data = Cache('own_shop_ids')? Cache('own_shop_ids'):Cache('own_shop_ids',true);
             // 缓存为空则查库
-            if (!$data) {
+            //if (!$data) {
                 $data = array();
-                $all_own_shops = $this->table('vendor')->field('vid,bind_all_gc')->where(array(
-                    'is_own_shop' => 1,
-                ))->select();
+                $all_own_shops = DB::table('bbc_vendor')->field('vid,bind_all_gc')->where("is_own_shop=1")->select();
                 foreach ((array) $all_own_shops as $v) {
                     $data[$v['vid']] = (int) (bool) $v['bind_all_gc'];
                 }
                 // 写入缓存
                 //               wkcache('own_shop_ids', $data);
-            }
+            //}
             // 写入属性
             $this->ownShopIds = $data;
-        }
+        //}
         return array_keys($bind_all_gc ? array_filter($data) : $data);
     }
 
@@ -56,7 +55,7 @@ class VendorInfo extends Model
      * @param string $limit 取多少条
      * @return array
      */
-    public function getStoreList($condition, $page = null, $order = 'store_time desc', $field = '*', $limit = '') {
+    public function getStoreList($condition, $page = null, $order = 'store_time desc', $field = '*', $limit = 1000) {
         $result = DB::table("bbc_vendor")->field($field)->where($condition)->order($order)->limit($limit)->page($page)->select();
         return $result;
     }

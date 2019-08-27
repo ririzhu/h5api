@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/deposit_pay.css">
+    <style>
+        .main{
+            padding-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+<header id="header_user" class="fixed">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1)"><img src="./images/ico_011.png" alt=""></a>
+        </div>
+        <div class="header-title">
+            <h1 class="colorWhite top_g">支付尾款</h1>
+        </div>
+        <div class="header-share" id="header-menu">
+            <a href="javascript:;"><img src="./images/more_b.png" alt=""></a>
+            <ul>
+                <li>
+                    <a href="/index.html"><img src="./images/home_w.png" alt="">首页</a>
+                </li>
+                <li>
+                    <a href="/cwap/cwap_user.html"><img src="./images/member_w.png" alt="">个人中心</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+<div class="main">
+    <div class="address">
+
+    </div>
+
+    <div class="order">
+        <p>
+            <span>订单号</span>
+            <span></span>
+        </p>
+        <p>
+            <span>订单时间</span>
+            <span></span>
+        </p>
+    </div>
+
+    <div class="goods_list">
+
+    </div>
+
+    <div class="program">
+
+    </div>
+
+    <div class="money">
+
+    </div>
+
+    <div class="msg">
+        <h3 class="title2">买家留言</h3>
+        <textarea readonly></textarea>
+    </div>
+
+    <div class="go_pay_wrap"></div>
+</div>
+
+<script type="text/html" id="j_address">
+    <div class="hasAddr">
+        <div class="addr_left">
+            <p class="name">
+                <span><%=true_name%> <%=address_info.phone%></span>
+            </p>
+            <p class="addr_info"><%=address_info.address%></p>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="j_goods">
+    <ul>
+        <li class="goods_item">
+            <div class="store">
+                <a href="/cwap/cwap_go_shop.html?vid=<%=guding.vid%>" class="s_left">
+                    <img src="./images/store@2x.png" alt="">
+                    <span><%=guding.store_name%></span>
+                    <img src="./images/ltr@2x.png" alt="">
+                </a>
+                <p class="s_status"><%=change.order_state_str%></p>
+            </div>
+            <div class="info">
+                <div class="img">
+                    <a href="/cwap/cwap_product_detail.html?gid=<%=guding.gid%>">
+                        <img src="<%=guding.goods_image%>" alt="">
+                    </a>
+                </div>
+                <div class="goods_info">
+                    <a href="/cwap/cwap_product_detail.html?gid=<%=guding.gid%>"><img src="./images/jtu_logo@2x.png" alt=""><%=guding.goods_name%></a>
+                    <p class="deposit">定金 <span>￥<i><%=guding.goods_dingjin_price%> <span style="font-size: 0.6rem">X</span> <%=guding.goods_num%></i></span></p>
+                    <%if(guding.goods_spec){%>
+                    <p class="size">规格：
+                        <%for(var i = 0;i<guding.goods_spec.length;i++){%>
+                        <span><%=guding.goods_spec[i]%></span>
+                        <%}%>
+                    </p>
+                    <%}%>
+                    <p class="price">
+                        <span>单买价：￥<%=guding.goods_danmai_price%></span>
+                    </p>
+                </div>
+            </div>
+        </li>
+    </ul>
+</script>
+
+<script type="text/html" id="price_detail">
+    <h3 class="title">费用详情</h3>
+    <ul>
+        <li class="m_item">
+            <div class="m_left">
+                <span>阶段一</span>
+                <span class="finish"><%=jieduan_1_str%></span>
+            </div>
+            <div class="m_right">
+                <span>定金</span>
+                <span class="m_price">￥<%=jieduan_1_price%></span>
+            </div>
+        </li>
+        <%if(jieduan_2_str){%>
+        <li class="m_item">
+            <div class="m_left">
+                <span>阶段二</span>
+                <span><%=jieduan_2_str%></span>
+            </div>
+            <div class="m_right">
+                <span>尾款</span>
+                <span class="m_price">￥<%=jieduan_2_price%></span>
+            </div>
+        </li>
+        <li class="m_item">
+            <div class="m_left">
+                <span>运费</span><span></span>
+            </div>
+            <div class="m_right">
+                <span>快递</span>
+                <%if(shipping_fee){%>
+                <span class="m_price"><%=shipping_fee%></span>
+                <%}else{%>
+                <span>免邮</span>
+                <%}%>
+            </div>
+        </li>
+        <%}%>
+    </ul>
+    <%if(jieduan_2_str){%>
+    <p class="total_money">
+        <span>订单合计：</span>
+        <span>￥<%=ding_dan_he_ji%></span>
+    </p>
+    <%}%>
+</script>
+
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/order_detail.js"></script>
+</html>

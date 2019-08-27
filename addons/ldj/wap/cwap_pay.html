@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>支付收银台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_pay.css">
+</head>
+<body>
+<header id="header_user" class="fixed green" style="position: fixed">
+    <div class="header-wrap green">
+        <div class="header-l"><a href="cwap_my_order.html"> <i class="back"></i> </a></div>
+        <div class="header-title">
+            <h1>支付收银台</h1>
+        </div>
+    </div>
+</header>
+<div class="nav-top">
+
+</div>
+<div class="select">
+
+</div>
+<div class="submit">
+    立即支付 <span style="padding-left: 8px;"></span>
+</div>
+
+<script type="text/html" id="pay_info">
+    <h1><%=store_name%></h1>
+    <p>&yen; <b><%=order_amount%></b></p>
+    <span>剩余支付时间为:</span>
+</script>
+
+<script type="text/html" id="pay_mode">
+    <%if(paymentlist.data.length){%>
+    <ul>
+        <%for(var i = 0;i
+        <paymentlist.data.length
+        ;i++){
+        var item = paymentlist.data[i];
+        %>
+        <%if(item.payment_code=='wxpay_jsapi'){%>
+        <li data-mode="<%=item.payment_code%>">
+            <p><img src="./images/weixin@2x.png" alt=""><%=item.payment_name%></p>
+            <%if(i==0){%>
+            <em class="actived"></em>
+            <%}else{%>
+            <em></em>
+            <%}%>
+        </li>
+        <%}else if(item.payment_code=='predeposit'){%>
+        <li data-mode="<%=item.payment_code%>">
+            <div class="yuer">
+                <img src="./images/yuer@2x.png" alt="">
+                <div class="yer">
+                    <p><%=item.payment_name%></p>
+                    <span>
+                        <%if(data.order_amount>member_info.available_predeposit){%>
+                        <ins>余额不足</ins>
+                        <%}%>
+                        可用余额 &yen;<%=member_info.available_predeposit%></span>
+                </div>
+            </div>
+            <%if(member_info.available_predeposit>=data.order_amount){%>
+            <%if(i==0){%>
+            <em class="actived"></em>
+            <%}else{%>
+            <em></em>
+            <%}%>
+            <%}%>
+        </li>
+        <%}else{%>
+        <li data-mode="<%=item.payment_code%>">
+            <p><img src="./images/zfb@2x.png" alt=""><%=item.payment_name%></p>
+            <%if(i==0){%>
+            <em class="actived"></em>
+            <%}else{%>
+            <em></em>
+            <%}%>
+        </li>
+        <%}%>
+        <%}%>
+    </ul>
+    <%}else{%>
+        <div class="nopaymode">
+
+        </div>
+    <%}%>
+</script>
+
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/cwap_pay.js"></script>
+</html>

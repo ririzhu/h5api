@@ -1,0 +1,113 @@
+@basesize: 75;
+@border1px: 1rem/@basesize;
+@border2px: 2rem/@basesize;
+@fontsize28: 28rem/@basesize;
+@fontsize30: 30rem/@basesize;
+@fontsize32: 32rem/@basesize;
+
+.login {
+  width: 100%;
+  font-size: @fontsize28;
+  .logo {
+    width: 215rem/@basesize;
+    text-align: center;
+    margin: 58rem/@basesize auto 81rem/@basesize;
+  }
+  .login_nav {
+    width: 480rem/@basesize;
+    margin: 0 auto 40rem/@basesize;
+    color: #999;
+    span {
+      border-bottom: @border2px solid transparent;
+    }
+    .on {
+      color: #65BA20;
+      border-bottom: @border2px solid #65BA20;
+    }
+  }
+  .login_type {
+    position: relative;
+    width: 640rem/@basesize;
+    min-height: 430rem/@basesize;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  form {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    &:nth-child(2) {
+      transform: translateX(-100%);
+    }
+    &.on {
+      transform: translateX(0);
+    }
+    input {
+      display: block;
+      width: 100%;
+      height: 111rem/@basesize;
+      line-height: 111rem/@basesize;
+      border: none;
+      font-size: @fontsize28;
+      color: #333;
+      border-bottom: @border1px solid #EDEDED;
+      outline: none;
+    }
+    .vcode {
+      position: relative;
+      span {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        color: #63B422;
+        -webkit-transform: translateY(-50%);
+        -moz-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        -o-transform: translateY(-50%);
+        transform: translateY(-50%);
+      }
+    }
+    button {
+      width: 630rem/@basesize;
+      height: 76rem/@basesize;
+      line-height: 76rem/@basesize;
+      color: #FFFFFF;
+      background-color: #C5DAB4;
+      -webkit-border-radius: 8rem/@basesize;
+      -moz-border-radius: 8rem/@basesize;
+      border-radius: 8rem/@basesize;
+      border: none;
+      font-size: @fontsize32;
+      margin-top: 59rem/@basesize;
+      letter-spacing: 12rem/@basesize;
+      &.active {
+        background-color: #65BA20;
+      }
+    }
+  }
+  .tip {
+    margin-top: 26rem/@basesize;
+    font-size: 20rem/@basesize;
+    color: #666;
+    text-align: center;
+    a {
+      color: #63B422;
+    }
+  }
+
+  ::-webkit-input-placeholder {
+    color: #C4C4C4;
+    font-size: 28rem/@basesize;
+  }
+  :-moz-placeholder {
+    color: #C4C4C4;
+    font-size: 28rem/@basesize;
+  }
+  ::-moz-placeholder {
+    color: #C4C4C4;
+    font-size: 28rem/@basesize;
+  }
+}

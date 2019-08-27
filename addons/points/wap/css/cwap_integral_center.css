@@ -1,0 +1,165 @@
+body{
+    background: #F6F6F6;
+    padding-top:1.9rem;
+}
+header{
+    position: fixed;
+    background: #fff;
+}
+.header{
+    background: #fff;
+    height: 2.086rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    color: #181818;
+    font-size: 0.78rem;
+}
+.jiantou{
+    position: absolute;
+    left: 0;
+    top: 0;
+    background:url(../images/ico_01100.png)center center no-repeat;
+    padding:1rem;
+    background-size:0.304rem 0.565rem;
+}
+.jiantouBai{
+    position: absolute;
+    left: 0;
+    top: 0;
+    background:url(../images/ico_011.png)center center no-repeat;
+    padding:1rem;
+    background-size:0.304rem 0.565rem;
+}
+/*----------公共样式---------end----------------------------------*/
+.connter{
+    background:#937872;
+    height: 4.086rem;
+    color:#fff;
+    font-size:1.217rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+.connter p{
+    position: absolute;
+    left: 0.695rem;
+    top: 0;
+}
+.connter p a{
+    color: #fff;
+    font-size: 13px;
+}
+.connter img{
+    width: 0.652rem;
+    vertical-align: middle;
+    margin-right: 0.3rem
+}
+.banner{
+    background:#FEE9E9;
+    height: 3.69rem;
+    margin: 3%;
+    width: 94%;
+    border-radius:10px;
+}
+.banner img{
+    width: 100%;
+    border-radius:10px;
+}
+.list{
+    background: #fff;
+    font-size: 0.695rem;
+    position: relative;
+    color:#393939;
+    padding-top: 0.782rem;
+}
+.list>h1{
+    padding-left: 0.652rem;
+    font-weight: bold;
+}
+.list>p{
+    padding:0 1.478rem;
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+    height: 2.05rem;
+    border-bottom:1px solid #DADADA;
+}
+.list p .active{
+    color: #F94B2E;
+    border-color:#F94B2E;
+}
+.list p span{
+    font-size:0.652rem;
+    padding:0.652rem 0.521rem;
+    height: 0.652rem;
+    line-height: 0.652rem;
+    border-bottom:1px solid transparent;
+}
+.listBox{
+    padding-bottom:1rem;
+}
+.tab:first-child{
+    display: block;
+}
+.tab{
+    display:none;
+    padding-left:0.434rem;
+}
+.tab li{
+    border-bottom:1px solid #DADADA;
+}
+.tab li a{
+    color:#181818;
+}
+.tab li a{
+    display: flex;
+    height: 4.34rem;
+    justify-content:flex-start;
+    align-items: center;
+    padding:0.521rem 0;
+}
+.tab li a img{
+    width: 4.34rem;
+    height: 4.34rem;
+    background:#b9b7b7;
+    margin-right:1.086rem;
+}
+.text{
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    flex-direction:column;
+    align-content: space-between;
+}
+.text h1{
+    font-weight: bold;
+}
+.text span{
+    color:#EC9915;
+    font-size:0.7605rem;
+}
+.text p{
+    font-size: 0.565rem;
+    color: #616060;
+    line-height:0.8rem;
+    padding-right:1.5rem;
+}
+.text em{
+    font-size:0.521rem;
+    color:#616060;
+}
+#bottom .nav .tab-line-item i{
+    color:#acacac!important;
+}
+#bottom .nav .tab-line-item a{
+    color:#acacac!important;
+}
+#bottom .nav .tab-line-item:nth-of-type(4) i{
+    color: #ff5181!important;
+}
+#bottom .nav .tab-line-item:nth-of-type(4) a{
+    color: #ff5181!important;
+}

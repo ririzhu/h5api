@@ -1,0 +1,41 @@
+.setting{
+    padding-top: 1.95rem;
+}
+
+.setting .set_list{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 2.4rem;
+    color: #666666;
+    font-size: 0.6rem;
+    padding: 0 0.695rem;
+}
+
+.set_list .list_left{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list_left .img{
+    width: 0.95rem;
+    margin-right: 0.78rem;
+}
+
+.list_left .img img{
+    width: 100%;
+}
+
+
+.logout{
+    line-height: 1.3rem;
+    text-align: center;
+    font-size: 0.60rem;
+    color: #000;
+    margin-top: 2rem;
+    cursor: pointer;
+}
+
+
+

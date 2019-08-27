@@ -1065,7 +1065,7 @@ class UserCart extends Model
         $goods_list = array();
         $i = 0;
         foreach ($cart_list as $key => $cart) {
-            if (!$cart['state'] || !$cart['storage_state']) continue;
+            //if (!$cart['state'] || !$cart['storage_state']) continue;
             //购买数量
             $quantity = $cart['goods_num'];
             if (!intval($cart['bl_id'])) {
@@ -1089,13 +1089,19 @@ class UserCart extends Model
                     $goods_list[$i]['goods_num'] = $quantity;
                     $goods_list[$i]['gid'] = $bl_goods['gid'];
                     $goods_list[$i]['vid'] = $cart['vid'];
+                    if(isset($bl_goods['gc_id']))
                     $goods_list[$i]['gc_id'] = $bl_goods['gc_id'];
                     $goods_list[$i]['goods_name'] = $bl_goods['goods_name'];
+                    if(isset($bl_goods['goods_price']))
                     $goods_list[$i]['goods_price'] = $bl_goods['goods_price'];
+                    if(isset($bl_goods['store_name']))
                     $goods_list[$i]['store_name'] = $bl_goods['store_name'];
                     $goods_list[$i]['goods_image'] = $bl_goods['goods_image'];
+                    if(isset($bl_goods['transport_id']))
                     $goods_list[$i]['transport_id'] = $bl_goods['transport_id'];
+                    if(isset($bl_goods['goods_freight']))
                     $goods_list[$i]['goods_freight'] = $bl_goods['goods_freight'];
+                    if(isset($bl_goods['goods_vat']))
                     $goods_list[$i]['goods_vat'] = $bl_goods['goods_vat'];
                     $goods_list[$i]['bl_id'] = $cart['bl_id'];
                     $i++;
@@ -1130,7 +1136,8 @@ class UserCart extends Model
 
 
         //如果该商品有首单优惠
-        if($_store_cart_list = M('first','firstDiscount')->handle_buy_list($store_cart_list,$member_id)){
+        $firstModel = new FirstOrder();
+        if($_store_cart_list = $firstModel->handle_buy_list($store_cart_list,$member_id)){
             $store_cart_list = $_store_cart_list;
         }
 
@@ -1139,20 +1146,21 @@ class UserCart extends Model
         $store_goods_total = array();
         //存放本次下单所有店铺商品总金额
         $order_goods_total = 0;
-
-
+        $store_goods_total =array();
+        $store_goods_total[1]=0;
         foreach ($store_cart_list as $vid => $store_cart) {
             $tmp_amount = 0;
             foreach ($store_cart as $key => $cart_info) {
                 $store_cart[$key]['goods_total'] = isset($cart_info['show_price']) ? sldPriceFormat($cart_info['show_price'] * $cart_info['goods_num']) : sldPriceFormat($cart_info['goods_price'] * $cart_info['goods_num']);
-                if($cart_info['first']>0){
-//                    $tmp_amount+=$cart_info['first'];
+                if(isset($cart_info['first']) && $cart_info['first']>0){
+                    $tmp_amount+=$cart_info['first'];
                 }
                 $store_cart[$key]['goods_image_url'] = cthumb($store_cart[$key]['goods_image']);
                 $tmp_amount += $store_cart[$key]['goods_total'];
             }
             $store_cart_list[$vid] = $store_cart;
             $store_goods_total[$vid] += sldPriceFormat($tmp_amount);
+
         }
 
         return array($store_cart_list,$store_goods_total);
@@ -1189,8 +1197,8 @@ class UserCart extends Model
     public function getMansongRuleCartListByTotal($store_goods_total) {
         if (!Config('promotion_allow') || empty($store_goods_total) || !is_array($store_goods_total)) return array(array(),array());
 
-        $model_mansong = Model('p_mansong');
-        $model_goods = Model('goods');
+        $model_mansong = new Favorable();
+        $model_goods = new Goods();
 
         //定义赠品数组，下标为店铺ID
         $premiums_list = array();
@@ -1362,7 +1370,8 @@ class UserCart extends Model
 
         foreach ($cart_list as $key => $cart_info) {
             //判断是不是在手机专享，如果是返回折扣信息
-            $solegoods_info = Model('p_mbuy')->table('p_mbuy_goods')->where(['gid'=>$cart_info['gid']])->find();
+            $mbuy = new MBuy();
+            $solegoods_info = $mbuy->table('bbc_p_mbuy_goods')->where(['gid'=>$cart_info['gid']])->find();
             if (!empty($solegoods_info)) {
                 $cart_list[$key]['goods_price'] = $solegoods_info['mbuy_price'];
             }

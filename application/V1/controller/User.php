@@ -36,7 +36,6 @@ class User extends Base
         } else {
             $userModel = new users();
             $userinfo = $userModel->login($token, $this->request->ip());
-            print_r($userinfo);
         }
     }
 
@@ -230,4 +229,6 @@ class User extends Base
         $_SESSION['token_key'] 	= $token;
 
     }
+
+
 }

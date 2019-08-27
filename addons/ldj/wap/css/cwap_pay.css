@@ -1,0 +1,114 @@
+/*-------------------z支付页面--------------------------*/
+.green{
+    background: #5EB319;
+}
+.green:after{
+    display: none!important;
+}
+.header-title h1{
+    color: #fff;
+}
+.header-l a i.back{
+    background:url(../images/usercenter/arrow_left_r_white.png)center center no-repeat!important;
+    background-size: 48% 100%!important;
+}
+.nav-top{
+    padding-top:1.9rem;
+    padding-bottom:0.6521rem;
+    text-align: center;
+    color: #fff;
+    background: #5EB319;
+}
+.nav-top h1{
+    padding-bottom: 0.365rem;
+    font-size: 0.521rem;
+    line-height: 0.61rem;
+    color:#BFE3A2;
+}
+.nav-top p{
+    margin-bottom:0.608rem;
+    font-size: 0.5rem;
+    line-height:0.85rem;
+}
+.nav-top p b{
+    font-size: 0.85rem;
+}
+.nav-top span{
+    font-size: 0.521rem;
+    background: #53A015;
+    padding:0.21rem 0.695rem;
+    border-radius: 25px;
+}
+.select ul li{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.695rem;
+    height: 2.608rem;
+    color: #333;
+    background: #fff;
+    border-bottom:1px solid #eaeaea;
+    cursor: pointer;
+}
+.select ul li:last-child{
+    border:none;
+}
+.select ul li p{
+    display: flex;
+    justify-content:flex-start;
+    align-items: center;
+}
+.select ul li p img{
+    width:1rem;
+    padding:0 0.608rem 0 0.5rem ;
+}
+.select ul li em{
+    display:block;
+    width: 0.869rem;
+    height: 0.869rem;
+    background:url("../images/ordius@2x.png")no-repeat;
+    background-size:100% 100%;
+    margin-right:0.5rem;
+}
+.select ul li .yuer{
+    display: flex;
+    justify-content:space-between;
+    align-items: center;
+}
+.yer{
+    color:#B5B5B5;
+    font-size: 0.56rem;
+    padding-top:0.5rem;
+}
+.yuer img{
+    width: 1rem;
+    padding:0 0.608rem 0 0.5rem ;
+}
+.yer p{
+    font-size: 0.695rem;
+    color: #333;
+    line-height:0.695rem;
+}
+.yer ins{
+    text-decoration: none;
+    margin-right: 1rem;
+}
+.actived{
+    background:url(../images/active@2x.png)no-repeat!important;
+    background-size:100% 100%!important;
+}
+.submit{
+    position: fixed;
+    background: #5EB319;
+    color: #fff;
+    display: flex;
+    font-size: 0.695rem;
+    height: 1.695rem;
+    justify-content:center;
+    align-items: center;
+    width: 94%;
+    border-radius:4px;
+    left:3%;
+    bottom: 3%;
+    cursor: pointer;
+}

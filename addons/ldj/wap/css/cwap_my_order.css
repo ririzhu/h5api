@@ -1,0 +1,192 @@
+#orderList{
+    padding:2.4rem 0;
+}
+.orderTab{
+    background: #fff;
+    padding:0.434rem 0.434rem 0.652rem 0.434rem;
+    margin-bottom:0.434rem;
+}
+.orderTitle{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.orderTitle a{
+    color: #333;
+    display: flex;
+    justify-content:flex-start;
+    align-items: center;
+    font-size: 0.652rem;
+}
+.orderTitle .orderState{
+    color: #999;
+    font-size: 0.521rem;
+}
+.daifu{
+    color: #FF3D3D!important;
+}
+.time{
+    color: #999;
+    font-size: 0.521rem;
+}
+.orderAlert{
+    background: #F1F1F1;
+    color: #333;
+    padding-left:0.4rem;
+    border-radius:3px;
+    font-size: 0.521rem;
+}
+.orderAlert p{
+    line-height: 1.3rem;
+    height: 0.8rem;
+}
+.orderAlert span{
+    display: flex;
+    line-height:1rem;
+    justify-content: flex-start;
+    align-items: center;
+}
+.orderAlert span b{
+    font-weight: normal;
+    font-size: 0.5rem;
+    transform:scale(0.8,0.8);
+    color: #999;
+    position: relative;
+    left:-1.1rem;
+}
+.order_img{
+    display: flex;
+    padding:0.521rem 0;
+}
+.order_Goods {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.order_img a{
+    display: block;
+    position: relative;
+    margin-right:0.434rem;
+}
+
+.order_img a .wrap{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,.5);
+    color: #fff;
+    font-size: 0.4rem;
+    text-align: center;
+    line-height: 2.26rem;
+}
+
+.order_img a img{
+    width:2.26rem;
+    height: 2.26rem;
+    border-radius:3px;
+}
+.order_img a:last-child{
+    margin-right:0;
+}
+.order_Goods dl{
+    text-align: right;
+    padding:0.521rem 0;
+}
+.order_Goods dl dt{
+    color: #F71A1A;
+    font-size: 0.652rem;
+    line-height: 0.652rem;
+    margin-bottom: 0.4rem;
+}
+.order_Goods dl dd {
+    font-size: 0.521rem;
+    line-height: 0.521rem;
+    margin-bottom: 0.3rem;
+}
+.order_Goods dl dd:last-child{
+    margin-bottom:0;
+}
+.order_Goods dl dd span{
+    border: 1px solid #03A9F3;
+    color: #03A9F3;
+    border-radius: 3px;
+    transform: scale(0.8,0.8);
+    display: inline-block;
+    font-size: 0.5rem;
+    line-height: 0.5rem;
+    padding: 2px;
+    position: relative;
+    left: 0.2rem;
+}
+.quzhifu{
+    display: flex;
+    justify-content: flex-end;
+}
+.quzhifu .pay_t{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 1rem;
+    color: #fff;
+    font-size: 0.521rem;
+    background:#FF3D3D;
+    border-radius:3px;
+    padding: 0 0.8rem;
+    margin-left: 15px;
+    cursor: pointer;
+}
+.zaicigoumai{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.zaicigoumai a{
+    font-size: 0.521rem;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border:1px solid #999;
+    width: 3.04rem;
+    height: 0.95rem;
+    border-radius:2px;
+}
+.ziqu{
+    color:#FF3D3D!important;
+    border-color:#FF3D3D!important;
+}
+
+.quzhifu .cancel_order{
+    font-size: 0.521rem;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #999;
+    width: 3.04rem;
+    height: 0.95rem;
+    border-radius: 2px;
+}
+
+
+.cart_not .img {
+    display: inline-block;
+    width: 2.2rem;
+    height: 2.2rem;
+    padding: 0.4rem;
+    margin: 5.5rem auto 0;
+    background-color: #DDD;
+    border-radius: 100%;
+}
+
+.cart_not .img img {
+    display: block;
+    width: 80%;
+    margin: 0.3rem 0 0 .16rem;
+}
+
+.cart p {
+    font-size: 0.6rem;
+}

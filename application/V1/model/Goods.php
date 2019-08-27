@@ -182,7 +182,7 @@ class Goods extends Model
      */
     public function getGoodsCommonList($condition, $field = '*', $page = 10, $order = 'goods_commonid desc') {
         $condition = $this->_getRecursiveClass($condition);
-        return $this->table('goods_common')->field($field)->where($condition)->order($order)->page($page)->select();
+        return DB::table('bbc_goods_common')->field($field)->where($condition)->order($order)->page($page)->select();
     }
 
     /**
@@ -2141,7 +2141,7 @@ class Goods extends Model
         $common_array['goods_state']        = ($store_state != 1) ? 0 : intval($param['g_state']);            // 店铺关闭时，商品下架
         $common_array['goods_addtime']      = TIMESTAMP;
         $common_array['goods_selltime']     = strtotime($param['starttime']) + intval($param['starttime_H'])*3600 + intval($param['starttime_i'])*60;
-        $common_array['goods_verify']       = (C('goods_verify') == 1) ? 10 : 1;
+        $common_array['goods_verify']       = (Config('goods_verify') == 1) ? 10 : 1;
         $common_array['vid']           = $vid;
         $common_array['store_name']         = $store_name;
         $common_array['spec_name']          = is_array($param['spec']) ? serialize($param['sp_name']) : serialize(null);
@@ -2155,7 +2155,7 @@ class Goods extends Model
         $common_array['goods_stcids']       = $this->_getStoreClassArray($param['sgcate_id'], $vid);
         $common_array['plateid_top']        = intval($param['plate_top']) > 0 ? intval($param['plate_top']) : 0;
         $common_array['plateid_bottom']     = intval($param['plate_bottom']) > 0 ? intval($param['plate_bottom']) : 0;
-        if(C('distribution')){
+        if(Config('distribution')){
             $common_array['fenxiao_yongjin']     = floatval($param['fenxiao_yongjin']);
         }
         return $common_array;

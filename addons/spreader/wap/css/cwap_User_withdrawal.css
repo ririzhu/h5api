@@ -1,0 +1,64 @@
+body{
+    background:#f7f8fb;
+    padding-top:1.9rem;
+}
+header{
+    position: fixed;
+    left: 0;
+    top:0;
+    text-align: center;
+    width: 100%;
+    height:1.9rem;
+    line-height:1.9rem;
+    background:#FC3357;
+    color: #fff;
+    font-size: 0.78rem;
+}
+header a{
+    position: absolute;
+    float: left;
+    color: #fff;
+    font-size: 1rem;
+    left: 3%;
+    font-family: simsun;
+}
+.BtN{
+    font-size: 0.782rem;
+    color: #fff;
+    display: block;
+    width:80%;
+    text-align: center;
+    background:#FC3357;
+    line-height:2.043rem;
+    margin:0 10%;
+    border-radius:5px;
+    margin-top:1.739rem;
+}
+.box{
+    padding:0.652rem 0;
+
+}
+.tixian{
+    width: 100%;
+    border:1px solid  #ececec;
+    border-left:none;
+    border-right:none;
+    line-height:2.04rem;
+    font-size: 0.652rem;
+    background:#fff;
+    color: #373737;
+}
+.tixian span{
+    margin-left:0.652rem;
+}
+.tixian input{
+    border:none;
+}
+.box p{
+    color:#c2c2c2;
+    font-size: 0.521rem;
+    line-height:0.721rem;
+    width:94%;
+    padding:0.421rem 0;
+    margin-left:3%;
+}

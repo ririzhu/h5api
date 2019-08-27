@@ -293,7 +293,21 @@ define('QINIU_ACCESSKEY', $config['accessKey']);
 define('QINIU_SECRETKEY', $config['secretKey']);
 
 define('DBPRE',($config['db'][1]['dbname']).'`.`'.($config['tablepre']));
-
+if($config['sld_oss_open']){
+    define('OSS_ENABLE',1);
+    define('QINIU_ENABLE',0);
+    $config['upload_site_url']		= 'http://'.$config['sld_oss_pre'].'.oss-cn-beijing.aliyuncs.com/data/upload';
+}else if($config['sld_qiniu_open']){
+    define('QINIU_ENABLE',1);
+    define('OSS_ENABLE',0);
+    $config['upload_site_url']		= 'http://img.slodon.cn'.'/data/upload';
+}else{
+    $config['upload_site_url']      = $config['main_url'].'/data/upload';
+    define('OSS_ENABLE',0);
+    define('QINIU_ENABLE',0);
+}
+define('UPLOAD_SITE_URL',$config['upload_site_url']);
+define('MD5_KEY','7253def33a4f7130018a00dd8b9c8c43');
 return [
     // 应用名称
     'app_name'               => '',

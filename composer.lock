@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ab4aa50b9fa5f2fb5f8b9dad509dc16",
+    "content-hash": "8d8509afa8403c044042b80c71e7a3a7",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -192,6 +192,44 @@
                 "url"
             ],
             "time": "2019-07-01T23:21:34+00:00"
+        },
+        {
+            "name": "okcoder/think-addons",
+            "version": "v1.0",
+            "source": {
+                "type": "git",
+                "url": "https://gitee.com/okcoder/think-addons",
+                "reference": "fa876a06d6adf21393da6762268c4b7a4f197670"
+            },
+            "require": {
+                "topthink/framework": "5.1.*"
+            },
+            "type": "library",
+            "extra": {
+                "think-config": {
+                    "addons": "src/config.php"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "think\\": "src/"
+                },
+                "files": [
+                    "src/helper.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "okcoder",
+                    "email": "1046512080@qq.com"
+                }
+            ],
+            "description": "The ThinkPHP5.1 Addons Package",
+            "time": "2019-04-20T08:14:05+00:00"
         },
         {
             "name": "psr/http-message",

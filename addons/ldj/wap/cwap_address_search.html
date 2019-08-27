@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>选择收货地址</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_address_search.css">
+    <link rel="stylesheet" href="css/cwap_address.css">
+</head>
+<body>
+<header id="header">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1)">
+                <i class="back"></i>
+            </a>
+        </div>
+        <div class="header-title">
+            <h1>选择收货地址</h1>
+        </div>
+    </div>
+</header>
+
+<div class="choose_address">
+    <div class="c_search">
+        <input type="text" placeholder="选择城市、小区、写字楼、学校" readonly>
+        <img src="./images/a_search.png" alt="">
+    </div>
+
+    <a href="javascript:;" class="c_dw">
+        <div class="c_dw_left">
+            <div class="img">
+                <img src="./images/a_dw.png" alt="">
+            </div>
+            <p>点击定位当前地点</p>
+        </div>
+        <div class="c_dw_right">
+            <img src="./images/a_ltr.png" alt="">
+        </div>
+    </a>
+
+    <div class="c_my_address">
+        <h2 class="c_title">我的收货地址</h2>
+        <div class="c_addr_list">
+            <ul></ul>
+        </div>
+    </div>
+</div>
+
+<div class="add_address">
+    新增地址
+</div>
+</body>
+<script type="text/html" id="addr_list">
+    <%for(var i = 0;i<data.length;i++){
+    var item = data[i];
+    %>
+    <li class="addr_item">
+        <div class="name">
+            <span><%=item.true_name%></span>
+            <%if(item.is_default==1){%>
+            <span class="default">默认</span>
+            <%}%>
+        </div>
+        <div class="info" data-id="<%=item.address_id%>" data-lng="<%=item.lng%>" data-lat="<%=item.lat%>" data-addr="<%=item.address%>">
+            <p><%=item.mob_phone%></p>
+            <p><%=item.area_info%> <%=item.address%> <%=item.address_precose%></p>
+        </div>
+        <div class="img">
+            <img src="./images/a_edit.png" class="edit" data-id="<%=item.address_id%>" alt="">
+        </div>
+    </li>
+    <%}%>
+</script>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/cwap_address_search.js"></script>
+</html>

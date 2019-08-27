@@ -1,0 +1,107 @@
+.header-l a i.back{
+    background: url(../images/usercenter/arrow_left_r_white.png)center center no-repeat!important;
+    background-size: 48% 100%!important;
+}
+body{
+    background: #f1f1f1;
+}
+.header-inp{
+    width: 84%;
+}
+.shop{
+    background: #fff;
+    display: flex;
+    justify-content:flex-start;
+    align-items: center;
+    height: 3.478rem;
+    border-bottom:1px solid #eaeaea;
+    padding-top: 1.9rem;
+}
+.shop p img{
+    width: 2.6rem;
+    margin: 0.521rem 0.69rem;
+    border-radius: 5px;
+    box-shadow: 1px 0px 6px 1px rgba(0,0,0,0.1);
+}
+.shop .minxi h2{
+    font-size: 0.739rem;
+}
+.shop .minxi span{
+    font-size: 0.5rem;
+    color: #999;
+    transform: scale(0.8,0.8);
+    display: inline-block;
+}
+.title{
+    font-size: 0.521rem;
+    color: #999;
+    display: flex;
+    justify-content:flex-start;
+    align-items: center;
+    height: 1.434rem;
+    margin-bottom:0.5rem;
+    background: #fff;
+}
+.title span{
+    color: #F33E37;
+    border: 1px solid #F33E37;
+    border-radius: 5px;
+    width: 1.5rem;
+    height: 0.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: scale(0.7,0.7);
+    margin:0 0.2rem;
+}
+.xinxi{
+    padding-left:0.695rem;
+    background: #fff;
+    padding-bottom:0.65rem;
+    margin-bottom:0.5rem;
+}
+.xinxi dt{
+    padding:0.65rem 0;
+    font-size: 0.695rem;
+}
+.xinxi dd{
+    font-size: 0.521rem;
+    color: #666;
+}
+.shop_xinxi{
+    padding-left:0.695rem;
+    background: #fff;
+    padding-bottom:0.5rem;
+    margin-bottom:0.5rem;
+}
+.shop_xinxi h1{
+    border-bottom:1px solid #ededed;
+    height: 2.17rem;
+    line-height:2.17rem;
+    font-size: 0.651rem;
+}
+.shop_xinxi p{
+    font-size: 0.565rem;
+    line-height:1.43rem;
+}
+.ziyuan{
+    display: block;
+    background: #fff;
+    padding-left:0.695rem;
+    line-height:1.95rem;
+    color: #333;
+    font-size: 0.695rem;
+    position: relative;
+}
+.ziyuan em{
+    position: absolute;
+    right: 0.5rem;
+    top: 0.7rem;
+    display: block;
+    width: 7px;
+    height: 7px;
+    border: 1px solid #666;
+    border-left: none;
+    border-top: none;
+    transform: rotate(-44deg);
+}

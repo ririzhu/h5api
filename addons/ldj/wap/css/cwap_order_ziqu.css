@@ -1,0 +1,115 @@
+.kaiguan span{
+    color: #999!important;
+}
+header.fixed{
+    z-index: 20!important;
+}
+.kaiguan span:nth-of-type(2){
+    color: #fff!important;
+}
+.peisong {
+    background: #5EB319;
+    height: 3.782rem;
+    color: #fff;
+}
+.peisongBox {
+    padding-top: 1.95rem;
+    height: 1.608rem;
+}
+.The_map h1{
+    /*height: 1.56rem;*/
+    padding: 0.4rem 0.5rem;
+    line-height: 0.8rem;
+    color: #333;
+    font-size: 0.539rem;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.The_map>p{
+    height: 7.391rem;
+    overflow: hidden;
+}
+.mapList{
+    margin-bottom:0.5rem;
+}
+.mapList a{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #999;
+    font-size: 0.608rem;
+    height: 1.91rem;
+    background:#fff;
+    padding:0 0.521rem;
+    border-bottom:1px solid #f1f1f1;
+}
+
+.mapList a p{
+    display: flex;
+}
+
+.mapList a p em{
+    margin-left:0.739rem;
+    color: #333;
+}
+.jiesuan{
+    margin-bottom:3rem!important;
+}
+
+.edit_phone_input{
+    display: none;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.edit_phone_input .beizhutext{
+    width: 11.86rem;
+    height:5.21rem;
+    background: #fff;
+    border-radius:5px;
+}
+.edit_phone_input .beizhutext h1{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height:1.91rem;
+    padding:0 0.5rem;
+    width: 92%;
+    color: #333;
+    font-size: 0.695rem;
+}
+.edit_phone_input .beizhutext h1 em{
+    font-size: 0.521rem;
+    color: #666;
+    cursor: pointer;
+}
+.edit_phone_input .beizhutext h1 b {
+    font-weight: normal;
+}
+.edit_phone_input .beizhutext h1 span{
+    font-size: 0.565rem;
+    color: #5EB318;
+    cursor: pointer;
+}
+
+.edit_phone_input input{
+    border: 1px solid #e2e2e2;
+    width: 80%;
+    line-height: 1.2rem;
+    margin-top: 0.6rem;
+    padding-left: 10px;
+    margin-bottom: 0.8rem;
+}

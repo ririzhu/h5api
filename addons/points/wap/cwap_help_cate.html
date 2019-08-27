@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-cn" style="font-size: 20px">
+<head>
+    <meta charset="UTF-8">
+    <title>帮助中心</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_member.css">
+    <link href="./css/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <!--[if IE 7]>
+    <link rel="stylesheet" href="./css/font-awesome/css/font-awesome-ie7.min.css">
+    <![endif]-->
+</head>
+<style type="text/css">
+header{
+    position: fixed;
+    left: 0;
+    top:0;
+    text-align: center;
+    width: 100%;
+    height:1.9rem;
+    line-height:1.9rem;
+    background:#FC3357;
+    color: #fff;
+    font-size: 0.78rem;
+}
+header a{
+    float: left;
+    color: #fff;
+    font-family: simsun;
+    padding-left:3%;
+}
+</style>
+
+
+<body>
+
+<header>
+    <a href="javascript:history.go(-1);">&lt;</a> <span class="header-title">帮助中心</span>
+</header>
+
+    <div class="bbctouch-main-layout" style="margin-top: 2.3rem;">
+
+        <ul class="bbctouch-default-list mt5 ul-group-list article-list">
+
+        </ul>
+
+    </div>
+<script type="text/html" id="article_list">
+    <% if (status > 0){ %>
+    <% for(var i = 0;i<article_list.length;i++){%>
+    <li>
+        <a href="cwap_help_info.html?i=<%=article_list[i].id%>">
+            <h4><%=article_list[i].article_title%></h4>
+            <span class="arrow-r"></span>
+        </a>
+    </li>
+    <% } %>
+    <%}else {%>
+    <div class="bbctouch-norecord order">
+        <div class="norecord-ico"><i></i></div>
+        <dl>
+            <dt>暂无帮助信息</dt>
+        </dl>
+    </div>
+    <%}%>
+</script>
+    <footer id="footer"></footer>
+    <script type="text/javascript" src="./js/zepto.min.js"></script>
+    <script type="text/javascript" src="./js/template.js"></script>
+    <script type="text/javascript" src="./js/cwap_config.js"></script>
+    <script type="text/javascript" src="./js/cwap_common.js"></script>
+    <script type="text/javascript" src="./js/simple-plugin.js"></script>
+    <script type="text/javascript" src="./js/scroll-load.js"></script>
+    <script type="text/javascript" src="./js/cwap_help_center.js"></script>
+    <script type="text/javascript" src="./js/zepto.waypoints.js"></script>
+</body>
+</html>

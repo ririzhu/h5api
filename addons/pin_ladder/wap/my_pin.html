@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>我的拼团</title>
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/my_pin.css">
+</head>
+<body>
+<header id="header_user" class="fixed">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1)"><img src="./images/ico_011.png" alt=""></a>
+        </div>
+        <div class="header-title">
+            <h1 class="colorWhite top_g">阶梯团订单</h1>
+        </div>
+        <div class="header-share" id="header-menu">
+            <a href="javascript:;"><img src="./images/more_b.png" alt=""></a>
+            <ul>
+                <li>
+                    <a href="/index.html"><img src="./images/home_w.png" alt="">首页</a>
+                </li>
+                <li>
+                    <a href="/cwap/cwap_user.html"><img src="./images/member_w.png" alt="">个人中心</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+<div class="nav_container">
+    <ul class="nav clearfix">
+        <li class="nav_item active">
+            <a href="javascript:;" data-id="">全部</a>
+        </li>
+        <li class="nav_item">
+            <a href="javascript:;" data-id="1_20">已付定金</a>
+        </li>
+        <li class="nav_item">
+            <a href="javascript:;" data-id="1_30">待付尾款</a>
+        </li>
+        <li class="nav_item">
+            <a href="javascript:;" data-id="1_0">参团失败</a>
+        </li>
+        <li class="nav_item">
+            <a href="javascript:;" data-id="2_20">待发货</a>
+        </li>
+        <li class="nav_item">
+            <a href="javascript:;" data-id="2_30">已发货</a>
+        </li>
+        <li class="nav_item">
+            <a href="javascript:;" data-id="2_40">已完成</a>
+        </li>
+    </ul>
+</div>
+
+<div class="main">
+    <div class="goods_list">
+        <ul>
+
+        </ul>
+    </div>
+</div>
+
+<script type="text/html" id="pin_list">
+    <%if(list&&list.length){%>
+    <%for(var i = 0; i<list.length;i++){
+        var item = list[i];
+    %>
+    <li class="goods_item">
+        <div class="store">
+            <a href="<%=SiteUrl%>/cwap/cwap_go_shop.html?vid=<%=item.vid%>" class="s_left">
+                <img src="./images/store@2x.png" alt="">
+                <span><%=item.store_name%></span>
+                <img src="./images/ltr@2x.png" alt="">
+            </a>
+            <p class="s_status"><%=item.order_state_str%></p>
+        </div>
+        <div class="info">
+            <div class="img">
+                <a href="order_detail.html?orderid=<%=item.order_id%>">
+                    <img src="<%=item.goods_image%>" alt="">
+                </a>
+            </div>
+            <div class="goods_info">
+                <a href="order_detail.html?orderid=<%=item.order_id%>">
+                    <img src="./images/jtu_logo@2x.png" alt=""><%=item.goods_name%>
+                </a>
+                <p class="deposit">￥<%=item.goods_price%> <span>X <%=item.goods_num%></span></p>
+            </div>
+        </div>
+    </li>
+    <%}%>
+    <%}else{%>
+    <div class="err">
+        <div class="img">
+            <img src="./images/search_w.png" alt="">
+        </div>
+        <p>暂无相关拼团</p>
+    </div>
+    <%}%>
+</script>
+
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/my_pin.js"></script>
+</html>

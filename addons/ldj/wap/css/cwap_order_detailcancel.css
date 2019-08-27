@@ -1,0 +1,90 @@
+.panel h1{
+    margin-bottom:0;
+}
+.panel p{
+    font-size: 0.521rem;
+    color: #666;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+/*---------订单完成---------*/
+.pinjia{
+    color: #5EB319!important;
+    border-color:#5EB319!important;
+    margin:0 0.652rem;
+}
+.shop_state{
+    width: 94%;
+    display: flex;
+    justify-content: flex-start;
+    padding-left:3%;
+    align-items: center;
+    margin:0 auto;
+    background: #fff;
+    box-shadow: 1px 1px 6px 0px rgba(0,0,0,0.1);
+    height:2.608rem;
+}
+.shop_state>span{
+    display: flex;
+    justify-content:center;
+    align-items: center;
+    background: #FF1414;
+    color: #fff;
+    border-radius:2px;
+    font-size: 0.5rem;
+    width: 2.3rem;
+    height: 0.65rem;
+    margin-right:2.3rem;
+}
+.shop_state>span em{
+    display: inline-block;
+    transform: scale(0.8,0.8);
+}
+.shop_state p{
+    color: #333;
+    font-size: 0.521rem;
+}
+.shop_state p span{
+    color: #666;
+}
+.dadauser{
+    display:flex;
+    justify-content:space-between;
+    align-items: center;
+}
+.flex{
+    justify-content: space-between!important;
+}
+.flex>p{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    color:#FF9501;
+    font-size: 0.521rem;
+    margin-right:0.695rem;
+}
+.flex>p img{
+    height: 0.608rem;
+    margin-right: 6px;
+}
+.dadauser img{
+    width: 1.739rem;
+    height: 1.739rem;
+    border-radius:50%;
+    margin-right:0.651rem;
+}
+.dadauser p span{
+    display: block;
+}
+.dada{
+    border: 1px solid #03A9F3;
+    color: #03A9F3!important;
+    border-radius: 3px;
+    transform: scale(0.8,0.8);
+    display: inline-block;
+    font-size: 0.5rem;
+    line-height: 0.5rem;
+    padding: 2px;
+    position: relative;
+    left:-0.2rem;
+}

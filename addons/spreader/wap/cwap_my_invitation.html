@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>我的邀请</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_My_invitation.css">
+    <style>
+
+    </style>
+</head>
+<body>
+<header>
+    <a href="cwap_user.html"></a> 我的邀请 <!-- <span class="share"><img src="images/sld_share1@3x.png" alt=""></span> -->
+</header>
+<div class="bg">
+    <img src="images/sld_bg@2x2.png" alt="">
+    <a href="cwap_my_subordinates.html" class="btn1">我的下级</a>
+    <a href="cwap_rule.html" class="btn2">活动规则</a>
+</div>
+<div class="alert">
+    <div class="alert_box">
+        <p><span><img src="images/sld_xiantia1@2x.png" alt=""></span>分享好友<span><img src="images/sld_xiantiao@2x.png" alt=""></span></p>
+        <ul>
+            <li><a href=""><img src="images/sld_weixin@2x.png" alt=""><h5>微信</h5></a></li>
+            <li><a href=""></a><img src="images/sld_pengyouquan@2x.png" alt=""><h5>微信</h5></a></li>
+            <li><a href=""><img src="images/sld_3@2x.png" alt=""><h5>微信</h5></a></li>
+        </ul>
+        <ol>
+            <li><a href=""><img src="images/5@2x.png" alt=""><h5>QQ</h5></a></li>
+            <li><a href=""><img src="images/16@2x.png" alt=""><h5>空间</h5></a></li>
+        </ol>
+        <div class="cancel">取消</div>
+    </div>
+</div>
+</body>
+<script type="text/javascript" src="jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script>
+    var oh = $(".bg").height();
+    var ow = $(document).width();
+    console.log(oh,ow);
+    $(document.body).css({"width":ow});
+    $(".share").on("click",function(){
+        $(".alert").css("display","block");
+    });
+    $(".cancel").on("click",function(){
+        $(".alert").css("display","none");
+    })
+</script>
+</html>
