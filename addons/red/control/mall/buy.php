@@ -23,8 +23,9 @@ class red extends \app\V1\controller\Base
         $condition['redinfo_end'] = array( 'gt',TIMESTAMP);
         $condition['redinfo_start'] = array( 'lt',TIMESTAMP);
         $condition['reduser_uid'] = $member_info['member_id'];
+        $conditions = "reduser_use = 0 and redinfo_end >".TIMESTAMP." and redinfo_start <".TIMESTAMP ." and reduser_uid = ".$member_info['member_id'];
 //        $condition['red.vid'] = 0;
-        $red_list = $model_red->getRedUserList($condition);
+        $red_list = $model_red->getRedUserList($conditions);
         $red_list = $model_red->filter_red($goods_list,$red_list);
 
         $vendor_red_list = [];

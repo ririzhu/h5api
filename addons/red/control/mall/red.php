@@ -3,7 +3,6 @@
  * 队伍表
  *
  */
-
 defined('DYMall') or exit('Access Invalid!');
 class red extends \app\V1\controller\Base
 {

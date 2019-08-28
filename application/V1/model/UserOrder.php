@@ -4,7 +4,7 @@ namespace app\V1\model;
 use Cache;
 use Exception;
 use think\Model;
-
+use think\db;
 class UserOrder extends Model
 {
     /**
@@ -428,7 +428,7 @@ class UserOrder extends Model
      * @return int 返回 insert_id
      */
     public function addOrderPay($data) {
-        return $this->table('order_pay')->insert($data);
+        return $this->table('bbc_order_pay')->insert($data);
     }
 
     /**
@@ -437,7 +437,7 @@ class UserOrder extends Model
      * @return int 返回 insert_id
      */
     public function addOrder($data) {
-        return $this->table('order')->insert($data);
+        return DB::table('bbc_order')->insertGetId($data);
     }
 
     /**
@@ -446,7 +446,11 @@ class UserOrder extends Model
      * @return int 返回 insert_id
      */
     public function addOrderCommon($data) {
-        return $this->table('order_common')->insert($data);
+        $data['evaluation_time']=TIMESTAMP;
+        $data['evalseller_time']=TIMESTAMP;
+        $res = DB::table('bbc_order_common')->insert($data);
+        if($res!=0)
+        return true;
     }
 
     /**
@@ -455,7 +459,8 @@ class UserOrder extends Model
      * @return int 返回 insert_id
      */
     public function addOrderGoods($data) {
-        return $this->table('order_goods')->insertAll($data);
+        $data['teacher'] = "UCG";
+        return $this->table('bbc_order_goods')->insertAll($data);
     }
 
     /**
@@ -464,7 +469,7 @@ class UserOrder extends Model
     public function addOrderLog($data) {
         $data['log_role'] = str_replace(array('buyer','seller','system','dian'),array('买家','商家','系统','门店'), $data['log_role']);
         $data['log_time'] = TIMESTAMP;
-        return $this->table('order_log')->insert($data);
+        return $this->table('bbc_order_log')->insert($data);
     }
 
     /**

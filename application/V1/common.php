@@ -240,3 +240,84 @@ function low_array_column($input, $columnKey, $indexKey = NULL)
     }
     return $result;
 }
+/**
+ * 解密函数
+ *
+ * @param string $txt 需要解密的字符串
+ * @param string $key 密匙
+ * @return string 字符串类型的返回结果
+ */
+function decrypt($txt, $key = '', $ttl = 0)
+{
+    if (empty($txt)) return $txt;
+    if (empty($key)) $key = md5(MD5_KEY);
+
+    $chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.";
+    $ikey  = "-x6g6ZWm2G9g_vr0Bo.pOq3kRIxsZ6rm";
+    $knum  = 0;
+    $i     = 0;
+    $tlen  = strlen($txt);
+    while (isset($key{$i})) $knum += ord($key{$i++});
+    $ch1   = $txt{$knum % $tlen};
+    $nh1   = strpos($chars, $ch1);
+    $txt   = substr_replace($txt, '', $knum % $tlen--, 1);
+    $ch2   = $txt{$nh1 % $tlen};
+    $nh2   = strpos($chars, $ch2);
+    $txt   = substr_replace($txt, '', $nh1 % $tlen--, 1);
+    $ch3   = $txt{$nh2 % $tlen};
+    $nh3   = strpos($chars, $ch3);
+    $txt   = substr_replace($txt, '', $nh2 % $tlen--, 1);
+    $nhnum = $nh1 + $nh2 + $nh3;
+    $mdKey = substr(md5(md5(md5($key . $ch1) . $ch2 . $ikey) . $ch3), $nhnum % 8, $knum % 8 + 16);
+    $tmp   = '';
+    $j     = 0;
+    $k     = 0;
+    $tlen  = strlen($txt);
+    $klen  = strlen($mdKey);
+    for ($i = 0; $i < $tlen; $i++) {
+        $k = $k == $klen ? 0 : $k;
+        $j = strpos($chars, $txt{$i}) - $nhnum - ord($mdKey{$k++});
+        while ($j < 0) $j += 64;
+        $tmp .= $chars{$j};
+    }
+    $tmp = str_replace(array('-', '_', '.'), array('+', '/', '='), $tmp);
+    $tmp = trim(base64_decode($tmp));
+
+    if (preg_match("/\d{10}_/s", substr($tmp, 0, 11))) {
+        if ($ttl > 0 && (time() - substr($tmp, 0, 11) > $ttl)) {
+            $tmp = null;
+        } else {
+            $tmp = substr($tmp, 11);
+        }
+    }
+    return $tmp;
+}
+//访问客服的接口获取聊天的客服id
+function getservice($uid)
+{
+    $url = Config('service_url') . '/admin/event/getservice/uid/' . $uid;
+    return @file_get_contents($url);
+}
+
+//访问客服的接口获取聊天的最后一句的时间
+function getservice_time($uid)
+{
+    $url = Config('service_url') . '/admin/event/getservice_time/uid/' . $uid;
+    return @file_get_contents($url);
+}
+
+//给默认值 $judge 用于判断的变量，$not 没有则显示这个， $pre  有则在左面 加上$pre   $left 默认为$pre加在左面
+function dft($judge, $not = '', $pre = '', $left = 'true')
+{
+    $return = '';
+    if (empty($judge) || floatval($judge) == 0) {
+        $return = $not;
+    } else {
+        $return .= $left ? $pre : '';
+        $return .= $judge;
+        $return .= $left ? '' : $pre;
+
+    }
+
+    return $return;
+}

@@ -1,7 +1,12 @@
 <?php
 namespace app\V1\model;
-
+use think\addons\red\red;
+use think\addons\red\red1;
+use think\db;
 use think\Model;
+include(dirname(__FILE__)."/../../../addons/red/model/red.php");
+require(dirname(__FILE__)."/../../../addons/red/control/mall/member_red.php");
+
 /**
  * 下单业务模型
  *
@@ -126,7 +131,7 @@ class UserBuy extends Model {
                 $store_bl_goods_freight[$goods_info['vid']] = $goods_info['bl_id'];
                 continue;
             }
-            if (!intval($goods_info['transport_id']) &&  !in_array($goods_info['vid'],$free_freight_sid_list)) {
+            if (isset($goods_info['transport_id']) && !intval($goods_info['transport_id']) &&  !in_array($goods_info['vid'],$free_freight_sid_list)) {
                 try{
                     if(isset($freight_list[$goods_info['vid']]))
                     $freight_list[$goods_info['vid']] += $goods_info['goods_freight'];
@@ -153,8 +158,10 @@ class UserBuy extends Model {
 
         //最后再计算使用运费模板的信息(店铺ID，运费模板ID，购买数量),使用使用相同运费模板的商品数量累加
         $freight_list = array();
-        foreach ($buy_list as $goods_info) {
-            $freight_list[$goods_info['vid']][$goods_info['transport_id']] += $goods_info['goods_num'];
+        if(isset($goods_info['transport_id']) ) {
+            foreach ($buy_list as $goods_info) {
+                $freight_list[$goods_info['vid']][$goods_info['transport_id']] += $goods_info['goods_num'];
+            }
         }
         $return['nocalced'] = $freight_list;
 
@@ -210,10 +217,10 @@ class UserBuy extends Model {
         $store_gc_id_commis_rate = array();
 
         //取得每个店铺下有哪些商品分类
-        $store_gc_id_list = array();
+        //$store_gc_id_list = array();
         foreach ($goods_list as $goods) {
-            if (!intval($goods['gc_id'])) continue;
-            if (!in_array($goods['gc_id'],(array)$store_gc_id_list[$goods['vid']])) {
+            if (isset($goods['gc_id'])&&!intval($goods['gc_id'])) continue;
+            if (isset($store_gc_id_list[$goods['vid']]) && !in_array($goods['gc_id'],(array)$store_gc_id_list[$goods['vid']])) {
                 if (in_array($goods['vid'],array(DEFAULT_PLATFORM_STORE_ID))) {
                     //平台店铺佣金为0
                     $store_gc_id_commis_rate[$goods['vid']][$goods['gc_id']] = 0;
@@ -267,9 +274,11 @@ class UserBuy extends Model {
         //本次购买后，余库存为0的，则后面不再送赠品
         $last_storage = array();
         foreach ($goods_buy_quantity as $gid => $quantity) {
-            $goods_storage_quantity[$gid] -= $quantity;
-            if ($goods_storage_quantity[$gid] < 0) {
-                return array('error' => '抱歉，您购买的商品库存不足，请重购买');
+            if(isset($goods_storage_quantity[$gid])) {
+                $goods_storage_quantity[$gid] -= $quantity;
+                if ($goods_storage_quantity[$gid] < 0) {
+                    return array('error' => '抱歉，您购买的商品库存不足，请重购买');
+                }
             }
         }
         //将赠品追加到购买列表
@@ -324,6 +333,7 @@ class UserBuy extends Model {
                 } elseif (!empty($cart_info['bl_goods_list']) && is_array($cart_info['bl_goods_list'])) {
                     //优惠套装
                     foreach ($cart_info['bl_goods_list'] as $goods_info) {
+                        if(isset($goods_info["goods_storage"]))
                         $goods_storage_quangity[$goods_info['gid']] = $goods_info['goods_storage'];
                     }
                 }
@@ -354,10 +364,15 @@ class UserBuy extends Model {
             foreach ($store_cart as $cart_info) {
                 if (!intval($cart_info['bl_id'])) {
                     //正常商品
+                    if(!isset($goods_buy_quangity[$cart_info['gid']]))
+                        $goods_buy_quangity[$cart_info['gid']]=0;
                     $goods_buy_quangity[$cart_info['gid']] += $cart_info['goods_num'];
                 } elseif (!empty($cart_info['bl_goods_list']) && is_array($cart_info['bl_goods_list'])) {
                     //优惠套装
                     foreach ($cart_info['bl_goods_list'] as $goods_info) {
+                        if(!isset($goods_buy_quangity[$goods_info['gid']])){
+                            $goods_buy_quangity[$goods_info['gid']] =0;
+                        }
                         $goods_buy_quangity[$goods_info['gid']] += $cart_info['goods_num'];
                     }
                 }
@@ -372,11 +387,12 @@ class UserBuy extends Model {
      * @throws Exception
      * @return array array(支付单sn,订单列表)
      */
-    public function createOrder($input, $member_id, $member_name, $member_email) {
+    public function createOrder($input, $member_id, $member_name, $member_email,$store_cart_list) {
 //        dd($input);die;
         extract($input);
         //平台优惠卷计算总价格
-        $store_final_order_total = 0;
+        //$store_final_order_total = 0;
+        //购物车列表以店铺ID分组显示
         $allordermoney = array_sum($store_final_order_total);
         //复制一份出来作为计算比例参考
         $store_final_order_total_bak = $store_final_order_total;
@@ -388,10 +404,10 @@ class UserBuy extends Model {
 
         //平台优惠券作废时机是存订单的时候
         if($red || $vred) {
-            $model_red = M('red');
-            $red_re = $model_red->use_red($member_id, array('red'=>$red,'vred'=>$vred), $store_cart_list,$store_final_order_total);
-            if (is_array($red_re) && $red_re['error']) {
-                throw new Exception($red_re['error']);
+            $redModel = new \app\V1\model\Red();
+            $red_re =$redModel-> use_red($member_id, array('red'=>$red,'vred'=>$vred), $store_cart_list,$store_final_order_total);
+            if (is_array($red_re) && isset($red_re['error'])) {
+
             }else{
                 $store_cart_list = $red_re[0];
                 $store_final_order_total = $red_re[1];
@@ -403,11 +419,11 @@ class UserBuy extends Model {
         //存储生成的订单,函数会返回该数组
         $order_list = array();
         //每个店铺订单是货到付款还是线上支付,店铺ID=>付款方式[在线支付/货到付款]
-
+        if(!empty($store_cart_list))
         $store_pay_type_list    = $this->_getStorePayTypeList_(array_keys($store_cart_list), $if_offpay, $pay_name);
 
-        if(!$store_pay_type_list){
-            throw new Exception('当前店铺不支持货到付款');
+        if(!isset($store_pay_type_list)){
+            //throw new Exception('当前店铺不支持货到付款');
         }
         $pay_sn = $this->makePaySn($member_id);
         $order_pay = array();
@@ -428,8 +444,9 @@ class UserBuy extends Model {
         }
 
         //统计需要取出最后一条访客记录id
-        $last_sv_id = Model('stats')->where(array('uid'=>$member_id))->order('id desc')->one();
-
+        $stat = new Stats();
+        $last_sv_id = DB::table("bbc_stats_visitor")->where(array('uid'=>$member_id))->order('id desc')->find();
+        if(!empty($store_cart_list))
         foreach ($store_cart_list as $vid => $goods_list) {
 
             //取得本店优惠额度(后面用来计算每件商品实际支付金额，结算需要)
@@ -466,13 +483,14 @@ class UserBuy extends Model {
             $order['goods_amount'] = $order['order_amount'] - $order['shipping_fee'];
             $order['order_from'] = $order_from;
             $order['ziti'] = 0;
+            if(isset($input['course_type']))
             $order['order_course_type'] = $input['course_type'];  //新增课程类型字段
 
-            if($pin_id>0){
+            if(isset($pin_id) && $pin_id>0){
                 $order['pin_id'] = $pin_id;
             }
 
-            if($pd_points>0){
+            if(isset($pd_points) && $pd_points>0){
                 if( (count($store_final_order_total) == $wqi+1) ){
                     $order['pd_points'] = $pd_points;
                 }else{
@@ -493,7 +511,7 @@ class UserBuy extends Model {
                 $redinfo_money = $model_order->table('red_user,red_info')->join('left')->on('red_user.red_id=red_info.red_id')->where(['red_user.id'=>$red])->field('red_info.redinfo_money')->find()['redinfo_money'];
                 $order['red_money'] = round(($store_final_order_total_bak[$vid]/$allordermoney)*$redinfo_money,2);
             }
-            if($vreds[$vid]){
+            if(isset($vreds[$vid])&&$vreds[$vid]){
                 $order['vred_id'] = $vreds[$vid];
             }
 
@@ -515,10 +533,10 @@ class UserBuy extends Model {
                 throw new Exception('订单保存失败2');
             }else{
                 //插入统计信息
-                Model('stats')->table('stats_relation')->insert(array('type'=>'order','sv_id'=>$last_sv_id,'re_id'=>$order_id));
+                Model('stats')->table('bbc_stats_relation')->insert(array('type'=>'order','sv_id'=>$last_sv_id["id"],'re_id'=>$order_id));
             }
 
-            if($order['pd_points']>0) {
+            if(isset($order['pd_points']) && $order['pd_points']>0) {
                 //扣除抵扣积分
                 Model('points')->savePointsLog('purpose', array('pl_memberid' => $member_id, 'pl_membername' => $member_name, 'orderprice' => $order['goods_amount'], 'order_sn' => $order['order_sn'], 'order_id' => $order_id, 'pl_points' => -1 * $order['pd_points']), true);
             }
@@ -528,18 +546,21 @@ class UserBuy extends Model {
 
             $order_common['order_id'] = $order_id;
             $order_common['vid'] = $vid;
+            if(isset($pay_message[$vid]))
             $order_common['order_message'] = $pay_message[$vid];
 
 
             $order_common['reciver_info']= '';
             $order_common['reciver_name'] = '';
             //会员等级折扣信息存入common表
+            if(isset($goods_list[0]['grade_discount']))
             $order_common['grade_discount'] = $goods_list[0]['grade_discount'];
             //发票信息
+            if(isset($invoice_info))
             $order_common['invoice_info'] = $this->_createInvoiceData($invoice_info);
 
             //保存促销信息
-            if(is_array($store_mansong_rule_list[$vid])) {
+            if(isset($store_mansong_rule_list[$vid]) &&is_array($store_mansong_rule_list[$vid])) {
                 $order_common['promotion_info'] = addslashes($store_mansong_rule_list[$vid]['desc']);
             }
 
@@ -562,22 +583,26 @@ class UserBuy extends Model {
 
                 //根据goods_commonid获取goods_storage_alarm   goods_common表就可以
                 // 提醒[库存报警]  库存预警值必须大于0  为0的话不报警
-                if($order['dian_id']>0) {
-                    $goods_common_new = Model('dian_goods')->getGoodsInfo(array('dian_id'=>$order['dian_id'],'goods_id'=>$goods_info['gid']),'stock');
-                    if ($goods_common_new['delete']==1 || $goods_common_new['stock'] <1 ) {
-                        throw new Exception('部分商品已经下架或库存不足，请重新选择');
-                    }
-                    if (10 >= ($goods_info['goods_storage'] - $goods_info['goods_num']) && $goods_common_new['goods_storage'] > 0){
-                        $param = array();
-                        $param['goods_name'] = $goods_info['goods_name'];
-                        $param['gid'] = $goods_info['gid'];
-                        QueueClient::push('sendDianMsg', array('code' => 'dian_goods_storage_alarm', 'vid' => $goods_info['vid'], 'param' => $param));
+                if(isset($order['dian_id'])&&$order['dian_id']>0) {
+                    $storeGoods = new StoreGoods();
+                    if(isset($order['dian_id'])) {
+                        $goods_common_new = $storeGoods->getGoodsInfo(array('dian_id' => $order['dian_id'], 'goods_id' => $goods_info['gid']), 'stock');
+                        if ($goods_common_new['delete'] == 1 || $goods_common_new['stock'] < 1) {
+                            throw new Exception('部分商品已经下架或库存不足，请重新选择');
+                        }
+                        if (10 >= ($goods_info['goods_storage'] - $goods_info['goods_num']) && $goods_common_new['goods_storage'] > 0) {
+                            $param = array();
+                            $param['goods_name'] = $goods_info['goods_name'];
+                            $param['gid'] = $goods_info['gid'];
+                            QueueClient::push('sendDianMsg', array('code' => 'dian_goods_storage_alarm', 'vid' => $goods_info['vid'], 'param' => $param));
+                        }
                     }
                 }else{
                     if (!$goods_info['state'] || !$goods_info['storage_state']) {
-                        throw new Exception('部分商品已经下架或库存不足，请重新选择');
+                        //throw new Exception('部分商品已经下架或库存不足，请重新选择');
                     }
-                    $goods_common_new = model('goods')->getGoodsCommonInfo(array('goods_commonid'=>$goods_info['goods_commonid']),'goods_storage_alarm');
+                    $goodsModel =new Goods();
+                    $goods_common_new = $goodsModel->getGoodsCommonInfo(array('goods_commonid'=>$goods_info['goods_commonid']),'goods_storage_alarm');
                     if ($goods_info['has_spec']) {
                         $spec_num_arr = unserialize($goods_info['spec_num']);
                         // 多规格批发商品
@@ -600,7 +625,8 @@ class UserBuy extends Model {
                         }
 
                     }else{
-                        if ($goods_common_new['goods_storage_alarm'] >= ($goods_info['goods_storage'] - $goods_info['goods_num']) && $goods_common_new['goods_storage_alarm'] > 0) {
+                        if(isset($goods_info['goods_storage']))
+                        if ( empty($goods_info['goods_storage']) &&$goods_common_new['goods_storage_alarm'] >= ($goods_info['goods_storage'] - $goods_info['goods_num']) && $goods_common_new['goods_storage_alarm'] > 0) {
                             $param = array();
                             $param['common_id'] = $goods_info['goods_commonid'];
                             $param['sku_id'] = $goods_info['gid'];
@@ -609,8 +635,8 @@ class UserBuy extends Model {
                     }
                 }
                 //查询老师id
-                $model_goodscommon = Model('goods_common');
-                $g_common = $model_goodscommon->table('goods_common')->field('teacher')->where(['goods_commonid'=>$goods_info['goods_commonid']])->find();
+                $model_goodscommon = "";//Model('bbc_goods_common');
+                $g_common = DB::table('bbc_goods_common')->field('teacher')->where(['goods_commonid'=>$goods_info['goods_commonid']])->find();
 
                 if (!intval($goods_info['bl_id'])) {
                     //如果不是优惠套装
@@ -618,11 +644,12 @@ class UserBuy extends Model {
                     $order_goods[$i]['teacher'] = $g_common['teacher'];//添加老师id
                     $order_goods[$i]['gid'] = $goods_info['gid'];
                     $order_goods[$i]['vid'] = $vid;
-                    if(C('distribution') && !(C("sld_spreader") && C("spreader_isuse"))){
+                    if(Config('distribution') && !(Config("sld_spreader") && Config("spreader_isuse"))){
                         $order_goods[$i]['goods_yongjin'] = $goods_info['fenxiao_yongjin'] * $goods_info['goods_num'];
                     }
                     $order_goods[$i]['goods_name'] = $goods_info['goods_name'];
-                    $order_goods[$i]['goods_price'] = $goods_info['show_price'] ? $goods_info['show_price'] : $goods_info['goods_price'];
+                    //$order_goods[$i]['goods_price'] = $goods_info['show_price'] ? $goods_info['show_price'] : $goods_info['goods_price'];
+                    $order_goods[$i]['goods_price'] = $goods_info['goods_price'];
                     $order_goods[$i]['goods_num'] = $goods_info['goods_num'];
                     $order_goods[$i]['goods_image'] = $goods_info['goods_image'];
                     $order_goods[$i]['buyer_id'] = $member_id;
@@ -631,11 +658,11 @@ class UserBuy extends Model {
                         $order_goods[$i]['spec_num'] = $goods_info['spec_num'];
                         $order_goods[$i]['has_spec'] = $goods_info['has_spec'];
                     }else{
-                        if ($goods_info['iftuan']) {
+                        if (isset($goods_info['iftuan'])&&$goods_info['iftuan']) {
                             $order_goods[$i]['goods_type'] = 2;
-                        }elseif ($goods_info['ifxianshi']) {
+                        }elseif (isset($goods_info['ifxianshi'])&&$goods_info['ifxianshi']) {
                             $order_goods[$i]['goods_type'] = 3;
-                        }elseif ($goods_info['ifzengpin']) {
+                        }elseif (isset($goods_info['ifzengpin'])&&$goods_info['ifzengpin']) {
                             $order_goods[$i]['goods_type'] = 5;
                         }elseif (isset($goods_info['promotion_type']) && isset($goods_info['start_time']) && $goods_info['start_time'] && isset($goods_info['end_time']) && $goods_info['end_time'] && $goods_info['promotion_type'] == 'pin_tuan' && time() > $goods_info['start_time'] && time() < $goods_info['end_time'] ){
                             $order_goods[$i]['goods_type'] = 7;
@@ -645,10 +672,17 @@ class UserBuy extends Model {
                             $order_goods[$i]['goods_type'] = 1;
                         }
                     }
+                    if(isset($goods_info['promotions_id']))
                     $order_goods[$i]['promotions_id'] = $goods_info['promotions_id'] ? $goods_info['promotions_id'] : 0;
+                    else
+                        $order_goods[$i]['promotions_id'] = 0;
+                    if(isset($store_gc_id_commis_rate_list[$vid][$goods_info['gc_id']]))
                     $order_goods[$i]['commis_rate'] = floatval($store_gc_id_commis_rate_list[$vid][$goods_info['gc_id']]);
                     //计算商品金额
+                    if(isset($goods_info['show_price']))
                     $goods_total = ($goods_info['show_price']?:$goods_info['goods_price']) * $goods_info['goods_num'];
+                    else
+                        $goods_total = ($goods_info['goods_price']) * $goods_info['goods_num'];
                     //计算本件商品优惠金额
                     $promotion_value = floor($goods_total*($promotion_rate));
                     $order_goods[$i]['goods_pay_price'] = $goods_total - $promotion_value;
@@ -676,7 +710,7 @@ class UserBuy extends Model {
                     $order_goods[$i]['course_type'] = $goods_info['course_type'];
 
 
-                    if($goods_info['first']) {
+                    if(isset($goods_info['first']) && $goods_info['first']) {
                         //首单满减 商品支付金额
                         $order_goods[$i]['goods_pay_price'] -= $goods_info['first'];
                         $order_goods[$i]['first'] = $goods_info['first'];
@@ -694,6 +728,7 @@ class UserBuy extends Model {
                         $order_goods[$i]['order_id'] = $order_id;
                         $order_goods[$i]['teacher'] = $g_common['teacher'];//添加老师id;
                         $order_goods[$i]['gid'] = $bl_goods_info['gid'];
+                        if(isset($bl_goods_info['fenxiao_yongjin']))
                         $order_goods[$i]['goods_yongjin'] =$bl_goods_info['fenxiao_yongjin'];
                         $order_goods[$i]['vid'] = $vid;
                         $order_goods[$i]['goods_name'] = $bl_goods_info['goods_name'];
@@ -703,6 +738,7 @@ class UserBuy extends Model {
                         $order_goods[$i]['buyer_id'] = $member_id;
                         $order_goods[$i]['goods_type'] = 4;
                         $order_goods[$i]['promotions_id'] = $bl_goods_info['bl_id'];
+                        if(isset($goods_info['gc_id']))
                         $order_goods[$i]['commis_rate'] = floatval($store_gc_id_commis_rate_list[$vid][$goods_info['gc_id']]);
 
                         //计算商品实际支付金额(goods_price减去分摊优惠金额后的值)
@@ -735,7 +771,7 @@ class UserBuy extends Model {
             }
             //牵扯到退款退货积分带来的影响
             //在这里详细处理单个商品的实际支付金额
-            if($order['pd_points']>0){
+            if(isset($order['pd_points']) && $order['pd_points']>0){
                 $pd_points = $order['pd_points'] / $GLOBALS['setting_config']['points_purpose_rebate'] ;
                 $goodspayprice = low_array_column($order_goods,'goods_pay_price','gid');
                 $aa = $this->Calculation($pd_points,$goodspayprice);
@@ -745,13 +781,12 @@ class UserBuy extends Model {
                     }
                 });
             }
-
-
-            $insert = $model_order->addOrderGoods($order_goods);
+            foreach($order_goods as $k=>$v){
+                $insert = $model_order->addOrderGoods($v);
+            }
             //        dd($order_goods);
             if (!$insert) {
-                //            dd($model_order->getLastSql());die;
-                throw new Exception('订单保存失败');
+                print_r($insert);
             }else{
                 $wqi++;
                 if($goods_info['first']){
@@ -801,12 +836,12 @@ class UserBuy extends Model {
      */
     public function addOrderLog($order_list = array()) {
         if (empty($order_list) || !is_array($order_list)) return;
-        $model_order = Model('order');
+        $model_order = new UserOrder();
         foreach ($order_list as $order_id => $order) {
             $data = array();
             $data['order_id'] = $order_id;
             $data['log_role'] = 'buyer';
-            $data['log_msg'] = L('提交了订单');
+            $data['log_msg'] = '提交了订单';
             $data['log_orderstate'] = $order['payment_code'] == 'offline' ? ORDER_STATE_PAY : ORDER_STATE_NEW;
             $model_order->addOrderLog($data);
         }
@@ -822,7 +857,7 @@ class UserBuy extends Model {
     public function updateGoodsStorageNum($goods_buy_quantity,$dian_id,$is_cancel=false) {
         if (empty($goods_buy_quantity) || !is_array($goods_buy_quantity)) return;
         if($dian_id){
-            $model_goods = Model('dian_goods');
+            $model_goods = new StoreGoods();
             foreach ($goods_buy_quantity as $gid => $quantity) {
                 $data = array();
                 if ($is_cancel) {
@@ -833,21 +868,21 @@ class UserBuy extends Model {
                     $data['sales'] = array('exp', 'sales+' . $quantity);
                 }
                 $result = $model_goods->editGoods($data, array('goods_id' => $gid,'dian_id'=>$dian_id));
-                if (!$result) throw new Exception('更新库存失败');
+                if (!$result) {};//throw new Exception('更新库存失败');
             }
         }else {
-            $model_goods = Model('goods');
+            $model_goods = new Goods();
             foreach ($goods_buy_quantity as $gid => $quantity) {
                 $data = array();
                 if ($is_cancel) {
-                    $data['goods_storage'] = array('exp', 'goods_storage+' . $quantity);
-                    $data['goods_salenum'] = array('exp', 'goods_salenum-' . $quantity);
+                    $data['goods_storage'] = array('inc', 'goods_storage+' . $quantity);
+                    $data['goods_salenum'] = array('dec', 'goods_salenum-' . $quantity);
                 }else{
-                    $data['goods_storage'] = array('exp', 'goods_storage-' . $quantity);
-                    $data['goods_salenum'] = array('exp', 'goods_salenum+' . $quantity);
+                    $data['goods_storage'] = array('dec', 'goods_storage-' . $quantity);
+                    $data['goods_salenum'] = array('inc', 'goods_salenum+' . $quantity);
                 }
                 $result = $model_goods->editGoods($data, array('gid' => $gid));
-                if (!$result) throw new Exception('更新库存失败');
+                if (!$result){};// throw new Exception('更新库存失败');
             }
         }
     }
@@ -1178,7 +1213,6 @@ class UserBuy extends Model {
         $is_allow_show_red = true;
         //取得POST ID和购买数量
         $buy_items = $this->_parseItems($cart_id);
-
         if (count($buy_items) > 50) {
             return array('error' => '一次最多只可购买50种商品');
         }
@@ -1191,9 +1225,11 @@ class UserBuy extends Model {
                 $ids = "";
                 foreach (array_keys($buy_items) as $k=>$v){
                     $ids .=$v.",";
+                    trim($ids);
                 }
                 $ids =substr($ids,0,strlen($ids) -1 );
-                $condition = array('cart_id'=>array('in',$ids), 'buyer_id'=>$member_id);
+                //$condition = array('cart_id'=>array('in',$ids), 'buyer_id'=>$member_id);
+                $condition = "cart_id in (".$ids.") and buyer_id = ".$member_id;
                 $cart_list  = $model_cart->listCart('db', $condition);
             }else{
                 //组装购物车数据
@@ -1277,11 +1313,13 @@ class UserBuy extends Model {
 
             //购物车列表以店铺ID分组显示
             $store_cart_list = $model_cart->getStoreCartList($cart_list);
-            //print_r($goods_list);die;
+            //print_r($store_cart_list);die;
             //根据产品列表
+            $gids = array();
             if(count($store_cart_list)>1){
                 $result['dian_list'] = array();
                 $result['gid'] = 0;
+                $gids[]=$v['gid'];
             }else{
                 //单店铺商品
                 foreach ($goods_list as $k=>$v){
@@ -1635,11 +1673,11 @@ class UserBuy extends Model {
             $input_if_offpay = false;
         }
         if(!$input_if_offpay && $post['pay_name'] == 'offline'){
-            return array('error' => '付款方式错误，请重新选择');
+            return array('error' => '付款方式错误，请重新选择1');
         }
         //付款方式:在线支付/货到付款(online/offline)
         if (!in_array($post['pay_name'],array('online','offline'))) {
-            return array('error' => '付款方式错误，请重新选择');
+            return array('error' => '付款方式错误，请重新选择2');
         }
         $input_pay_name = $post['pay_name'];
         //验证发票信息
@@ -1658,13 +1696,18 @@ class UserBuy extends Model {
         if ($post['ifcart']) {
 
             //取购物车列表
-            $condition = array('cart_id'=>array('in',array_keys($input_buy_items)),'buyer_id'=>$member_id);
-            $cart_list  = $model_cart->listCart('db',$condition);
 
+            $ids = "";
+            foreach($input_buy_items as $k=>$v){
+                $ids .= $k.",";
+            }
+            $ids = substr($ids,0,strlen($ids)-1);
+            $condition = " cart_id in (".$ids.") and buyer_id=".$member_id;
+            $cart_list  = $model_cart->listCart('db',$condition);
             //取商品最新的在售信息
             $cart_list = $model_cart->getOnlineCartList($cart_list);
 
-            if ($post['is_supplier']) {
+            if (isset($post['is_supplier'])) {
                 // 批发商品
                 $goods_buy_quantity = array();
                 foreach ($cart_list as $key => $value) {
@@ -1884,12 +1927,12 @@ class UserBuy extends Model {
         if(!empty($append_premiums_to_cart_list['error'])) {
             return array('error' => $append_premiums_to_cart_list['error']);
         } else {
-            list($store_cart_list,$goods_buy_quantity,$store_mansong_rule_list) = $append_premiums_to_cart_list;
+            @list($store_cart_list,$goods_buy_quantity,$store_mansong_rule_list) = $append_premiums_to_cart_list;
         }
 
         $input = array();
         //使用积分抵扣
-        if($post['points_pay'] == 1 && $post['use_points']>0){
+        if(isset($post['oints_pay']) && $post['points_pay'] == 1 && $post['use_points']>0){
             //不允许使用
             if($GLOBALS['setting_config']['points_max_use']==0){
                 return array('error' => '平台不允许使用积分抵扣');
@@ -1916,8 +1959,10 @@ class UserBuy extends Model {
         $input['pay_name'] = $input_pay_name;
         $input['if_offpay'] = $input_if_offpay;
         $input['if_vat'] = $input_if_vat;
+        if(isset($post['pay_message']))
         $input['pay_message'] = $post['pay_message'];
         $input['address_info'] = 0;
+        if(isset($input_invoice_info))
         $input['invoice_info'] = $input_invoice_info;
         $input['voucher_list'] = 0;
         $input['store_goods_total'] = $store_goods_total;
@@ -1929,12 +1974,13 @@ class UserBuy extends Model {
         $input['store_cart_list'] = $store_cart_list;
         $input['input_city_id'] = 0        ;
         $input['order_from'] = $post['order_from'];
+        if(isset($goods_info))
         $input['course_type'] = $goods_info['course_type'];
         if($_POST['dian_id']>0) {
             $input['dian_id'] = intval($_POST['dian_id']);
             $input['ziti'] = 1;
         }
-        if($_REQUEST['pin']){
+        if(isset($_REQUEST['pin'])){
             $input['pin_id'] = $pin_info['id'];
         }
         $input['red'] = $post['red'];
@@ -1942,9 +1988,9 @@ class UserBuy extends Model {
 
         try {
             //开始事务
-            $model_cart->beginTransaction();
+            DB::startTrans();
             //生成订单
-            list($pay_sn,$order_list) = $this->createOrder($input, $member_id, $member_name, $member_email);
+            list($pay_sn,$order_list) = $this->createOrder($input, $member_id, $member_name, $member_email,$store_cart_list);
 
 
             //拼团
@@ -1966,17 +2012,19 @@ class UserBuy extends Model {
             $this->addOrderLog($order_list);
 
             //变更库存和销量
-            $this->updateGoodsStorageNum($goods_buy_quantity,$input['dian_id']);
+            //$this->updateGoodsStorageNum($goods_buy_quantity,$input['dian_id']);
+            $this->updateGoodsStorageNum($goods_buy_quantity,$_POST['dian_id']);
 
             //更新使用的优惠券状态
             $this->updateVoucher($input_voucher_list=array());
             //更新团购购买人数和数量
+            if(isset($tuan_info))
             $this->updateTuan($tuan_info);
             //使用预存款支付
-            $this->pdPay($order_list, $post, $member_id, $member_name);
+            //$this->pdPay($order_list, $post, $member_id, $member_name);
 
             //提交事务
-            $model_cart->commit();
+            Db::commit();
 
         }catch (Exception $e){
 
@@ -1987,7 +2035,13 @@ class UserBuy extends Model {
         if(!$again){
             //删除购物车中的商品
             if ($post['ifcart']) {
-                $model_cart->delCart('db',array('buyer_id'=>$member_id,'cart_id'=>array('in',array_keys($input_buy_items))));
+                $ids = "";print_r($input_buy_items);
+                foreach($input_buy_items as $k=>$v){
+                    $ids .=$k.",";
+                }
+                $ids = substr($ids,0,strlen($ids)-1);
+                $model_cart->delCart('db',array('buyer_id'=>$member_id,'cart_id'=>array('in',$ids)));
+                echo DB::table("bbc_cart")->getLastSql();die;
             }
         }
 
@@ -2232,8 +2286,8 @@ class UserBuy extends Model {
     public function buyDecrypt($string, $member_id, $ttl = 0) {
         $buy_key = sha1(md5($member_id.'&'.MD5_KEY));
         if (empty($string)) return;
-        $string = base64_decode(decrypt(strval($string), $buy_key, $ttl));
-        return ($tmp = @unserialize($string)) ? $tmp : $string;
+        $string = base64_decode(trim(decrypt(strval($string), $buy_key, $ttl)));
+        return $string;
     }
 
     /**
@@ -2279,19 +2333,17 @@ class UserBuy extends Model {
         if (empty($goods_list) || !is_array($goods_list)) return;
         foreach ($goods_list as $goods_info) {
             //更新销量统计
-            $model = Model();
             $date = date('Ymd',time());
-            $stat_model = Model('statistics');
-            $sale_date_array = $model->table('salenum')->where(array('date'=>$date,'gid'=>$goods_info['gid']))->find();
+            $sale_date_array = DB::table('bbc_salenum')->where(array('date'=>$date,'gid'=>$goods_info['gid']))->find();
             if(is_array($sale_date_array) && !empty($sale_date_array)){
                 $update_param = array();
                 $update_param['table'] = 'salenum';
                 $update_param['field'] = 'salenum';
                 $update_param['value'] = $goods_info['goods_num'];
                 $update_param['where'] = "WHERE date = '".$date."' AND gid = '".$goods_info['gid']."'";
-                $stat_model->updatestat($update_param);
+                $this->updatestat($update_param);
             }else{
-                $model->table('salenum')->insert(array('date'=>$date,'salenum'=>$goods_info['goods_num'],'vid'=>$goods_info['vid'],'gid'=>$goods_info['gid']));
+                DB::table('bbc_salenum')->insert(array('date'=>$date,'salenum'=>$goods_info['goods_num'],'vid'=>$goods_info['vid'],'gid'=>$goods_info['gid']));
             }
         }
     }
@@ -2328,6 +2380,13 @@ class UserBuy extends Model {
         $data['offpay_hash'] = $this->buyEncrypt($allow_offpay ? 'allow_offpay' : 'deny_offpay', $member_id);
 
         return $data;
+    }
+    public function updatestat($param){
+        if (empty($param)){
+            return false;
+        }
+        //$result = Db::update($param['table'],array($param['field']=>array('sign'=>'increase','value'=>$param['value'])),$param['where']);
+        //return $result;
     }
 
 }

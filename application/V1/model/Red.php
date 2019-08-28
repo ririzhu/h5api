@@ -1,7 +1,11 @@
 <?php
-use think\db;
-class redModel {
+namespace app\V1\model;
 
+use think\Db;
+use think\Model;
+
+class Red extends Model
+{
     public function __construct() {
 
     }
@@ -221,6 +225,7 @@ class redModel {
         //优惠券用户、优惠券数据
         $red_user_list = DB::table('bbc_red_user')->join("bbc_red",'bbc_red_user.red_id=bbc_red.id')->
         field('bbc_red_user.*,bbc_red.red_title,bbc_red.red_type,red_status')->where($condition)->page($page)->order($order)->select();
+
         //用户数据
         $member_ids = low_array_column($red_user_list,'reduser_uid');
         $where['member_id'] = array('in',join(',',$member_ids));
@@ -353,7 +358,6 @@ class redModel {
      *
      */
     function use_red($member_id,$red_user_id,$store_cart_list,$store_final_order_total){
-
         //店铺优惠券
         if($red_user_id['vred']) {
             // 店铺 =》优惠券
@@ -365,14 +369,17 @@ class redModel {
                 $where['redinfo_end'] = array('gt', TIMESTAMP);
                 $where['redinfo_start'] = array('lt', TIMESTAMP);
                 $where['reduser_uid'] = $member_id;
-                $where['red_user.id'] = $wqv;
+                $where['bbc_red_user.id'] = $wqv;
+                $where=" reduser_use = 0 and redinfo_end > ".TIMESTAMP." and redinfo_start <".TIMESTAMP." and bbc_red_user.reduser_uid=".$member_id." and bbc_red_user.id=".$wqv;
                 $red_list = $this->getRedUserList($where);
                 if (empty($red_list)) {
                     return array('error' => '您的店铺优惠券已失效，不能使用');
+
                 }
                 $red_list = $this->filter_red($store_cart_list, $red_list, false);
                 if (empty($red_list)) {
                     return array('error' => '验证优惠券错误，不能使用');
+
                 }
 
                 $red_info = $red_list[0];
@@ -385,6 +392,9 @@ class redModel {
                         $num++;
                     }
                 }
+                if($zong == 0)
+                    $bili =0;
+                else
                 $bili = $red_info['redinfo_money'] / $zong;
 
                 $i = 0;
@@ -398,11 +408,11 @@ class redModel {
                         $cha = $hua;
                     }
                     $store_cart_list[$red_info['red_vid']][$kk]['goods_total'] -= $cha;
-                    if($store_cart_list[$red_info['red_vid']][$kk]['goods_total']<$vv['goods_freight']){
+                    if(isset($vv['goods_freight']) && $store_cart_list[$red_info['red_vid']][$kk]['goods_total']<$vv['goods_freight']){
                         $store_cart_list[$red_info['red_vid']][$kk]['goods_total'] = $vv['goods_freight'];
                     }
                     $store_final_order_total[$vv['vid']] -= $hua ;
-                    if($store_final_order_total[$vv['vid']]<$vv['goods_freight']){
+                    if(isset($vv['goods_freight']) && $store_final_order_total[$vv['vid']]<$vv['goods_freight']){
                         $store_final_order_total[$vv['vid']] =  $vv['goods_freight'];
                     }
                     $i++;
@@ -411,9 +421,9 @@ class redModel {
                 $where = array();
                 $where['id'] = $wqv;
                 $where['reduser_uid'] = $member_id;
-                $this->table('red_user')->where($where)->update(array('reduser_use' => TIMESTAMP));
-                $red_info = $this->table('red_user')->where($where)->find();
-                $this->table('red')->where(array('id' => $red_info['red_id']))->update(array('red_hasuse'=>array('exp','red_hasuse+1')));
+                $this->table('bbc_red_user')->where($where)->update(array('reduser_use' => TIMESTAMP));
+                $red_info = db::table('bbc_red_user')->where($where)->find();
+                DB::table('bbc_red')->where(array('id' => $red_info['red_id']))->update(array('red_hasuse'=>array('inc','red_hasuse+1')));
 
             }
 
@@ -502,6 +512,7 @@ class redModel {
         $goods_total_arr = [];
         //是否参与优惠标识
         $has_discount = 0;
+        if(!empty($store_cart_list))
         foreach ($store_cart_list as $k => $goods_list) {
             foreach ($goods_list as $v) {
                 //总价累计
@@ -593,7 +604,7 @@ class redModel {
 
 
                 if($gou<1){
-                        unset($red_list[$k]);
+                    unset($red_list[$k]);
                 }
             }
 
@@ -639,7 +650,7 @@ class redModel {
             }
             //超时 直接设置成不能使用
             //if ($_GET['red_status'] == 'expired') {
-                $red_list[$k]['reduser_use'] = 1;
+            $red_list[$k]['reduser_use'] = 1;
             //}
         }
 
@@ -754,5 +765,247 @@ class redModel {
     public function editUserRed($condition,$update){
         return $this->table('red_user')->where($condition)->update($update);
     }
-    //
+
+    public static function confirm($buy_list){  //获取用户可使用平台优惠券
+
+        $member_info = $buy_list['member'];
+
+        $goods_list = array();
+        foreach ($buy_list['store_cart_list'] as $k=>$v){
+            $goods_list[$k] = $v;
+        }
+
+        //获得可用优惠券
+        $condition['reduser_use'] = array( 'eq',0);
+        $condition['redinfo_end'] = array( 'gt',TIMESTAMP);
+        $condition['redinfo_start'] = array( 'lt',TIMESTAMP);
+        $condition['reduser_uid'] = $member_info['member_id'];
+        $conditions = "reduser_use = 0 and redinfo_end >".TIMESTAMP." and redinfo_start <".TIMESTAMP ." and reduser_uid = ".$member_info['member_id'];
+//        $condition['red.vid'] = 0;
+        $red_list = getRedUserList($conditions);
+        $red_list = filter_red($goods_list,$red_list);
+
+        $vendor_red_list = [];
+        //循环优惠券把店铺优惠券排除
+        foreach ($red_list as $k=>$v){
+            if($v['red_vid'] && $v['red_vid']!=0){
+                $vendor_red_list[$v['red_vid']][] = $v;
+                unset($red_list[$k]);
+            }
+        }
+
+
+        $newlist['red'] = $red_list;
+        $newlist['vred'] = $vendor_red_list;
+
+        return $newlist;
+    }
+    /**
+     * 列表页
+     *
+     */
+    public function red_list()
+    {
+
+        $model_red = M('red');
+
+
+        if (isset($_GET['red_status']) && $_GET['red_status']!=='') { //使用状态筛选
+            if($_GET['red_status']=='used'){  //使用过
+                $condition['reduser_use'] = array( 'neq',0);
+            }elseif($_GET['red_status']=='not_used'){  //未使用
+                $condition['reduser_use'] = array( 'eq',0);
+                $condition['redinfo_end'] = array( 'gt',TIMESTAMP);
+            }elseif($_GET['red_status']=='expired'){  //过期
+                $condition['redinfo_end'] = array( 'lt',TIMESTAMP);
+            }
+        }else{
+            $condition['reduser_use'] = array( 'eq',0);
+            $condition['redinfo_end'] = array( 'gt',TIMESTAMP);
+        }
+        $condition['reduser_uid'] = $_SESSION['member_id'];
+
+        $red_list = $model_red->getRedUserList($condition,8);
+
+        $red_list = $model_red->getUseInfo($red_list);
+
+        $page_count = $model_red->gettotalpage();
+        Template::output('list', $red_list);
+        Template::output('show_page',$model_red->showpage(2)) ;
+
+        $this->profile_menu('red_list');
+        Template::output('menu_sign','myred');
+        Template::output('menu_sign_url','index.php?app=red_list&sld_addons=red');
+        Template::output('menu_sign1','member_red');
+        Template::showpage('red.list');
+
+    }
+
+    //优惠券使用
+    public function use_reds(){
+        $redinfo_id = $_GET['redinfo_id'];
+        $model_red = M('red');
+        $red_info = $model_red->getRedList(array('red_info.id'=>$redinfo_id));
+        $gids = 0;
+        $gc_ids = 0;
+        if($red_info[0]['redinfo_type'] == 2){//是商品的时候
+            $gids = $red_info[0]['redinfo_ids']?$red_info[0]['redinfo_ids']:0;
+            $gc_ids = 0;
+        }else if($red_info[0]['redinfo_type'] == 1){//是分类
+            $gc_ids = $red_info[0]['redinfo_ids']?$red_info[0]['redinfo_ids']:0;
+            $gids = 0;
+        }
+        $store_self = $red_info[0]['redinfo_self']?$red_info[0]['redinfo_self']:0;
+        $red_vid = $red_info[0]['red_vid']?$red_info[0]['red_vid']:0;
+        exit(json_encode(array('red_ids'=>$gids,'red_vid'=>$red_vid,'red_gc_id'=>$gc_ids,'store_self'=>$store_self)));
+    }
+    //优惠券转赠
+    public function give_red(){
+        Template::output('user_red',$_GET['user_red']);
+        Template::showpage('give.red','null_layout');
+    }
+    //转赠
+    public function edit_red_user(){
+        $give_member_name = $_POST['give_member_name'];
+        $user_red = $_POST['user_red'];
+        $model_red = M('red');
+        $model_member = Model('member');
+
+        //查询用户领取的用户卷信息 red_user
+        $user_red_info = $model_red->getUserRed(array('id'=>$user_red));
+        if(!$user_red_info){
+            exit(json_encode(array('state'=>255,'msg'=>'优惠券不存在')));
+        }
+        $red_id = $user_red_info['red_id'];
+
+        //查询被转赠人的用户信息
+        $member_info = $model_member->getMemberInfo(array('member_name'=>$give_member_name));
+        if(!$member_info){
+            exit(json_encode(array('state'=>255,'msg'=>'用户不存在')));
+        }
+
+        //查询被赠送人该优惠券的拥有数量
+        $member_red = $model_red->getRedUserList(array('red_user.red_id'=>$red_id,'red_user.reduser_uid'=>$member_info['member_id']));
+        //该用户已有该优惠券的数量
+        $num = 0;
+        if(!$member_red){
+            $num = 0;
+        }else{
+            foreach ($member_red as $v){
+                $num += 1;
+            }
+        }
+        //查询该优惠券的信息
+        $red_info = $model_red->getRedInfo(array('id'=>$red_id));
+        //判断优惠券每人限领
+        if($num >= $red_info['red_rach_max']){
+            exit(json_encode(array('state'=>255,'msg'=>'该用户拥有优惠券已达最大限额')));
+        }
+
+        //修改领取优惠券表中的用户id
+        $edit = $model_red->editUserRed(array('id'=>$user_red),array('reduser_uid'=>$member_info['member_id']));
+        if($edit){
+            exit(json_encode(array('state'=>200,'msg'=>'转赠成功')));
+        }else{
+            exit(json_encode(array('state'=>255,'msg'=>'转赠失败')));
+        }
+    }
+
+    /**
+     * 用户中心右边，小导航
+     *
+     * @param string	$menu_type	导航类型
+     * @param string 	$menu_key	当前导航的menu_key
+     * @param array 	$array		附加菜单
+     * @return
+     */
+    private function profile_menu($menu_key='') {
+        $menu_array = array(
+            1=>array('menu_key'=>'red_list','menu_name'=>'我的优惠券','menu_url'=>'index.php?app=red_list&sld_addons=red'),
+        );
+        Template::output('member_menu',$menu_array);
+        Template::output('menu_key',$menu_key);
+    }
+    /**
+     * 领券中心页
+     *
+     */
+    public function red_get_list()
+    {
+
+        $model_red = M('red');
+        $condition['red.red_type'] = array('neq','3');
+        $condition['red_status'] = 1;
+        $condition['red_front_show'] = 1;
+        $condition['red_receive_start'] = array('lt',TIMESTAMP);
+        $condition['red_receive_end'] = array('gt',TIMESTAMP);
+        if(isset($_GET['red_id'])){
+            $condition['red.id'] = $_GET['red_id'];
+        }
+
+
+        $red_list = $model_red->getRedLingList($_SESSION['member_id'],$condition,$_GET['page']);
+
+        $red_list = $model_red->getUseInfo($red_list);
+
+
+        //Template::output('list', $red_list);
+        //Template::output('show_page',$model_red->showpage(2)) ;
+
+        //Template::showpage('red.get.list');
+
+    }
+
+    /**
+     * 领取优惠券
+     *
+     */
+    public function send_red()
+    {
+
+        $red_id = $_GET['red_id'];
+
+        if(!$_SESSION['member_id']){
+            exit('请先登录再领取！');
+        }
+
+        $msg = M('red')->ling_red($_SESSION['member_id'],$red_id);
+
+        exit($msg);
+
+    }
+
+    /**
+     * 加载买家发票列表，最多显示10条
+     *
+     */
+    public function loadred() {
+        $model_buy = Model('buy');
+
+        $condition = array();
+        if ($model_buy->buyDecrypt($_GET['vat_hash'], $_SESSION['member_id']) == 'allow_vat') {
+        } else {
+            Template::output('vat_deny',true);
+            $condition['inv_state'] = 1;
+        }
+        $condition['member_id'] = $_SESSION['member_id'];
+
+        $model_inv = Model('invoice');
+        //如果传入ID，先删除再查询
+        if (intval($_GET['del_id']) > 0) {
+            $model_inv->delInv(array('inv_id'=>intval($_GET['del_id']),'member_id'=>$_SESSION['member_id']));
+        }
+        $list = $model_inv->getInvList($condition,10);
+        if (!empty($list)) {
+            foreach ($list as $key => $value) {
+                if ($value['inv_state'] == 1) {
+                    $list[$key]['content'] = '普通发票'.' '.$value['inv_title'].' '.$value['inv_content'].' '.$value['inv_code'];
+                } else {
+                    $list[$key]['content'] = '增值税发票'.' '.$value['inv_company'].' '.$value['inv_code'].' '.$value['inv_reg_addr'];
+                }
+            }
+        }
+        Template::output('inv_list',$list);
+        Template::showpage('buy_red.load','null_layout');
+    }
 }

@@ -373,7 +373,7 @@ class UserCart extends Model
         if ($type == 'db') {
             $cart_list = DB::table("bbc_cart")->where($condition)->order('cart_id desc')->select();
         }
-       // $cart_list = is_array($cart_list) ? $cart_list : array();
+        // $cart_list = is_array($cart_list) ? $cart_list : array();
         //顺便设置购物车商品数和总金额
         $this->cart_goods_num =  count($cart_list);
         $cart_all_price = 0;
@@ -420,7 +420,7 @@ class UserCart extends Model
             $result = true;
         }
         //重新计算购物车商品数和总金额
-        if ($result) {
+        if (count($result)>0) {
             if($extend['ismini'] == 'mini'){
                 $this->getCartNum($type,array('buyer_id'=>$condition['buyer_id']));
             }else{
@@ -1073,13 +1073,17 @@ class UserCart extends Model
                 $goods_list[$i]['goods_num'] = $quantity;
                 $goods_list[$i]['gid'] = $cart['gid'];
                 $goods_list[$i]['vid'] = $cart['vid'];
+                if(isset($cart['gc_id']))
                 $goods_list[$i]['gc_id'] = $cart['gc_id'];
                 $goods_list[$i]['goods_name'] = $cart['goods_name'];
                 $goods_list[$i]['goods_price'] = $cart['goods_price'];
                 $goods_list[$i]['store_name'] = $cart['store_name'];
                 $goods_list[$i]['goods_image'] = $cart['goods_image'];
+                if(isset($cart['transport_id']))
                 $goods_list[$i]['transport_id'] = $cart['transport_id'];
+                if(isset($cart['goods_freight']))
                 $goods_list[$i]['goods_freight'] = $cart['goods_freight'];
+                if(isset($cart['goods_vat']))
                 $goods_list[$i]['goods_vat'] = $cart['goods_vat'];
                 $goods_list[$i]['bl_id'] = 0;
                 $i++;
@@ -1147,9 +1151,9 @@ class UserCart extends Model
         //存放本次下单所有店铺商品总金额
         $order_goods_total = 0;
         $store_goods_total =array();
-        $store_goods_total[1]=0;
+        $store_goods_total[1]=0;//print_r($store_cart_list);die;
         foreach ($store_cart_list as $vid => $store_cart) {
-            $tmp_amount = 0;
+            ;$tmp_amount = 0;$store_goods_total[$vid] = 0;
             foreach ($store_cart as $key => $cart_info) {
                 $store_cart[$key]['goods_total'] = isset($cart_info['show_price']) ? sldPriceFormat($cart_info['show_price'] * $cart_info['goods_num']) : sldPriceFormat($cart_info['goods_price'] * $cart_info['goods_num']);
                 if(isset($cart_info['first']) && $cart_info['first']>0){
@@ -1258,7 +1262,7 @@ class UserCart extends Model
 
         switch ($preferential_type) {
             case 'mansong':
-                if (!C('promotion_allow')) return $store_goods_total;
+                if (!Config('promotion_allow')) return $store_goods_total;
                 foreach ($preferential_array as $vid => $rule_info) {
                     if (is_array($rule_info) && $rule_info['discount'] > 0) {
                         $store_goods_total[$vid] -= $rule_info['discount'];

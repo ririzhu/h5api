@@ -2,40 +2,176 @@
 namespace app\V1\model;
 
 use think\Model;
-use think\db;
-class Goods extends Model
+
+class StoreGoods extends Model
 {
     public function __construct(){
-        parent::__construct('goods');
+        parent::__construct('dian_goods');
     }
-
-    const STATE1 = 1;       // 出售中
-    const STATE0 = 0;       // 下架
-    const STATE10 = 10;     // 违规
-    const VERIFY1 = 1;      // 审核通过
-    const VERIFY0 = 0;      // 审核失败
-    const VERIFY10 = 10;    // 等待审核
-
-    public $course_type = [1=>'公开课',2=>'在线课',3=>'教材'];
 
     /**
      * 新增商品数据
-     *
-     * @param array $insert 数据
+     * @param string $dian_id  店id
+     * @param string $ids 多个商品id
      * @param string $table 表名
      */
-    public function addGoods($insert, $table = "goods") {
-        return $this->table($table)->insert($insert);
+    public function addGoodsAll($dian_id, $ids, $table = "dian_goods",$shouyin=false) {
+        $ids_arr=explode(',',$ids);//本次提交的gid
+        $tmp=$this->table($table)->field("goods_id,`delete`")->where(array('dian_id'=>$dian_id))->select();//原有的gid
+        if($tmp) {
+            foreach ($tmp as $v) {
+                $oldids[] = $v['goods_id'];
+                if (!in_array($v['goods_id'], $ids_arr)) {
+                    $delete_ids[] = $v['goods_id'];
+                } else {
+                    if ($v['delete'] == 1) {
+                        $enable_ids[] = $v['goods_id'];
+                    }
+                }
+            }
+            foreach ($ids_arr as $v) { //新增的
+                if (!in_array($v, $oldids)) {
+                    $new_ids[] = $v;
+                }
+            }
+
+            if ($shouyin) {
+                $delete_ids = array();
+                // 检查当前ID 中 有 stcids 值的 更新 cashsys_goods_extend 内数据
+                foreach ($new_ids as $key => $value) {
+                    $model_goods = M('cashsys_goods','cashersystem');
+
+                    // 获取当前 commonid 下的所有 gid
+                    $common_condition['gid'] = $value;
+                    $goods_info = Model('goods')->where($common_condition)->field('gid,goods_commonid,goods_stcids')->find();
+
+                    if (!empty($goods_info)) {
+
+                        $stc_ids_val = '';
+
+                        if ($goods_info['goods_stcids'] != ',0,' && $goods_info['goods_stcids'] != '') {
+                            $sgcate_id_data = explode(',', $goods_info['goods_stcids']);
+
+                            $sgcate_id_data = array_filter($sgcate_id_data);
+
+                            $sgcate_ids = array_unique($sgcate_id_data);
+                            // 获取一级分类名称
+                            $my_condition['stc_id'] = array("IN",$sgcate_ids);
+                            $my_condition['stc_state'] = 1;
+                            $my_data = Model('my_goods_class')->where($my_condition)->select();
+                            // 获取 父级分类ID
+                            $parent_ids = low_array_column($my_data,'stc_parent_id','stc_id');
+
+                            foreach ($parent_ids as $p_key => $p_value) {
+                                if ($p_value == 0) {
+                                    $p_value = $p_key;
+                                }
+                                $parent_ids[$p_key] = $p_value;
+                            }
+                            // 去重
+                            $parent_ids = array_flip($parent_ids);
+                            $parent_ids = array_flip($parent_ids);
+                            $parent_ids = array_values($parent_ids);
+
+                            // 获取父级分类名称
+                            unset($my_condition);
+                            $my_condition['stc_id'] = array("IN",$parent_ids);
+                            $my_condition['stc_state'] = 1;
+                            $my_data = Model('my_goods_class')->where($my_condition)->field("stc_id,stc_name")->select();
+                            $stc_ids = low_array_column($my_data,'stc_id');
+                            if (!empty($stc_ids)) {
+                                $stc_ids_val = implode(',', $stc_ids);
+                                $stc_ids_val = $stc_ids_val ? ','.$stc_ids_val.',' : $stc_ids_val;
+                            }
+                        }
+
+                        // 清除旧数据
+                        $clear_condition['goods_common_id'] = $goods_info['goods_commonid'];
+                        $clear_condition['goods_id'] = $goods_info['gid'];
+                        $model_goods->clearGoodsExtend($clear_condition);
+                        $save_data['goods_id'] = $goods_info['gid'];
+                        $save_data['goods_common_id'] = $goods_info['goods_commonid'];
+                        $save_data['goods_stcids_1'] = $stc_ids_val;
+                        $model_goods->saveGoodsExtend($save_data);
+                    }
+                }
+            }
+
+            if(count($delete_ids)>0){
+                $this->recordSellerLog('删除商品，编号：'.join(',',$delete_ids));
+                $this->table($table)->where(' dian_id='.$dian_id.' and goods_id in ('.join(',',$delete_ids).')')->update(array('`delete`'=>1));
+            }
+            if(count($enable_ids)>0){
+                $this->recordSellerLog('添加商品，编号：'.join(',',$enable_ids));
+                $this->table($table)->where(' dian_id='.$dian_id.' and goods_id in ('.join(',',$enable_ids).')')->update(array('`delete`'=>0));
+            }
+        }else{
+            $new_ids=$ids_arr;
+        }
+
+        if(count($new_ids)>0){
+            foreach ($new_ids as $v){
+                $tmp2[]= array('dian_id'=>$dian_id,'goods_id'=>$v);
+            }
+            $this->table($table)->insertAll($tmp2);
+            $this->recordSellerLog('添加商品，编号：'.join(',',$new_ids));
+        }
+
+        return '1';
     }
 
     /**
-     * 新增多条商品数据
-     *
-     * @param unknown $insert
+     * 新增商品数据
+     * @param string $dian_id  店id
+     * @param string $ids 多个商品id
+     * @param string $table 表名
      */
-    public function addGoodsAll($insert, $table = 'goods') {
-        return $this->table($table)->insertAll($insert);
+    public function addGoodsAll2($dian_id, $ids, $table = "dian_goods")
+    {
+
+        $where['dian_id'] = $dian_id;
+        $where['goods_id'] = array('in', $ids);
+
+        $old = $this->table($table)->where($where)->find();
+
+        if ($old) {
+            $this->table($table)->where($where)->update(array('`delete`' => 0));
+        } else {
+            if (!is_array($ids)) {
+                $new_ids = explode(',', $ids);
+            }
+            foreach ($new_ids as $v) {
+                $tmp2[] = array('dian_id' => $dian_id, 'goods_id' => $v);
+            }
+            $this->table($table)->insertAll($tmp2);
+        }
+
+        $this->recordSellerLog('添加商品，编号：' . $ids);
+
+
+        return '1';
     }
+
+
+    /**
+     * 新增商品数据
+     * @param string $dian_id  店id
+     * @param string $ids 多个商品id
+     * @param string $table 表名
+     */
+    public function delGoodsAll2($dian_id, $ids, $table = "dian_goods") {
+
+        $this->recordSellerLog('删除商品，编号：'.$ids);
+
+        $where['dian_id'] = $dian_id;
+        $where['goods_id'] = array('in',$ids);
+
+        $this->table($table)->where($where)->update(array('`delete`'=>1));
+
+        return '1';
+    }
+
+
 
     /**
      * 商品SKU列表
@@ -50,11 +186,8 @@ class Goods extends Model
      * @return array 二维数组
      */
     public function getGoodsList($condition, $field = '*', $group = '',$order = '', $limit = 0, $page = 0, $lock = false, $count = 0) {
-        //$condition = $this->_getRecursiveClass($condition);
-        $result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
-       // echo DB::table("bbc_goods")->getLastSql();
-
-        return $result;
+        $condition = $this->_getRecursiveClass($condition);
+        return $this->table('goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
     }
 
     /**
@@ -77,29 +210,7 @@ class Goods extends Model
         }
         return $goods_list;
     }
-    /**
-     * 出售中的商品SPU列表
-     * @param array $condition
-     * @param string $field
-     * @param string $order
-     * @param number $page
-     * @return array
-     */
-    public function getGoodsListByCommonidDistinct($condition, $field = '*', $order = null, $page = 0) {
-        if(!$order){
-            $order = 'gid asc';
-        }
-        $condition['goods_state']   = self::STATE1;
-        $condition['goods_verify']  = self::VERIFY1;
-        $condition = $this->_getRecursiveClass($condition);
-        $field = "goods_commonid as jmys_distinct ," . $field;
-        $count = $this->getGoodsOnlineCount($condition,"distinct goods_commonid");
-        $goods_list = array();
-        if ($count != 0) {
-            $goods_list = $this->getGoodsOnlineList($condition, $field, $page, $order, 0, 'jmys_distinct', false, $count);
-        }
-        return $goods_list;
-    }
+
     /**
      * 普通列表，即不包括虚拟商品、F码商品、预售商品、预定商品
      *
@@ -150,12 +261,9 @@ class Goods extends Model
      * @param boolean $lock 是否锁定
      * @return array
      */
-    public function getGoodsOnlineList($condition, $field = '*', $page = 0, $order = 'gid desc', $limit = 50, $group = '', $lock = false, $count = 0) {
+    public function getGoodsOnlineList($condition, $field = '*', $page = 0, $order = 'gid desc', $limit = 0, $group = '', $lock = false, $count = 0) {
         $condition['goods_state']   = self::STATE1;
         $condition['goods_verify']  = self::VERIFY1;
-        //if(APP_ID=='mall' || APP_ID=='cmobile'){
-         //   $condition['sites'] = ['exp',"FIND_IN_SET('".LANG_TYPE."',sites)"];
-        //}
         return $this->getGoodsList($condition, $field, $group, $order, $limit, $page, $lock, $count);
     }
 
@@ -182,7 +290,7 @@ class Goods extends Model
      */
     public function getGoodsCommonList($condition, $field = '*', $page = 10, $order = 'goods_commonid desc') {
         $condition = $this->_getRecursiveClass($condition);
-        return DB::table('bbc_goods_common')->field($field)->where($condition)->order($order)->page($page)->select();
+        return $this->table('goods_common')->field($field)->where($condition)->order($order)->page($page)->select();
     }
 
     /**
@@ -301,7 +409,7 @@ class Goods extends Model
      * @return boolean
      */
     public function editGoods($update, $condition) {
-        return $this->table('bbc_goods')->where($condition)->update($update);
+        return $this->table('dian_goods')->where($condition)->update($update);
     }
 
 
@@ -384,17 +492,9 @@ class Goods extends Model
      * @param array $update2
      * @return boolean
      */
-    public function editProducesNoLock($condition, $update1, $update2 = array()) {
-        $update2 = empty($update2) ? $update1 : $update2;
-        $condition['goods_lock'] = 0;
-        $common_array = $this->getGoodsCommonList($condition);
-        $common_array = array_under_reset($common_array, 'goods_commonid');
-        $commonid_array = array_keys($common_array);
-        $where = array();
-        $where['goods_commonid'] = array('in', $commonid_array);
-        $return1 = $this->editGoodsCommon($update1, $where);
-        $return2 = $this->editGoods($update2, $where);
-        if ($return1 && $return2) {
+    public function editProducesNoLock($condition, $update1) {
+        $return2 = $this->editGoods($update1, $condition);
+        if ($return2) {
             return true;
         } else {
             return false;
@@ -458,8 +558,7 @@ class Goods extends Model
      * @return array
      */
     public function getGoodsInfo($condition, $field = '*') {
-        $re=  $this->table('goods')->field($field)->where($condition)->find();
-        return $re;
+        return $this->table('bbc_dian_goods')->field($field)->where($condition)->find();
     }
 
     /**
@@ -509,11 +608,7 @@ class Goods extends Model
     public function getGoodsOnlineInfo($condition, $field = '*') {
         $condition['goods_state']   = self::STATE1;
         $condition['goods_verify']  = self::VERIFY1;
-        $goods_info =  DB::table('bbc_goods')->field($field)->where($condition)->find();
-
-
-        return $goods_info;
-
+        return $this->table('goods')->field($field)->where($condition)->find();
     }
 
     /**
@@ -537,7 +632,7 @@ class Goods extends Model
      * @return array
      */
     public function getGoodsCommonInfo($condition, $field = '*') {
-        return $this->table('bbc_goods_common')->field($field)->where($condition)->find();
+        return $this->table('goods_common')->field($field)->where($condition)->find();
     }
 
     /**
@@ -576,99 +671,46 @@ class Goods extends Model
      * @param string $field
      * @return array
      */
-    public function getGoodsDetail($gid,$field='*',$member_id=null)
+    public function getGoodsDetail($gid)
     {
         if ($gid <= 0) {
             return null;
         }
-        $result1 = $this->getGoodsAsGoodsShowInfo(array('gid' => $gid),$field);
-
+        $result1 = $this->getGoodsAsGoodsShowInfo(array('gid' => $gid));
         if (empty($result1)) {
             return null;
         }
         $result2 = $this->getGoodeCommonAsGoodsShowInfo(array('goods_commonid' => $result1['goods_commonid']));
-
-        if($result2['course_type']==2) {
-
-        }
-
-
-
-
         $goods_info = array_merge($result2, $result1);
         $goods_info['spec_value'] = unserialize($goods_info['spec_value']);
         $goods_info['spec_name'] = unserialize($goods_info['spec_name']);
         $goods_info['goods_spec'] = unserialize($goods_info['goods_spec']);
         $goods_info['goods_attr'] = unserialize($goods_info['goods_attr']);
-        if($goods_info['duration']){
-            $goods_info['duration'] = Sec2Time($goods_info['duration']);
-        }
-
 
         // 查询所有规格商品
-        $spec_array = $this->getGoodsList(array('goods_commonid' => $goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage');
-        if ($goods_info['goods_type'] == 1) {
-            $spec_list = array();       // 各规格商品地址，js使用
-            $spec_list_mobile = array();       // 各规格商品地址，js使用
-            $spec_image = array();      // 各规格商品主图，规格颜色图片使用
-            $spec_new = array();
-            foreach ($spec_array as $key => $value) {
-                $s_array = unserialize($value['goods_spec']);
-                $tmp_array = array();
-                $i=0;
-                $count = count($s_array);
-                $last_s = array();
-                if (!empty($s_array) && is_array($s_array)) {
-                    foreach ($s_array as $k => $v) {
-                        if ($i == $count-1) {
-                            $last_s[] = $k;
-                        }else{
-                            $tmp_array[] = $k;
-                        }
-                        $i++;
-                    }
+        $spec_array = $this->getGoodsList(array('goods_commonid' => $goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id');
+        $spec_list = array();       // 各规格商品地址，js使用
+        $spec_list_mobile = array();       // 各规格商品地址，js使用
+        $spec_image = array();      // 各规格商品主图，规格颜色图片使用
+        foreach ($spec_array as $key => $value) {
+            $s_array = unserialize($value['goods_spec']);
+            $tmp_array = array();
+            if (!empty($s_array) && is_array($s_array)) {
+                foreach ($s_array as $k => $v) {
+                    $tmp_array[] = $k;
                 }
-                sort($tmp_array);
-                sort($last_s);
-                $spec_sign = implode('|', $tmp_array);
-                // 给最后一行的类型 赋值 库存
-                foreach ($last_s as $l_s_key => $l_s_value) {
-                    $spec_new[$spec_sign][$l_s_value] = $value['goods_storage'];
-                }
-                $tpl_spec = array();
-                $tpl_spec['sign'] = $spec_sign;
-                $spec_list[] = $tpl_spec;
-                $spec_list_mobile[$spec_sign] = $value['gid'];
-                $spec_image[$value['color_id']] = thumb($value, 60);
             }
-            foreach ($spec_list as $key => $value) {
-                $spec_list[$key]['data'] = $spec_new[$value['sign']];
-            }
-            $spec_list = json_encode($spec_list);
-        }else{
-            $spec_list = array();       // 各规格商品地址，js使用
-            $spec_list_mobile = array();       // 各规格商品地址，js使用
-            $spec_image = array();      // 各规格商品主图，规格颜色图片使用
-            foreach ($spec_array as $key => $value) {
-                $s_array = unserialize($value['goods_spec']);
-                $tmp_array = array();
-                if (!empty($s_array) && is_array($s_array)) {
-                    foreach ($s_array as $k => $v) {
-                        $tmp_array[] = $k;
-                    }
-                }
-                sort($tmp_array);
-                $spec_sign = implode('|', $tmp_array);
-                $tpl_spec = array();
-                $tpl_spec['sign'] = $spec_sign;
-                $tpl_spec['url'] = urlShop('goods', 'index', array('gid' => $value['gid']));
-                $spec_list[] = $tpl_spec;
-                $spec_list_mobile[$spec_sign] = $value['gid'];
-                $spec_image[$value['color_id']] = thumb($value, 60);
-            }
-            $spec_list = json_encode($spec_list);
+            sort($tmp_array);
+            $spec_sign = implode('|', $tmp_array);
+            $tpl_spec = array();
+            $tpl_spec['sign'] = $spec_sign;
+            $tpl_spec['url'] = urlShop('goods', 'index', array('gid' => $value['gid']));
+            $spec_list[] = $tpl_spec;
+            $spec_list_mobile[$spec_sign] = $value['gid'];
+            $spec_image[$value['color_id']] = thumb($value, 60);
         }
-        // slodon_放大镜开始
+        $spec_list = json_encode($spec_list);
+        // 新版放大镜开始
         $image_more = $this->getGoodsImageByKey($goods_info['goods_commonid'] . '|' . $goods_info['color_id']);
         $goods_image = array();
         $goods_image_mobile = array();
@@ -681,57 +723,63 @@ class Goods extends Model
             $goods_image[] = "{ title : '', levelA : '" . thumb($goods_info, 60) . "', levelB : '" . thumb($goods_info, 350) . "', levelC : '" . thumb($goods_info, 350) . "', levelD : '" . thumb($goods_info, 1280) . "'}";
             $goods_image_mobile[] = thumb($goods_info, 350);
         }
-        // slodon_放大镜结束
+        // 新版结束
 
-        // 批发商品 无促销活动
-        if ($goods_info['goods_type']!=1) {
-            //团购
-            if (C('tuan_allow')) {
-                $tuan_info = Model('tuan')->getTuanInfoByGoodsCommonID($goods_info['goods_commonid']);
-                if (!empty($tuan_info)) {
-                    $goods_info['promotion_type'] = 'tuan';
-                    $goods_info['remark'] = $tuan_info['remark'];
-                    $goods_info['promotion_price'] = $tuan_info['tuan_price'];
-                    $goods_info['down_price'] = sldPriceFormat($goods_info['goods_price'] - $tuan_info['tuan_price']);
-                    $goods_info['upper_limit'] = $tuan_info['upper_limit'];
-                }
+        //团购
+        if (C('tuan_allow')) {
+            $tuan_info = Model('tuan')->getTuanInfoByGoodsCommonID($goods_info['goods_commonid']);
+            if (!empty($tuan_info)) {
+                $goods_info['promotion_type'] = 'tuan';
+                $goods_info['remark'] = $tuan_info['remark'];
+                $goods_info['promotion_price'] = $tuan_info['tuan_price'];
+                $goods_info['down_price'] = sldPriceFormat($goods_info['goods_price'] - $tuan_info['tuan_price']);
+                $goods_info['upper_limit'] = $tuan_info['upper_limit'];
             }
-
-            //限时折扣
-            if (C('promotion_allow') && empty($tuan_info)) {
-                $xianshi_info = Model('p_xianshi_goods')->getXianshiGoodsInfoByGoodsID($gid);
-                if (!empty($xianshi_info)) {
-                    $goods_info['promotion_type'] = 'xianshi';
-                    $goods_info['remark'] = $xianshi_info['xianshi_title'];
-                    $goods_info['promotion_price'] = $xianshi_info['xianshi_price'];
-                    $goods_info['down_price'] = sldPriceFormat($goods_info['goods_price'] - $xianshi_info['xianshi_price']);
-                    $goods_info['lower_limit'] = $xianshi_info['lower_limit'];
-                }
-            }
-            //拼团活动
-            if (C('sld_pintuan') && C('pin_isuse')) {
-                $pin_info = M('pin')->getTuanInfoByGoodsID_new($gid);
-                if (!empty($pin_info)) {
-                    $goods_info['promotion_type'] = 'pin';
-                    $goods_info['remark'] = $goods_info['goods_name'];
-                    $goods_info['promotion_price'] = $pin_info['sld_pin_price'];
-                    $goods_info['down_price'] = sldPriceFormat($goods_info['goods_price'] - $pin_info['sld_pin_price']);
-                    $goods_info['lower_limit'] = $pin_info['sld_max_buy'];
-                }
-            }
-            //满即送
-            $mansong_info = Model('p_mansong')->getMansongInfoByStoreID($goods_info['vid']);
-            //手机专享
-            $model_sole = Model('p_mbuy');
-            $solegoods_info = $model_sole->getSoleGoodsInfo(array('vid' => $goods_info['vid'], 'gid' => $goods_info['gid']));
-            if (!empty($solegoods_info)) {
-                $mobile_info = $solegoods_info;
-            }
-
-            // 获取最终价格
-
-            $goods_info = Model('goods_activity')->rebuild_goods_data($goods_info,'pc');
         }
+
+        //限时折扣
+        if (C('promotion_allow') && empty($tuan_info)) {
+            $xianshi_info = Model('p_xianshi_goods')->getXianshiGoodsInfoByGoodsID($gid);
+            if (!empty($xianshi_info)) {
+                $goods_info['promotion_type'] = 'xianshi';
+                $goods_info['remark'] = $xianshi_info['xianshi_title'];
+                $goods_info['promotion_price'] = $xianshi_info['xianshi_price'];
+                $goods_info['down_price'] = sldPriceFormat($goods_info['goods_price'] - $xianshi_info['xianshi_price']);
+                $goods_info['lower_limit'] = $xianshi_info['lower_limit'];
+            }
+        }
+
+        //满即送
+        $mansong_info = Model('p_mansong')->getMansongInfoByStoreID($goods_info['vid']);
+
+        //是否具有手机专享价_张金凤
+        $model_sole = Model('p_mbuy');
+        $solegoods_info = $model_sole->getSoleGoodsInfo(array('vid' => $goods_info['vid'], 'gid' => $goods_info['gid']));
+        $mobile_info = $solegoods_info;
+        //判断是否参与今日抢购活动_张金凤if(!($goods_info['promotion_price']*1)){
+        if(!($goods_info['promotion_price']*1)){
+            $tobuy_detail_model = Model('today_buy_detail');
+            $tobuy_detail_info = $tobuy_detail_model->getList(array('item_id' => $gid, 'today_buy_detail_state' => "1",'today_buy_date'=>"date('Y-m-d')"));
+            if (!empty($tobuy_detail_info)&&count($tobuy_detail_info)>0) {
+                $today_buy_time_id = $tobuy_detail_info[0]['today_buy_time_id'];
+                $tobuy_time_model = Model('today_buy');
+                $tobuy_time_info = $tobuy_time_model->getOneById_time($today_buy_time_id);
+                if ($tobuy_time_info && $tobuy_time_info['today_buy_time_state'] == 1) {
+                    $today_buy_id = $tobuy_time_info['today_buy_id'];
+                    $today_buy_time = $tobuy_time_info['today_buy_time'];
+                    $today_date = date("Y-m-d");
+                    $time = $today_date." ".$today_buy_time;
+                    $tobuy_time = strtotime($time);
+                    //当前时间大于时间点的情况下才可以算作参与活动了
+                    if (time()-$tobuy_time>0||time()-$tobuy_time==0) {
+                        $goods_info['promotion_type'] = 'today_buy';
+                        $goods_info['promotion_price'] = $tobuy_detail_info[0]['today_buy_price'];
+                    }
+                }
+            }
+        }
+
+
         // 商品受关注次数加1
         $_times = cookie('tm_visit_product');
         if (empty($_times)) {
@@ -747,158 +795,11 @@ class Goods extends Model
         $result['spec_image'] = $spec_image;
         $result['goods_image'] = $goods_image;
         $result['goods_image_mobile'] = $goods_image_mobile;
-        // 批发商品 无促销活动
-        if ($goods_info['goods_type']!=1) {
-            $result['tuan_info'] = $tuan_info;
-            $result['xianshi_info'] = $xianshi_info;
-            $result['mansong_info'] = $mansong_info;
-            $result['mobile_info'] = $mobile_info;
-            $result['pin_info'] = $pin_info;
-        }
-
-        $where = ['og.buyer_id' => $member_id,'og.gid'=>$gid];
-        $where['o.order_state'] = 40;
-
-        if ($goods_info['course_type']) {
-            //如果是在线课的话 查看同commonid
-            $gids            = $this->unit_gids($goods_info['goods_commonid']);
-            $where['og.gid'] = ['in', join(',', $gids)];
-        } else {
-            $where['og.gid'] = $gid;
-        }
-
-        $field = "og.rec_id,og.buyer_id,og.validity,m.member_name as teacher_name";
-        $order_goods_info = $this->table('order,order_goods,member')->alias('o,og,m')->join('left join')->on('o.order_id=og.order_id,og.teacher=m.member_id')->field($field)->order('og.validity desc')->where($where)->find();
-
-        if(!empty($order_goods_info['rec_id'])){
-            $result['goods_info']['is_virtual'] = 1;
-        }
-
-        if ($order_goods_info['course_type'] == 2 && $order_goods_info['validity'] < TIMESTAMP) {
-            $order_goods_info['rec_id'] = null;
-            $result['goods_info']['is_virtual'] = 1;
-        }
-
-        if($goods_info['course_type']==2) {
-            if ($order_goods_info['validity'] < TIMESTAMP) {
-                $order_goods_info = [];
-            } else {
-
-                if ($order_goods_info['validity']) {
-                    $order_goods_info['validity'] = date('Y-m-d H:i:s', $order_goods_info['validity']);
-                }
-
-
-                $result['goods_info']['is_virtual'] = 1;
-
-            }
-        }
-
-
-        $result['order_goods_info'] = $order_goods_info;
-
-
-        $order_goods_info = intval($order_goods_info['rec_id'] > 0);
-        $types            = ['bs' => $goods_info['course_type'], 'txt' => Language::get('立即购买')];
-//        var_dump($types);die;
-
-
-        if($goods_info['course_type']==1 || $goods_info['course_type']==2 || $goods_info['course_type']==3 ){
-            switch ($goods_info['course_type']) {
-                case 1:
-                    $types['txt'] = !empty($order_goods_info) ? Language::get('已报名') : Language::get('立即报名');
-                    break;
-                case 2:
-                    $types['txt'] = !empty($order_goods_info) ? Language::get('立即观看') : Language::get('立即购买');
-                    break;
-                case 3:
-                    $types['txt'] = !empty($order_goods_info) ? Language::get('立即阅读') : Language::get('立即购买');
-                    break;
-                default:
-                    $types['txt'] = Language::get('立即购买');
-                    break;
-            }
-
-        }
-
-
-
-
-        $result['types'] = $types;
-
-
-
+        $result['tuan_info'] = $tuan_info;
+        $result['xianshi_info'] = $xianshi_info;
+        $result['mansong_info'] = $mansong_info;
+        $result['mobile_info'] = $mobile_info;
         return $result;
-    }
-
-    /**
-     * 判断商品 在时间段内是否有其他活动
-     *
-     * @param int gid
-     * @param int commonid
-     * @param string $start  开始时间戳
-     * @param string $end  结束时间戳
-     * @param string $nokey  不判断哪个活动  tuan xianshi pin zhuanxiang
-     * @return boolean
-     */
-    public function getOtherActivity($gid,$commonid,$start,$end,$nokey=null){
-
-        $gidstr = ' = '.$gid;
-        if(is_array($gid)){
-            $gidarr=array();
-            foreach ($gid as $v){
-                $gidarr[] = $v;
-            }
-            $gidstr = ' in ('.join(',',$gidarr).')';
-        }
-        //团购
-        if (C('tuan_allow') && $nokey!='tuan') {
-            $where = " NOT ((start_time < $start) OR (end_time > $end)) and gid $gidstr and goods_commonid = $commonid";
-            if($tuan_info = Model('tuan')->where($where)->count()>0){
-                return $tuan_info;
-            }
-        }
-
-        //限时折扣
-        if (C('promotion_allow' && $nokey!='xianshi')) {
-            $where = " NOT ((start_time < $start) OR (end_time > $end)) and gid $gidstr ";
-            if($xianshi_info = Model('p_xianshi_goods')->where($where)->count()>0){
-                return $xianshi_info;
-            }
-        }
-        //拼团活动
-        if (C('sld_pintuan') && C('pin_isuse') && $nokey!='pin') {
-            $where = " NOT ((sld_start_time < $start) OR (sld_end_time > $end)) and sld_goods_id = $commonid ";
-            if($pin_info = M('pin')->table('pin')->where($where)->count()){
-                return $pin_info;
-            }
-        }
-        //阶梯拼团
-        if (C('sld_pintuan_ladder') && C('pin_ladder_isuse') && $nokey!='pin_ladder') {
-            $where = " NOT ((sld_start_time < $start) OR (sld_end_time > $end)) and sld_goods_id = $commonid ";
-            if($pin_info = $this->table('pin_ladder')->where($where)->count()){
-                return $pin_info;
-            }
-        }
-
-        //预售
-        if (C('pin_presale_isuse') && C('sld_presale_system') && $nokey!='sld_presale') {
-            $where = " NOT ((pre_start_time < $start) OR (pre_end_time > $end)) and pre_goods_commonid = $commonid ";
-
-            if($pin_info = $this->table('presale')->where($where)->count()){
-                return $pin_info;
-            }
-        }
-
-        //手机专享
-        if ( $nokey!='zhuanxiang') {
-            $where = "  gid $gidstr ";
-            if ($solegoods_info = Model('p_mbuy')->table('p_mbuy_goods')->where($where)->count() > 0) {
-                return $solegoods_info;
-            }
-        }
-
-        return 0;
     }
 
     /**
@@ -1037,8 +938,7 @@ class Goods extends Model
             $condition['gid'] = array('neq', (int) $notEqualGoodsId);
         }
 
-        $condition['goods_type'] = 0;
-        return $this->getGoodsOnlineList($condition, '*', 0, 'rand()', $size,'goods_commonid');
+        return $this->getGoodsOnlineList($condition, '*', 0, 'rand()', $size);
     }
 
 
@@ -1063,33 +963,23 @@ class Goods extends Model
                     $goodsid_array[] = intval($info[0]);
                 }
             }
-            //虚拟库存
-            if(C('virtual_sale')){
-                $field = 'gid, goods_name, goods_price, goods_image, vid,goods_salenum+virtual_sale as goods_salenum,is_free';
-            }else{
-                $field = 'gid, goods_name, goods_price, goods_image, vid,goods_salenum,is_free';
-            }
-            $viewed_list    = $this->getGoodsList(array('gid' => array('in', $goodsid_array)),  $field,'goods_commonid');
-
-            // 获取最终价格
-            $viewed_list = Model('goods_activity')->rebuild_goods_data($viewed_list,'pc');
-
+            $viewed_list    = $this->getGoodsList(array('gid' => array('in', $goodsid_array)), 'gid, goods_name, goods_price, goods_image, vid');
             foreach ((array)$viewed_list as $val){
                 $viewed_goods[] = array(
                     "gid"      => $val['gid'],
                     "goods_name"    => $val['goods_name'],
                     "goods_image"   => $val['goods_image'],
-                    "goods_price"   => $val['show_price'],
-                    "vid"      => $val['vid'],
-                    "is_free"      => $val['is_free'],
-                    "goods_salenum"      => $val['goods_salenum']
+                    "goods_price"   => $val['goods_price'],
+                    "vid"      => $val['vid']
                 );
             }
         }
-
         return $viewed_goods;
     }
 
+    public function dropGoods($where){
+        return $this->where($where)->update(array('`delete`'=>1));
+    }
     /**
      * 删除商品SKU信息
      *
@@ -1176,12 +1066,7 @@ class Goods extends Model
      * @return string
      */
     private function _asGoodsShow($field) {
-        if($field){
-            return $field.',(goods_state=' . self::STATE1 . ' && goods_verify=' . self::VERIFY1 . ') as goods_show';
-        }else{
-            return $field;
-        }
-
+        return $field.',(goods_state=' . self::STATE1 . ' && goods_verify=' . self::VERIFY1 . ') as goods_show';
     }
 
     /**
@@ -1638,7 +1523,6 @@ class Goods extends Model
     public function getRecGoods($page = 0,$condition,$field = '*',$order = 'gid desc',$limit = 0) {
         $condition['goods_state']   = self::STATE1;
         $condition['goods_verify']  = self::VERIFY1;
-        $condition['goods_type'] = 0;
         return $this->table('goods')->field('*')->where($condition)->order($order)->page(10)->select();
     }
     //获取店铺的上新商品
@@ -1647,15 +1531,12 @@ class Goods extends Model
         $condition['goods_verify']  = self::VERIFY1;
         $condition['vid']      = $vid;
         $condition['goods_edittime']=array('gt',time()-300*24*3600);
-        $condition['goods_type'] = 0;
-        $result = $this->table('goods')->field('*')->where($condition)->group('goods_commonid')->order('gid desc')->page($page)->limit(10)->select();
-        return $result;
+        return $this->table('goods')->field('*')->where($condition)->order('gid desc')->page($page)->limit(10)->select();
     }
     //获取热销产品
     public function getCartRecGoods(){
         $condition['goods_state']   = self::STATE1;
         $condition['goods_verify']  = self::VERIFY1;
-        $condition['goods_type'] = 0;
         return $this->table('goods')->field('*')->where($condition)->order('goods_salenum desc')->page(6)->select();
     }
     //获取店铺上新商品的数量
@@ -1664,8 +1545,7 @@ class Goods extends Model
         $condition['goods_verify']  = self::VERIFY1;
         $condition['vid']      = $vid;
         $condition['goods_edittime']=array('gt',time()-300*24*3600);
-        $condition['goods_type'] = 0;
-        return $this->table('goods')->field('count(*) as count')->where($condition)->group('goods_commonid')->order('gid desc')->find();
+        return $this->table('goods')->field('count(*) as count')->where($condition)->order('gid desc')->find();
 
     }
 // //wap端推荐店铺推荐商品
@@ -1674,7 +1554,6 @@ class Goods extends Model
         $condition['goods_verify']  = self::VERIFY1;
         $condition['vid']      = $vid;
         $condition['goods_commend']=1;
-        $condition['goods_type'] = 0;
         return $this->table('goods')->field('*')->where($condition)->order('gid desc')->select();
     }
     //wap商品收藏排行榜
@@ -1682,7 +1561,6 @@ class Goods extends Model
         $condition['goods_state']   = self::STATE1;
         $condition['goods_verify']  = self::VERIFY1;
         $condition['vid']      = $vid;
-        $condition['goods_type'] = 0;
         return $this->table('goods')->field('*')->where($condition)->order('goods_collect desc,goods_salenum desc')->page(3)->select();
     }
     //根据商品id获取商品库存
@@ -1722,30 +1600,6 @@ class Goods extends Model
         $goods_info['goods_attr'] = unserialize($goods_info['goods_attr']);
         $goods_info['promotion_type']='';
         $goods_info['promotion_price']='';
-
-        //商品标签
-        if(!empty($goods_info['goods_label'])){
-            $label=explode(',',$goods_info['goods_label']);
-            if(!empty($label)){
-                $label_arr=array();
-                $model_label=Model('goods_label');
-                $label_list=$model_label->getGoodsLabelAll();
-                $i=0;
-                foreach ($label_list as $key=>$value){
-                    if(in_array($value['id'],$label)){
-                        $label_arr[$i]['label_name']=$value['label_name'];
-                        $label_arr[$i]['label_desc']=$value['label_desc'];
-                        $label_arr[$i]['label_id']=$value['id'];
-                        $label_arr[$i]['img']=$value['img'];
-                        $i++;
-                    }
-
-                }
-                $goods_info['goods_label']=$label_arr;
-            }
-
-        }
-
         // 查询所有规格商品
         $spec_array = $this->getGoodsList(array('goods_commonid' => $goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id');
         $spec_list = array();       // 各规格商品地址，js使用
@@ -1790,13 +1644,11 @@ class Goods extends Model
         if (!empty($image_more)) {
             foreach ($image_more as $val) {
                 $goods_image[] = array(cthumb($val['goods_image'], 60, $goods_info['vid']), cthumb($val['goods_image'], 350, $goods_info['vid']), cthumb($val['goods_image'], 1280, $goods_info['vid']));
-//                $goods_image_mobile[] = cthumb($val['goods_image'], 350, $goods_info['vid']);
-                $goods_image_mobile[] = OriginImage($val['goods_image'],  $goods_info['vid']);
+                $goods_image_mobile[] = cthumb($val['goods_image'], 350, $goods_info['vid']);
             }
         } else {
             $goods_image[] = "{ title : '', levelA : '" . thumb($goods_info, 60) . "', levelB : '" . thumb($goods_info, 350) . "', levelC : '" . thumb($goods_info, 350) . "', levelD : '" . thumb($goods_info, 1280) . "'}";
-//            $goods_image_mobile[] = thumb($goods_info, 350);
-            $goods_image_mobile[] = OriginImage($goods_info['goods_image'],  $goods_info['vid']);
+            $goods_image_mobile[] = thumb($goods_info, 350);
         }
         // 新版结束
         //是否具有手机专享价_刘志远
@@ -1976,12 +1828,15 @@ class Goods extends Model
 
     }
     public function saveGoods($param, $vid, $store_name, $store_state, $seller_id, $seller_name, $bind_all_gc) {
+
         // 验证参数
         $error = $this->_validParam($param);
 
         if ($error != '') {
             return callback(false, $error);
         }
+
+
         $gc_id = intval($param['cid']);
         // 验证商品分类是否存在且商品分类是否为最后一级
         $data = Model('goods_class')->getGoodsClassForCacheModel();
@@ -1990,9 +1845,7 @@ class Goods extends Model
         }
 
         // 三方店铺验证是否绑定了该分类
-        //根据vid获取店铺信息
-        $store_info = Model('vendor')->getStoreInfoByID($vid);
-        if(!((bool)$store_info['is_own_shop']&&(bool) $store_info['bind_all_gc'])){
+        if (!checkPlatformStoreBindingAllGoodsClass($vid, $bind_all_gc)) {
             $where = array();
             $where['class_1|class_2|class_3'] = $gc_id;
             $where['vid'] = $vid;
@@ -2141,7 +1994,7 @@ class Goods extends Model
         $common_array['goods_state']        = ($store_state != 1) ? 0 : intval($param['g_state']);            // 店铺关闭时，商品下架
         $common_array['goods_addtime']      = TIMESTAMP;
         $common_array['goods_selltime']     = strtotime($param['starttime']) + intval($param['starttime_H'])*3600 + intval($param['starttime_i'])*60;
-        $common_array['goods_verify']       = (Config('goods_verify') == 1) ? 10 : 1;
+        $common_array['goods_verify']       = (C('goods_verify') == 1) ? 10 : 1;
         $common_array['vid']           = $vid;
         $common_array['store_name']         = $store_name;
         $common_array['spec_name']          = is_array($param['spec']) ? serialize($param['sp_name']) : serialize(null);
@@ -2155,7 +2008,7 @@ class Goods extends Model
         $common_array['goods_stcids']       = $this->_getStoreClassArray($param['sgcate_id'], $vid);
         $common_array['plateid_top']        = intval($param['plate_top']) > 0 ? intval($param['plate_top']) : 0;
         $common_array['plateid_bottom']     = intval($param['plate_bottom']) > 0 ? intval($param['plate_bottom']) : 0;
-        if(Config('distribution')){
+        if(C('distribution')){
             $common_array['fenxiao_yongjin']     = floatval($param['fenxiao_yongjin']);
         }
         return $common_array;
@@ -2395,18 +2248,13 @@ class Goods extends Model
             return callback(false, '您选择的分类不存在，或没有选择到最后一级，请重新选择分类。');
         }
 
-
         // 三方店铺验证是否绑定了该分类
-        //根据vid获取店铺信息
-        $store_info = Model('vendor')->getStoreInfoByID($vid);
-        if(!((bool)$store_info['is_own_shop']&&(bool) $store_info['bind_all_gc'])){
+        if (!checkPlatformStoreBindingAllGoodsClass($vid, $bind_all_gc)) {
             $where = array();
             $where['class_1|class_2|class_3'] = $gc_id;
             $where['vid'] = $vid;
             $rs = Model('vendor_bind_category')->getStoreBindClassInfo($where);
             if (empty($rs)) {
-                return callback(false, '您的店铺没有绑定该分类，请重新选择分类。');
-            }else{
                 return callback(false, '您的店铺没有绑定该分类，请重新选择分类。');
             }
         }
@@ -2698,154 +2546,59 @@ class Goods extends Model
         return $goods_list;
     }
 
-    //在线课 传入gid,member_id获取该商品购买过的gid
-    public function unit_gids($cid){
-        return  $this->table('goods')->where(['goods_commonid'=>$cid])->field('gid')->col('gid');
+    /*
+     *根据商品价格计算批发价
+     *
+     */
+    public function goodsPifa($gid,$num){
+        $condition=array();
+        $condition['gid']=$gid;
+        $goods_info=$this->getGoodsInfo($condition);
+
+        $pifa=json_decode($goods_info['goods_price_pifa'],true);
+        $pifa_price_num=$pifa['pifa_price_num'];
+        ksort($pifa_price_num);
+        if($num<$pifa_price_num[0]){
+            return $goods_info['goods_price'];
+        }
+
+        $weizi=$this->pifa_key($pifa_price_num,$num);
+
+        $pifa_price=array_combine($pifa['pifa_price_num'],$pifa['pifa_price']);
+
+        return $pifa_price[$weizi];
+
     }
 
-    //读取视频
-    public function read_video($gid,$member_id=null,$video_id=null){
 
-        //先查产品信息
-        $goods_info = $this->table('goods,goods_common')->alias('g,gc')->join('left')->on('g.goods_commonid=gc.goods_commonid')->where(['g.gid'=>$gid])->field('g.gid,gc.goods_commonid,gc.goods_image,gc.videos,g.goods_name,g.evaluation_good_star,(select count(*) ccc from bbc_evaluate_goods where geval_ordergoodsid=g.gid) as ccc,g.store_name,g.vid,g.gc_id_1,g.is_free,g.course_type')->find();
+    /*
+     * 查找购买数量的位置
+     */
+    public function pifa_key($pifa_price_num,$num){
 
-
-
-
-        if($goods_info['is_free']!=1){
-            $where = ['og.buyer_id' => $member_id,'og.gid'=>$gid];
-            $where['o.order_state'] = 40;
-
-            if ($goods_info['course_type']) {
-                //如果是在线课的话 查看同commonid
-                $gids            = $this->unit_gids($goods_info['goods_commonid']);
-                $where['og.gid'] = ['in', join(',', $gids)];
-            } else {
-                $where['og.gid'] = $gid;
-            }
-
-            $field = "og.rec_id,og.buyer_id,og.validity,m.member_name as teacher_name";
-            $order_goods_info = $this->table('order,order_goods,member')->alias('o,og,m')->join('left join')->on('o.order_id=og.order_id,og.teacher=m.member_id')->field($field)->order('og.validity desc')->where($where)->find();
-            if ($order_goods_info['course_type'] == 2 && $order_goods_info['validity'] < TIMESTAMP) {
-                $order_goods_info['rec_id'] = null;
-            }else{
-                return $goods_info;
-            }
+        if(in_array($num,$pifa_price_num)){
+            $point=array_keys($pifa_price_num,$num);//位置
+            return $pifa_price_num[$point[0]];
         }else{
-            if($goods_info['teacher']) {
-                $field              = "member_name as teacher_name";
-                $where              = [];
-                $where['member_id'] = $goods_info['teacher'];
-                $order_goods_info   = $this->table('member')->field($field)->where($where)->find();
-            }else{
-                $order_goods_info = [];
-            }
+            array_push($pifa_price_num,$num);
+            sort($pifa_price_num,SORT_NUMERIC);
+            $point=array_keys($pifa_price_num,$num);//位置
+            return $pifa_price_num[$point[0]-1];
         }
 
-
-        $goods_info = array_merge($goods_info,$order_goods_info);
-
-
-
-        return $goods_info;
     }
-
-
-    //根据老师id查询老师的所有课程
-    public function get_lesson_list($member_id,$page = ''){
-        $model_goods_common = Model('goods_common');
-        $where = ['teacher'=>$member_id];
-        $fields = 'goods_commonid,goods_name,goods_image,goods_addtime';
-        $lesson_list = $model_goods_common->table('goods_common')->field($fields)->where($where)->page($page)->order('goods_addtime desc')->select();
-        return $lesson_list;
-    }
-
-    public function get_video($gid,$member_id,$v_id=null){
-        if(empty($member_id)){
-            return ['error'=>1,'msg'=>Language::get('您登录后观看')];
-            exit;
-        }
-
-        $goods = Model('goods')->where(['gid'=>$gid])->field('goods_commonid')->find();
-
-        if(!($goods)){
-            return ['error'=>1,'msg'=>Language::get('商品没有找到')];
-            exit;
-        }
-
-        //课程信息
-        $where = ['og.buyer_id' => $member_id,'g.goods_commonid'=>$goods['goods_commonid']];
-        $field = "og.buyer_id,og.validity,gc.goods_commonid,gc.goods_image,gc.videos,g.goods_name,g.evaluation_good_star,m.member_name as teacher_name,gc.duration,og.order_id,count(eva.geval_id) as ccc,g.store_name";
-        $model = Model();
-        $data = $model->table('order_goods,goods,goods_common,member,evaluate_goods')->alias('og,g,gc,m,eva')->join('left join')->on('og.gid=g.gid,g.goods_commonid=gc.goods_commonid,og.teacher=m.member_id,eva.geval_goodsid=g.gid')->field($field)->where($where)->find();
-
-        if (empty($data)) {
-            return ['error'=>1,'msg'=>Language::get('您没有购买此课程')];
-            exit;
-        }
-
-        //查询用户视频最后观看记录
-
-        $condition = ['buyer_id' => $member_id, 'goods_commonid' => $goods['goods_commonid']];
-
-        if($v_id){
-            $condition['video_id'] = $v_id;
-        }
-
-
-        $video_log = $model->table('video_log')->where($condition)->order('alter_time desc')->find();
-
-        if(!empty($video_log)){
-            //查询用户课程 全部视频
-            $videos = $model->table('goods_video')->where(['id' => ['in', $data['videos']]])->key('id')->select();
-            if(!$v_id) {
-                $v_id = $video_log['video_id'];
-            }
-        }else{
-            //查询用户课程 全部视频
-            $videos = $model->table('goods_video')->where(['id' => ['in', $data['videos']]])->key('id')->select();
-            if(!$v_id) {
-                $v_id = $video_log['video_id'];
-            }
-            if(!$v_id){
-                foreach ($videos as $v){
-                    $v_id = $v['id'];
-                    break;
-                }
-            }
-        }
-
-        $this_video = $videos[$v_id];
-        $this_video['dur'] = Sec2Time($this_video['dur']);
-        $data['duration'] = Sec2Time($data['duration']);
-
-        if(!empty($video_log)){
-            $data['video_log'] = $video_log;
-        }
-
-        // 看了又看（同分类本店随机商品）
-        $model_goods = Model('goods');
-        $size = '6';
-        $goods_rand_list = $model_goods->getGoodsGcStoreRandList($data['gc_id_1'], $data['vid'], $data['gid'], $size);
-        $goods_rand_list = array_slice($goods_rand_list,0,$size);
-        // 获取最终价格
-        $goods_rand_list = Model('goods_activity')->rebuild_goods_data($goods_rand_list,'pc');
-
-        foreach ($videos as &$v){
-            $v['dur'] = Sec2Time($v['dur']);
-            if(LANG_TYPE!='zh_cn'){
-                $v['txt'] = $v['entxt'];
-            }
-        }
-
-        $result['data'] = $data;
-        $result['videos'] = $videos;
-        $result['this_video'] = $this_video;
-        $result['video_log'] = $video_log;
-        $result['this_video'] = $this_video;
-        $result['goods_rand_list'] = $goods_rand_list;
-
-        return ['error'=>0,'data'=>$result];
+    protected function recordSellerLog($content = '', $state = 1){
+        $vendorinfo = array();
+        $vendorinfo['log_content'] = $content;
+        $vendorinfo['log_time'] = TIMESTAMP;
+        $vendorinfo['log_seller_id'] = $_SESSION['dian_seller_id'];
+        $vendorinfo['log_seller_name'] = $_SESSION['dian_seller_name'];
+        $vendorinfo['log_store_id'] = $_SESSION['dian_vid'];
+        $vendorinfo['log_seller_ip'] = getIp();
+        $vendorinfo['log_url'] = $_GET['app'].'&'.$_GET['mod'];
+        $vendorinfo['log_state'] = $state;
+        $model_vendor_log = Model('dian_log');
+        $model_vendor_log->addSellerLog($vendorinfo);
     }
 
 }
