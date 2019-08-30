@@ -2,6 +2,7 @@
 
 namespace app\V1\model;
 
+use app\V1\controller\Base;
 use think\Db;
 use think\Exception;
 use think\Model;
@@ -521,5 +522,20 @@ class User extends Model
     public function isMemberExist($member_id){
         return $this->table('member')->where($member_id);
     }
-
+    /**
+     * 取得会员详细信息（优先查询缓存）
+     * 如果未找到，则缓存所有字段
+     * @param int $member_id
+     * @param string $field 需要取得的缓存键值, 例如：'*','member_name,member_sex'
+     * @return array
+     */
+    public function getMemberInfoByID($member_id, $fields = '*') {
+        $base =new Base();
+        $member_info = $base->rcache($member_id, 'member', $fields);
+        if (empty($member_info)) {
+            $member_info = $this->getMemberInfo(array('member_id'=>$member_id),$fields,true);
+            $base->wcache($member_id, $member_info, 'member');
+        }
+        return $member_info;
+    }
 }

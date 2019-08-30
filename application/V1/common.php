@@ -5,7 +5,10 @@
  *
  * @return string 字符串类型的返回结果
  */
+
+use OSS\Core\OssException;
 use think\facade\Request;
+use think\Lang;
 define("BASE_PATH",str_replace('\\','/',dirname(__FILE__)));
 function getIp()
 {
@@ -320,4 +323,443 @@ function dft($judge, $not = '', $pre = '', $left = 'true')
     }
 
     return $return;
+}
+function Sec2Time($time){
+    if(is_numeric($time)){
+        $value = array(
+            "years" => 0, "days" => 0, "hours" => 0,
+            "minutes" => 0, "seconds" => 0,
+        );
+        $t = '';
+        if($time >= 31556926){
+            $value["years"] = floor($time/31556926);
+            $time = ($time%31556926);
+            $t.= $value["years"] .lang('年');
+        }
+        if($time >= 86400){
+            $value["days"] = floor($time/86400);
+            $time = ($time%86400);
+            $t.=$value["days"] .lang("天")." ";
+        }
+        if($time >= 3600){
+            $value["hours"] = floor($time/3600);
+            $time = ($time%3600);
+            $t.=$value["hours"] .lang("小时");
+        }
+        if($time >= 60){
+            $value["minutes"] = floor($time/60);
+            $time = ($time%60);
+            $t.=$value["minutes"] .lang("分");
+        }
+        $value["seconds"] = floor($time);
+        if($value['seconds']>0) {
+            //return (array) $value;
+            $t .= $value["seconds"] . lang('秒');
+        }
+        Return $t;
+
+    }else{
+        return (bool) FALSE;
+    }
+}
+/**
+ * 商城会员中心使用的URL链接函数，强制使用动态传参数模式
+ *
+ * @param string $app control文件名
+ * @param string $mod op方法名
+ * @param array $args URL其它参数
+ * @param string $store_domian 店铺二级域名
+ * @return string
+ */
+function urlShop($app = '', $mod = '', $args = array(), $store_domain = '')
+{
+    // 开启店铺二级域名
+    if (intval(Config('enabled_subdomain')) == 1 && !empty($store_domain)) {
+        return 'http://' . $store_domain . '.' . SUBDOMAIN_SUFFIX . '/';
+    }
+    $id           = array();
+    // 默认标志为不开启伪静态
+    $rewrite_flag = false;
+
+    // 如果平台开启伪静态开关，并且为伪静态模块，修改标志为开启伪静态
+    $rewrite_item = array(
+        'goods:index',
+        'goods:comments_list',
+        'goodslist:index',
+        'vendor:index',
+        'vendor:all',
+        'article:index',
+        'document:index',
+        'brand:list',
+        'brand:index',
+        'tuan:index',
+        'tuan:tuan_comming',
+        'tuan:tuan_history',
+        'tuan:tuandetail',
+        'pointprod:index',
+        'pointvoucher:index',
+        'pointprod:pinfo',
+        'pointprod:plist',
+        'v_dt:index'
+    );
+    if (URL_MODEL && in_array($app . ':' . $mod, $rewrite_item)) {
+        $rewrite_flag = true;
+        $tpl_args     = array();        // url参数临时数组
+        $id           = array();
+        switch ($app . ':' . $mod) {
+            case 'goodslist:index':
+                if (isset($args['keyword'])) {
+                    $rewrite_flag = false;
+                    break;
+                }
+                $id['cid']        = empty($args['cid']) ? 0 : $args['cid'];
+                $id['b_id']       = empty($args['b_id']) || intval($args['b_id']) == 0 ? 0 : $args['b_id'];
+                $id['a_id']       = empty($args['a_id']) || intval($args['a_id']) == 0 ? 0 : $args['a_id'];
+                $tpl_args['key']  = empty($args['key']) ? 0 : $args['key'];
+                $tpl_args['sort'] = empty($args['sort']) ? 0 : $args['sort'];
+                $tpl_args['t']    = empty($args['t']) ? 0 : $args['t'];
+                $id['area_id']    = empty($args['area_id']) ? 0 : $args['area_id'];
+                $tpl_args['pn']   = empty($args['pn']) ? 0 : $args['pn'];
+                $args             = $tpl_args;
+                break;
+            case 'vendor:all':
+                if (isset($args['keyword'])) {
+                    $rewrite_flag = false;
+                    break;
+                }
+                $id['vid']        = empty($args['vid']) ? 0 : $args['vid'];
+                $id['stc_id']     = empty($args['stc_id']) ? 0 : $args['stc_id'];
+                $tpl_args['key']  = empty($args['key']) ? 0 : $args['key'];
+                $tpl_args['sort'] = empty($args['sort']) ? 0 : $args['sort'];
+                $tpl_args['pn']   = empty($args['pn']) ? 0 : $args['pn'];
+                $args             = $tpl_args;
+                break;
+            case 'vendor:index':
+                if (isset($args['keyword'])) {
+                    $rewrite_flag = false;
+                    break;
+                }
+                $id   = $args;
+                $args = array();
+                break;
+            case 'brand:list':
+                $id['brand']         = empty($args['brand']) ? 0 : $args['brand'];
+                $tpl_args['key']     = empty($args['key']) ? 0 : $args['key'];
+                $tpl_args['order']   = empty($args['order']) ? 0 : $args['order'];
+                $tpl_args['type']    = empty($args['type']) ? 0 : $args['type'];
+                $tpl_args['area_id'] = empty($args['area_id']) ? 0 : $args['area_id'];
+                $tpl_args['pn']      = empty($args['pn']) ? 0 : $args['pn'];
+                $args                = $tpl_args;
+                break;
+            case 'tuan:index':
+            case 'tuan:tuan_comming':
+            case 'tuan:tuan_history':
+                $id['area_id']     = empty($args['area_id']) ? 0 : $args['area_id'];
+                $id['tuan_class']  = empty($args['tuan_class']) ? 0 : $args['tuan_class'];
+                $id['tuan_price']  = empty($args['tuan_price']) ? 0 : $args['tuan_price'];
+                $tpl_args['psort'] = empty($args['psort']) ? 0 : $args['psort'];
+//                $tpl_args['tuan_order'] = empty($args['tuan_order']) ? 0 : $args['tuan_order'];
+                $tpl_args['pn'] = empty($args['pn']) ? 0 : $args['pn'];
+                $args           = $tpl_args;
+                break;
+            case 'tuan:tuandetail':
+                $id   = $args;
+                $args = array();
+                break;
+            case 'goods:comments_list':
+                $id['gid']        = empty($args['gid']) ? 0 : $args['gid'];
+                $tpl_args['type'] = empty($args['type']) ? 0 : $args['type'];
+                $tpl_args['pn']   = empty($args['pn']) ? 0 : $args['pn'];
+                $args             = $tpl_args;
+                break;
+            case 'article:index':
+                $id   = $args;
+                $args = array();
+                break;
+            case 'goods:index':
+                $id   = $args;
+                $args = array();
+                break;
+            case 'v_dt:index':
+//                $id['vid'] = empty($args['vid']) ? 0 : $args['vid'];
+//                if(!empty($args['t'])){
+//                    $id['t'] = $args['t'];
+//                }
+                $id   = $args;
+                $args = array();
+                break;
+            default:
+                break;
+        }
+    }
+    return urlById($app, $mod, $id, $args, $rewrite_flag, MALL_URL);
+}
+/**
+ * 拼接动态URL，参数需要小写
+ *
+ * 调用示例
+ *
+ * 若指向网站首页，可以传空:
+ * url() => 表示app和mod均为index，返回当前站点网址
+ *
+ * url('search,'index','array('cid'=>2)); 实际指向 index.php?app=goodslist&mod=index&cid=2
+ * 传递数组参数时，若app（或mod）值为index,则可以省略
+ * 上面示例等同于
+ * url('search','',array('app'=>'search','cid'=>2));
+ *
+ * @param string $app control文件名
+ * @param string $mod op方法名
+ * @param $id
+ * @param array $args URL其它参数
+ * @param boolean $model 默认取当前系统配置
+ * @param string $site_url 生成链接的网址，默认取当前网址
+ * @return string
+ */
+function urlById($app = '', $mod = '', $id = array(), $args = array(), $model = false, $site_url = '')
+{
+    //伪静态文件扩展名
+    $ext = '.html';
+    //入口文件名
+    $file = 'index.php';
+//    $site_url = empty($site_url) ? MALL_SITE_URL : $site_url;
+    $app  = trim($app);
+    $mod  = trim($mod);
+    $args = !is_array($args) ? array() : $args;
+    //定义变量存放返回url
+    $url_string = '';
+    if (empty($app) && empty($mod) && empty($args)) {
+        return $site_url;
+    }
+    $app = !empty($app) ? $app : 'index';
+    $mod = !empty($mod) ? $mod : 'index';
+
+    $model = $model ? URL_MODEL : $model;
+
+    if ($model) {
+        //伪静态模式
+
+        $url_perfix = "{$app}-{$mod}";
+
+        if (!empty($id)) {
+            $url_perfix .= '-';
+        }
+        //$url_string = $url_perfix.http_build_query($args,'','-').$ext;
+        $url_string = $url_perfix . http_build_query($id, '', '-') . $ext;
+        $url_string = str_replace('=', '-', $url_string) . (empty($args) ? '' : ('?' . http_build_query($args)));
+    } else {
+        //默认路由模式
+        if ($mod == 'index') {
+            $url_perfix = "app={$app}";
+        } else {
+            $url_perfix = "app={$app}&mod={$mod}";
+        }
+//        $url_perfix = "app={$app}&mod={$mod}";
+        if (!empty($args)) {
+            $url_perfix .= '&';
+        }
+
+        $url_string = $file . '?' . $url_perfix . http_build_query($args);//http_build_query($id).(empty($args)?'':('&'.http_build_query($args)));
+    }
+    //将商品、店铺、分类、品牌、文章自动生成的伪静态URL使用短URL代替
+    $reg_match_from = array(
+        '/^goods-index-gid-(\d+)\.html$/',
+        '/^vendor-index-vid-(\d+)\.html$/',
+        '/^vendor-all-vid-(\d+)-stc_id-(\d+)\.html/',
+        '/^article-index-id-(\d+)\.html$/',
+        '/^article-index-acid-(\d+)\.html$/',
+        '/^document-index-code-([a-z_]+)\.html$/',
+        '/^goodslist-index-cid-(\d+)-b_id-([0-9_]+)-a_id-([0-9_]+)-area_id-(\d+).html?/',
+        '/^brand-list-brand-(\d+)-key-([0-3])-order-([0-2])-type-([0-2])-area_id-(\d+)-pn-(\d+)\.html$/',
+        '/^brand-index\.html$/',
+        '/^tuan-index-area_id-(\d+)-tuan_class-(\d+)-tuan_price-(\d+)\.html/',
+        '/^tuan-tuan_comming-area_id-(\d+)-tuan_class-(\d+)-tuan_price-(\d+)\.html/',
+        '/^tuan-tuan_history-area_id-(\d+)-tuan_class-(\d+)-tuan_price-(\d+)\.html/',
+        '/^tuan-tuandetail-tuan_id-(\d+).html$/',
+        '/^pointprod-index.html$/',
+        '/^pointprod-plist.html$/',
+        '/^pointprod-pinfo-id-(\d+).html$/',
+        '/^pointvoucher-index.html$/',
+        '/^goods-comments_list-gid-(\d+)-type-([0-3])-pn-(\d+).html$/',
+        '/^v_dt-index-vid-(\d+)-t-([0-4]).html/',
+        '/^v_dt-index-vid-(\d+).html/'
+    );
+    $reg_match_to   = array(
+        'product-\\1.html',
+        'v-\\1.html',
+        'vl-\\1-\\2.html',
+        'help-\\1.html',
+        'list-\\1.html',
+        'document-\\1.html',
+        'cat-\\1-\\2-\\3-\\4.html',
+        'brand-\\1-\\2-\\3-\\4-\\5-\\6.html',
+        'brand.html',
+        't-\\1-\\2-\\3.html',
+        't0-\\1-\\2-\\3.html',  //未开团
+        't1-\\1-\\2-\\3.html',   //往期团
+        'td-\\1.html',                 //团购详情
+        'point.html',
+        'point_list.html',
+        'point_item-\\1.html',
+        'quan.html',
+        'comments-\\1-\\2-\\3.html',
+        'v_dt-\\1-\\2.html',
+        'v_dt-\\1.html',
+    );
+    $url_string     = preg_replace($reg_match_from, $reg_match_to, $url_string);
+    return rtrim($site_url, '/') . '/' . $url_string;
+}
+/**
+ * 取得商品缩略图的完整URL路径，接收商品信息数组，返回所需的商品缩略图的完整URL
+ *
+ * @param array $goods 商品信息数组
+ * @param string $type 缩略图类型  值为60,160,240,310,1280
+ * @return string
+ */
+function thumb($goods = array(), $type = ''){
+    $sld_fixture_types = array('real');
+    if (!in_array($type,$sld_fixture_types)) {
+        $type_array = explode(',_', ltrim(GOODS_IMAGES_EXT, '_'));
+        if (!in_array($type, $type_array)) {
+            $type = '240';
+        }
+    }else{
+        $type = '';
+    }
+    if (array_key_exists('apic_cover', $goods) && !empty($goods)) {
+        $goods['goods_image'] = $goods['apic_cover'];
+    }
+
+    //oss先处理
+    if(OSS_ENABLE||QINIU_ENABLE){
+        $search_array = explode(',', GOODS_IMAGES_EXT);
+        $file = str_ireplace($search_array,'',$goods['goods_image']);
+        $fname = basename($file);
+        //取店铺ID
+        if (preg_match('/^(\d+_)/',$fname)){
+            $vid = substr($fname,0,strpos($fname,'_'));
+        }else{
+            $vid = $goods['vid'];
+        }
+        if(!$goods['vid'] && array_key_exists('apic_cover', $goods) && $type == '') {
+            $full_url = UPLOAD_SITE_URL.'/'.ATTACH_GOODS.'/'.'fixture'.'/'.$file;
+        }else{
+            $full_url = UPLOAD_SITE_URL . '/' . ATTACH_GOODS . '/' . $vid . '/' . $file;
+        }
+
+        if(OSS_ENABLE){
+            if (oss_exists($full_url)) {
+                if($type) {
+                    return $full_url . '?x-oss-process=image/resize,m_lfit,h_' . $type . ',w_' . $type;
+                }else{
+                    return $full_url;
+                }
+            }else{
+                $file = $type == '' ? $file : str_ireplace('.', '_' . $type . '.', $file);
+
+                // 验证内置装修图片是否存在
+                if (is_file(BASE_STATIC_PATH.'/'.FIXTURE_PATH.'/'.'vendor'.'/'.$file)) {
+                    return STATIC_SITE_URL.'/'.FIXTURE_PATH.'/'.'vendor'.'/'.$file;
+                }else{
+                    return UPLOAD_SITE_URL.'/'.defaultGoodsImage($type);
+                }
+            }
+        }else if(QINIU_ENABLE){
+            if(qiniu_exists($full_url)){
+                if($type) {
+                    return $full_url . '?imageView2/1/'.'w/'.$type.'/h/'.$type;
+                }else{
+                    return $full_url;
+                }
+            }
+        }
+    }
+
+
+    if (empty($goods)){
+        return UPLOAD_SITE_URL.'/'.defaultGoodsImage($type);
+    }
+    if (empty($goods['goods_image'])) {
+        return UPLOAD_SITE_URL.'/'.defaultGoodsImage($type);
+    }
+    $search_array = explode(',', GOODS_IMAGES_EXT);
+    $file = str_ireplace($search_array,'',$goods['goods_image']);
+    $fname = basename($file);
+    //取店铺ID
+    if (preg_match('/^(\d+_)/',$fname)){
+        $vid = substr($fname,0,strpos($fname,'_'));
+    }else{
+        $vid = $goods['vid'];
+    }
+    $file = $type == '' ? $file : str_ireplace('.', '_' . $type . '.', $file);
+
+    if (!$goods['vid'] && array_key_exists('apic_cover', $goods) && $type == '') {
+        // 验证内置装修图片是否存在
+        if (is_file(BASE_UPLOAD_PATH.'/'.ATTACH_GOODS.'/'.'fixture'.'/'.$file)) {
+            return UPLOAD_SITE_URL.'/'.ATTACH_GOODS.'/'.'fixture'.'/'.$file;
+        }else{
+            return UPLOAD_SITE_URL.'/'.defaultGoodsImage($type);
+        }
+    }else{
+        if (!is_file(BASE_UPLOAD_PATH.'/'.ATTACH_GOODS.'/'.$vid.'/'.$file)){
+            return UPLOAD_SITE_URL.'/'.defaultGoodsImage($type);
+        }
+        $thumb_host = UPLOAD_SITE_URL.'/'.ATTACH_GOODS;
+        return $thumb_host.'/'.$vid.'/'.$file;
+    }
+}
+/**
+ * 判断七牛云文件是否存在
+ *
+ * @param string $bucket 文件路径
+ * @return null
+ */
+function qiniu_exists($object)
+{
+    return true;
+
+}
+/**
+ * 判断oss文件是否存在
+ *
+ * @param string $bucket 文件路径
+ * @return null
+ */
+function oss_exists($object)
+{
+    $object          = 'data/upload' . str_replace(UPLOAD_SITE_URL, '', $object);
+    $accessKeyId     = $GLOBALS['setting_config']['oss_key'];
+    $accessKeySecret = $GLOBALS['setting_config']['oss_sc'];
+    $endpoint        = $GLOBALS['setting_config']['oss_url'];
+    $bucket          = $GLOBALS['setting_config']['oss_pre'];
+    $ossClient       = new \OSS\OssClient($accessKeyId, $accessKeySecret, $endpoint);
+    try {
+        $exist = $ossClient->doesObjectExist($bucket, $object);
+    } catch (OssException $e) {
+        $e->getErrorMessage();
+    }
+    return $exist;
+}
+/**
+ * 返回以原数组某个值为下标的新数据
+ *
+ * @param array $array
+ * @param string $key
+ * @param int $type 1一维数组2二维数组
+ * @return array
+ */
+function array_under_reset($array, $key, $type = 1)
+{
+    if (is_array($array)) {
+        $tmp = array();
+        foreach ($array as $v) {
+            if ($type === 1) {
+                $tmp[$v[$key]] = $v;
+            } elseif ($type === 2) {
+                $tmp[$v[$key]][] = $v;
+            }
+        }
+        return $tmp;
+    } else {
+        return $array;
+    }
 }

@@ -94,7 +94,7 @@ class MBuy extends Model
      * @return array
      */
     public function getSoleGoodsList($condition, $field = '*', $page = 0, $limit = 0, $order = 'mbuy_gid asc') {
-        return $this->table('p_mbuy_goods')->field($field)->where($condition)->limit($limit)->order($order)->page($page)->select();
+        return $this->table('bbc_p_mbuy_goods')->field($field)->where($condition)->limit($limit)->order($order)->page($page)->select();
     }
 
     /**
@@ -104,7 +104,7 @@ class MBuy extends Model
      * @return array
      */
     public function getSoleGoodsInfo($condition, $field = '*') {
-        return $this->table('p_mbuy_goods')->field($field)->where($condition)->find();
+        return $this->table('bbc_p_mbuy_goods')->field($field)->where($condition)->find();
     }
 
     /**

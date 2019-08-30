@@ -1,6 +1,6 @@
 <?php
 use think\db;
-class redModel {
+class redModel   {
 
     public function __construct() {
 

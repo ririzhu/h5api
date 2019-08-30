@@ -3,6 +3,8 @@ namespace app\V1\controller;
 use Exception;
 use think\facade\Cache;
 use think\Controller;
+use think\Lang;
+use think\Request;
 class Base extends Controller
 {
     /**
@@ -10,6 +12,10 @@ class Base extends Controller
      */
     public  function __construct() {
         // config info
+        $headInfo = Request()->header();
+       // Lang::load( "\lang\$headInfo['content-language']\$headInfo['content-language'].php");
+
+
         global $setting_config;
         //self::parse_conf($setting_config);
         /*define('MD5_KEY',md5($setting_config['md5_key']));
@@ -232,10 +238,11 @@ class Base extends Controller
      */
     function rcache($key = null, $prefix = '', $unserialize = true)
     {
-        if (empty($key) || Config('cache.type') == 'file') return false;
-        $obj_cache = \Cache::getInstance(Config('cache.type'));
-        $data      = $obj_cache->get($key, $prefix);
-        return $unserialize ? unserialize($data) : $data;
+        //if (empty($key) || Config('cache.type') == 'file') return false;
+        //$obj_cache = \Cache::getInstance(Config('cache.type'));
+        $value = Cache::get($prefix.$key);
+       // $data      = cache::get($key, false);
+        return $unserialize ? unserialize($value) : $value;
     }
 
     /**
@@ -271,7 +278,7 @@ class Base extends Controller
     function dcache($key = null, $prefix = '')
     {
         if ($key === null || !Config('cache_open')) return true;
-        $ins = Cache::getInstance(C('cache.type'));
+        $ins = Cache::getInstance(Config('cache.type'));
         return $ins->hdel($key, $prefix);
     }
 
@@ -290,10 +297,126 @@ class Base extends Controller
     function wmemcache($key = null, $data = array(), $prefix = '', $ttl = null, $serialize = true)
     {
         if (empty($key) || Config('cache.type') == 'file') return false;
-        $obj_cache = Cache::getInstance(C('cache.type'));
-        if (is_null($ttl)) $ttl = C('session_expire');
+        $obj_cache = Cache::store(Config('cache.type'));
+        if (is_null($ttl)) $ttl = Config('session_expire');
         $obj_cache->set($key, $serialize ? serialize($data) : $data, $prefix, $ttl);
         return true;
     }
+    /*
+         * 通过用户ID 店铺ID 检查 批发中心权限
+         *
+         * */
+    protected function checkSupplierRule($member_id,$vid,$rule_type)
+    {
+        $pass_flag = false;
+        $rule_array = array('visit'=>'sld_is_visit','buy'=>'sld_is_buy');
+        if (isset($rule_array[$rule_type])) {
+            $member_id = is_numeric($member_id) ? intval($member_id) : 0;
+            $vid = is_numeric($vid) ? intval($vid) : 0;
+            if ($member_id && $vid) {
+                // 店铺
+                $sld_level_type = 1;
+                $special_condition['sld_level_type'] = $sld_level_type;
+                $special_condition['sld_shop_id'] = $vid;
+            }else{
+                $sld_level_type = 0;
+                if ($member_id) {
+                    $special_condition['sld_level_type'] = $sld_level_type;
+                    $special_condition['sld_member_id'] = $member_id;
+                }else{
+                    // 未登录
+                    $special_condition = array();
+                }
+            }
 
+            $special_rule = array();
+            $model_supplier = Model('sld_supplier');
+            if (!empty($special_condition)) {
+                // 获取特殊权限
+                $special_rule = $model_supplier->getSpecialRuleInfo($special_condition);
+            }
+            if (!empty($special_rule)) {
+                // 特殊权限
+                $rule_value = (isset($special_rule[$rule_array[$rule_type]]) && $special_rule[$rule_array[$rule_type]]) ? $special_rule[$rule_array[$rule_type]] : 0;
+                $pass_flag = ($rule_value == 1) ? true : false;
+            }else{
+                // 无特殊权限
+                // 获取普通权限
+                if ($sld_level_type == 1) {
+                    // 店铺等级权限
+                    // 店铺等级
+                    $store_grade_id = $_SESSION['grade_id'];
+                    if ($store_grade_id == 0) {
+                        $pass_flag = true;
+                    }else{
+                        $store_rules = $model_supplier->getNormalRules($sld_level_type);
+                        $rule_type_field = 'sld_'.$rule_type.'_level_ids';
+                        if (isset($store_rules[$rule_type_field])) {
+                            $store_rule = unserialize($store_rules[$rule_type_field]);
+                            if (is_array($store_rule) && !empty($store_rule)) {
+                                $pass_flag = in_array($store_grade_id, $store_rule) ? true : false;
+                            }
+                        }
+                    }
+                }else{
+                    if ($member_id) {
+                        $grade_info = Model('grade')->getmembergrade($member_id);
+                        $member_level_id = $grade_info['id'];
+                    }else{
+                        // $pass_flag = true;
+                        $member_level_id = 'nologin';
+                    }
+
+                    $member_rules = $model_supplier->getNormalRules($sld_level_type);
+                    $rule_type_field = 'sld_'.$rule_type.'_level_ids';
+                    if (isset($member_rules[$rule_type_field])) {
+                        $member_rule = unserialize($member_rules[$rule_type_field]);
+                        if (is_array($member_rule) && !empty($member_rule)) {
+                            $pass_flag = in_array($member_level_id, $member_rule) ? true : false;
+                        }
+                    }
+
+                }
+            }
+
+            if ($rule_type == 'visit') {
+                if (!$pass_flag) {
+                    // 访问权限 直接报错
+                    showMsg(L($rule_type.'_error'));
+                }
+            }else{
+                // 其他权限 返回
+                return $pass_flag;
+            }
+        }else{
+            showMsg(Language::get('未找到对应的权限'));
+        }
+    }
+    /*
+     * 检查会员登录权限
+     */
+    public function checkMemberLogin()
+    {
+        if($_SESSION['is_login'] && $_SESSION['member_id']){
+            $member_info = model()->table('member')->where(['member_id'=>$_SESSION['member_id']])->find();
+            if(!$member_info['member_state']){
+                session_unset();
+                session_destroy();
+            }
+        }
+    }
+    /*
+     * 检测pc是否禁用
+     */
+    public function checkpcopen()
+    {
+        if(!C('pc_system_open') || !C('pc_system_isuse')){
+            if($_GET['app'] == 'index' && $_GET['mod'] == 'index'){
+                header('location:'.C('wap_site_url'));
+            }else{
+                die;
+            }
+        }
+
+    }
 }

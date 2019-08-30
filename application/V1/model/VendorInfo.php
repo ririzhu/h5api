@@ -1,6 +1,7 @@
 <?php
 namespace app\V1\model;
 
+use app\V1\controller\Base;
 use think\Model;
 use think\Db;
 
@@ -107,8 +108,8 @@ class VendorInfo extends Model
      * @return array
      */
     public function getStoreInfo($condition) {
-        $store_info = $this->where($condition)->find();
-        $member_model = Model('member');
+        $store_info = DB::table("bbc_vendor")->where($condition)->find();
+        $member_model = new User();
         if(!empty($store_info)) {
             if(!empty($store_info['store_presales'])){
                 $store_info['store_presales'] = unserialize($store_info['store_presales']);
@@ -131,19 +132,19 @@ class VendorInfo extends Model
             }
 
             //商品数
-            $model_goods = Model('goods');
+            $model_goods = new Goods();
             $store_info['goods_count'] = $model_goods->getGoodsOnlineCount(array('vid' => $store_info['vid']));
 
             //店铺评价
-            $model_evaluate_store = Model('evaluate_store');
+            $model_evaluate_store = new EvaluateStore();
             $store_evaluate_info = $model_evaluate_store->getEvaluateStoreInfoByStoreID($store_info['vid'], $store_info['sc_id']);
 
             $store_info = array_merge($store_info, $store_evaluate_info);
         }
 
         //zz 加入店铺标签***************
-        $model = Model('vendor_label');
-        $label_name = $model->table('vendor_label')->field('label_name')->where(['id'=>$store_info['label_id']])->one();
+        $model = new VendorLabel();
+        $label_name = $model->table('bbc_vendor_label')->field('label_name')->where(['id'=>$store_info['label_id']])->find();
         $store_info['label_name'] = $label_name;
         return $store_info;
     }
@@ -155,7 +156,8 @@ class VendorInfo extends Model
      * @return array
      */
     public function getStoreInfoByID($vid) {
-        $store_info = rcache($vid, 'store_info');
+        $base = new Base();
+        $store_info = $base->rcache($vid, 'store_info');
         if(empty($store_info)) {
             $store_info = $this->getStoreInfo(array('vid' => $vid));
             //wmemcache($vid, $store_info, 'store_info');
@@ -164,7 +166,7 @@ class VendorInfo extends Model
 
         if(LANG_TYPE!='zh_cn'){
             foreach ($store_info['store_credit'] as $k=>$v){
-                $store_info['store_credit'][$k]['text'] = Language::get($v['text']);
+                $store_info['store_credit'][$k]['text'] = lang($v['text']);
             }
         }
 
@@ -253,9 +255,9 @@ class VendorInfo extends Model
         if(empty($hot_sales_list)) {
             $model_goods = Model('goods');
             //虚拟销量
-            if(C('virtual_sale')){
+            if(Config('virtual_sale')){
                 $field = 'gid,goods_name,goods_image,goods_salenum,evaluation_good_star,evaluation_count,goods_price,goods_salenum+virtual_sale as goods_salenum';
-                $order = 'goods_salenum+virtual_sale desc';
+                $order = 'goods_salenum,virtual_sale desc';
             }else{
                 $field = 'gid,goods_name,goods_image,goods_salenum,evaluation_good_star,evaluation_count,goods_price';
                 $order = 'goods_salenum desc';
@@ -264,8 +266,8 @@ class VendorInfo extends Model
 
             // 获取最终价格
             $hot_sales_list = Model('goods_activity')->rebuild_goods_data($hot_sales_list,'pc');
-
-            wmemcache($vid, $hot_sales_list, $prefix);
+            $base =new Base();
+            $base->wmemcache($vid, $hot_sales_list, $prefix);
         }
         return $hot_sales_list;
     }
@@ -279,7 +281,8 @@ class VendorInfo extends Model
      */
     public function getHotCollectList($vid, $limit = 5) {
         $prefix = 'store_collect_sales_list_' . $limit;
-        $hot_collect_list = rcache($vid, $prefix);
+        $base =new Base();
+        $hot_collect_list = $base->rcache($vid, $prefix);
         if(empty($hot_collect_list)) {
             $model_goods = Model('goods');
             $hot_collect_list = $model_goods->getGoodsOnlineList(array('vid' => $vid), '*', 0, 'goods_collect desc', $limit);
@@ -287,7 +290,7 @@ class VendorInfo extends Model
             // 获取最终价格
             $hot_collect_list = Model('goods_activity')->rebuild_goods_data($hot_collect_list,'pc');
 
-            wmemcache($vid, $hot_collect_list, $prefix);
+            $base->wmemcache($vid, $hot_collect_list, $prefix);
         }
         return $hot_collect_list;
     }

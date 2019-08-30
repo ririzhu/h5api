@@ -10,7 +10,7 @@ class FirstOrder extends Model
     }
 
     public function getInfo($vid,$cid){
-        $re = $this->table('first_discount')->where(['vid'=>$vid,'cid'=>$cid])->find();
+        $re = $this->table('bbc_first_discount')->where(['vid'=>$vid,'cid'=>$cid])->find();
 //        dd($this->getLastSql());
 //        dd($re);
         return $re;

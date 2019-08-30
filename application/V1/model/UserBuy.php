@@ -1345,7 +1345,7 @@ class UserBuy extends Model {
 
             //来源于直接购买 拼团只能是直接购买
 
-            if ($extends_data['is_bundling']) {
+            if (isset($extends_data['is_bundling'])) {
                 // 优惠套装 数据生成
                 // 根据套装ID 获取 优惠套装 商品数据
                 $p_bundling_condition['bl_id'] = $extends_data['bl_id'];
@@ -1408,7 +1408,7 @@ class UserBuy extends Model {
                 }
 
             }
-            elseif($extends_data['suite']){
+            elseif(isset($extends_data['suite'])){
                 $suite_checked_goods = $extends_data['suite_checked'];
 
                 // 要购买的商品ID 及 商品数量
@@ -1492,7 +1492,7 @@ class UserBuy extends Model {
                     return array('error' => '不能购买自己店铺的商品' );
                 }
 
-                if($_REQUEST['pin'] && C('sld_pintuan') && C('pin_isuse')){  //拼团
+                if(isset($_REQUEST['pin']) && Config('sld_pintuan') && Config('pin_isuse')){  //拼团
                     $re = con_addons('pin',$goods_info);
                     $goods_info = $re['goods_info'];
                     $result['pin'] = $re['pin'];
@@ -1502,8 +1502,8 @@ class UserBuy extends Model {
                 $goodsActivity = new GoodsActivity();
                 $goods_info = $goodsActivity->rebuild_goods_data($goods_info,$extends_data['from'],['grade'=>1]);
                 // 不进行拼团购买
-                if(!($_REQUEST['pin'] && Config('sld_pintuan') && Config('pin_isuse'))) {
-                    if ($goods_info['promotion_type'] && $goods_info['promotion_type'] == 'pin_tuan') {
+                if(!(isset($_REQUEST['pin']) && Config('sld_pintuan') && Config('pin_isuse'))) {
+                    if (isset($goods_info['promotion_type']) && $goods_info['promotion_type'] == 'pin_tuan') {
                         unset($goods_info['promotion_type']);
 
                         $goods_info['show_price'] = $goods_info['goods_price'];
@@ -1513,7 +1513,7 @@ class UserBuy extends Model {
                 if (isset($extends_data['from']) && $extends_data['from'] == 'pc') {
                     // 检查是否 PC商城下单
                     $no_allow_pc_buy = array('p_mbuy','pin_tuan');
-                    if ($goods_info['promotion_type'] && in_array($goods_info['promotion_type'],$no_allow_pc_buy)) {
+                    if (isset($goods_info['promotion_type']) && in_array($goods_info['promotion_type'],$no_allow_pc_buy)) {
                         unset($goods_info['promotion_type']);
 
                         $goods_info['show_price'] = $goods_info['goods_price'];

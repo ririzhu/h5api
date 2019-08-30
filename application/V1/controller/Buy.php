@@ -1,8 +1,9 @@
 <?php
 namespace app\V1\controller;
 
+use app\V1\model\Grade;
 use app\V1\model\UserBuy;
-
+use think\Lang;
 class Buy extends Base
 {
     public function __construct() {
@@ -19,21 +20,24 @@ class Buy extends Base
     public function confirm() {
         $model_buy = new UserBuy();
 
-        $is_supplier = $_POST['is_supplier'] ? intval($_POST['is_supplier']) : 0;
+        $is_supplier = isset($_POST['is_supplier'] )? intval($_POST['is_supplier']) : 0;
 
         $extends_data = array();
 
         $extends_data['from'] = 'pc';
+        if(isset($_POST['invalid_cart']))
         $invalid_cart= input("invalid_cart");
+        else $invalid_cart = "";
         $result = $model_buy->buyStep1($_POST['cart_id'], $_POST['ifcart'], $invalid_cart, input("member_id"), null,$is_supplier,$extends_data);
         $memberId = input("member_id");
 
         if(!empty($result['error'])) {
-            showMsg($result['error'], '', 'html', 'error');
+            echo $result['error'];
+            //showMsg($result['error'], '', 'html', 'error');
         }
 
         $returns['is_supplier']= $is_supplier;
-        $returns['ifcart'] = $result['ifcart'];
+        $returns['ifcart'] = input("ifcart");
         //商品金额计算(分别对每个商品/优惠套装小计、每个店铺小计)
         //平台优惠券
         //if(!Config('sld_red') && !Config('red_isuse')) {
@@ -146,7 +150,10 @@ class Buy extends Base
             echo $result['error'];
             //showMsg($result['error'], '', 'html', 'error');
         }
-
+        $return['error_code'] = 200;
+        $return['message'] = "下单成功";
+        $return['pay_sn'] = $result['pay_sn'];
+        return $return;
         //转向到商城支付页面
         //$pay_url = 'index.php?app=buy&mod=pay&pay_sn='.$result['pay_sn'];
         //redirect($pay_url);
@@ -155,39 +162,47 @@ class Buy extends Base
      * 直接购买
      */
     public function buy(){
-        $gid = intval($_GET ['gid']);
+        if(!input("member_id") || !input("gid")){
+            $data['error_code'] = 10016;
+            $str = lang("参数错误",null,language);
 
+            $data['message'] = $str;
+            return json_encode($data,true);
+        }
+        $gid = input("gid");
+        $memberId = input("member_id");
         $is_supplier_close = 0;
 
         // 商品详细信息
-        $model_goods = Model('goods');
+        $model_goods = new \app\V1\model\Goods();
         //虚拟销量
-        if(C('virtual_sale')){
+        if(Config('virtual_sale')){
             $field = '*,(goods_salenum+virtual_sale) as goods_salenum';
         }else{
             $field = '*';
         }
-        $model_grade = Model('grade');
+        $model_grade = new Grade();
 
 
-        $goods_detail = $model_goods->getGoodsDetail($gid, $field,$_SESSION['member_id']);
+        $goods_detail = $model_goods->getGoodsDetail($gid, $field,$memberId);
 
-
-        Template::output('order_goods_info', $goods_detail['order_goods_info']);
+        $data['order_goods_info']=$goods_detail['order_goods_info'];
+//        Template::output('order_goods_info', $goods_detail['order_goods_info']);
 //        dd($goods_detail['types']);die;
-        Template::output('types', $goods_detail['types']);
+        $data['types']=$goods_detail['types'];
+//        Template::output('types', $goods_detail['types']);
 
 
         //首单优惠PC
         $goods_detail['first'] = M('first','firstDiscount')->getInfo($goods_detail['goods_info']['vid'],$goods_detail['goods_info']['goods_commonid']);
-
+        print_r($goods_detail);die;
         //条件||pc去掉预售和阶梯团购活动的商品,以后可能会去掉
         //商品详情展示等级优惠列表
 
         $goods_detail['goods_info']['duration'] = Sec2Time($goods_detail['goods_info']['duration']);
 
         if(
-            C('member_grade_open') &&
+            Config('member_grade_open') &&
             (
                 !(isset($goods_detail['goods_info']['promotion_type']) && !empty($goods_detail['goods_info']['promotion_type']))
                 || in_array($goods_detail['goods_info']['promotion_type'],['pin_ladder_tuan','sld_presale'])
@@ -198,10 +213,10 @@ class Buy extends Base
                 $grade_list = $model_grade->getlist([],'*','','grade_value asc');
                 $member_grade = $model_grade->getmembergrade($_SESSION['member_id']);
                 //查看当前等级
-                if(C('grade_setting') == 2){
+                if(Config('grade_setting') == 2){
                     $grade_list = [];
                     $grade_list[] =  $member_grade;
-                }elseif(C('grade_setting') == 3){
+                }elseif(Config('grade_setting') == 3){
                     //查看比自己等级小的价格
                     array_walk($grade_list,function(&$v) use ($member_grade) {
                         if($v['grade_value'] > $member_grade['grade_value']){
@@ -234,7 +249,7 @@ class Buy extends Base
             // 获取 最小的数量
             $ladder_numbers = array_keys($goods_info['sld_ladder_price_arr']);
             $goods_info['min_number'] = $ladder_numbers[0];
-            if (!C('supplier_isuse') || !C('sld_supplier_isuse')) {
+            if (!Config('supplier_isuse') || !Config('sld_supplier_isuse')) {
                 // 功能关闭
                 $is_supplier_close = 1;
             }
@@ -246,15 +261,15 @@ class Buy extends Base
             }
 
             // 批发中心 搜索标示
-            Template::output('supplier_search',ture);
+//            Template::output('supplier_search',ture);
         }
-        Template::output('is_supplier_close', $is_supplier_close);
-        Template::output('supplier_buy_flag', $supplier_buy_flag);
+//        Template::output('is_supplier_close', $is_supplier_close);
+//        Template::output('supplier_buy_flag', $supplier_buy_flag);
         if (!empty($goods_info['video_url'])){
             $goods_info['video_url']=UPLOAD_SITE_URL . DS . ATTACH_STORE_video . DS .$goods_info['video_url'];
         }
         if (empty($goods_info)) {
-            showMsg(L('商品已下架或不存在'), '', 'html', 'error');
+//            showMsg(L('商品已下架或不存在'), '', 'html', 'error');
         }
         $this->getStoreInfo($goods_info['vid']);
         // 看了又看（同分类本店随机商品）
@@ -263,22 +278,22 @@ class Buy extends Base
         $goods_rand_list = array_slice($goods_rand_list,0,3);
         // 获取最终价格
         $goods_rand_list = Model('goods_activity')->rebuild_goods_data($goods_rand_list,'pc');
-        Template::output('goods_rand_list', $goods_rand_list);
+//        Template::output('goods_rand_list', $goods_rand_list);
 
-        Template::output('spec_list', $goods_detail['spec_list']);
-        Template::output('spec_image', $goods_detail['spec_image']);
-        Template::output('goods_image', $goods_detail['goods_image']);
-        Template::output('tuan_info', $goods_detail['tuan_info']);
-        Template::output('xianshi_info', $goods_detail['xianshi_info']);
-        Template::output('mansong_info', $goods_detail['mansong_info']);
-        Template::output('mobile_info', $goods_detail['mobile_info']);
+//        Template::output('spec_list', $goods_detail['spec_list']);
+//        Template::output('spec_image', $goods_detail['spec_image']);
+//        Template::output('goods_image', $goods_detail['goods_image']);
+//        Template::output('tuan_info', $goods_detail['tuan_info']);
+//        Template::output('xianshi_info', $goods_detail['xianshi_info']);
+//        Template::output('mansong_info', $goods_detail['mansong_info']);
+//        Template::output('mobile_info', $goods_detail['mobile_info']);
 
         // 浏览过的商品
         $viewed_goods = Model('goods_browsehistory')->getViewedGoodsList($_SESSION['member_id'], 20);
-        Template::output('viewed_goods', $viewed_goods);
+//        Template::output('viewed_goods', $viewed_goods);
         //聊天判断身份
         if(model()->table('vendor')->where(['vid'=>$goods_detail['goods_info']['vid'],'member_id'=>$_SESSION['member_id']])->find()){
-            Template::output('is_vendor_manage', 1);
+//            Template::output('is_vendor_manage', 1);
         }
 
         // 生成缓存的键值
@@ -317,7 +332,7 @@ class Buy extends Base
                 $store_self = true;
             }
         }
-        Template::output('store_self',$store_self );
+//        Template::output('store_self',$store_self );
 
         // 如果使用运费模板
         if ($goods_info['transport_id'] > 0) {
@@ -361,7 +376,7 @@ class Buy extends Base
                 $goods_info['areaid_2'] = $v['area_name'];
             }
         }
-        Template::output('goods', $goods_info);
+ //       Template::output('goods', $goods_info);
 
 
         // 关联版式
@@ -375,10 +390,10 @@ class Buy extends Base
         if (!empty($plateid_array)) {
             $plate_array = Model('vendor_glmb')->getPlateList(array('plate_id' => array('in', $plateid_array), 'vid' => $goods_info['vid']));
             $plate_array = array_under_reset($plate_array, 'plate_position', 2);
-            Template::output('plate_array', $plate_array);
+//            Template::output('plate_array', $plate_array);
         }
 
-        Template::output('vid', $goods_info ['vid']);
+//        Template::output('vid', $goods_info ['vid']);
 
         // 批发商品 去掉门店获取数据
         if (!$goods_info['goods_type'] && C('dian') && C('dian_isuse')) {
@@ -387,8 +402,8 @@ class Buy extends Base
             foreach ($dians as $k => $v) {
                 $dians[$k]['dian_phone'] = explode(',', $v['dian_phone']);
             }
-            Template::output('dians', $dians);
-            Template::output('dians_page', Model('dian')->showpage());
+//            Template::output('dians', $dians);
+//            Template::output('dians_page', Model('dian')->showpage());
         }
 
         // 生成浏览过产品
@@ -422,7 +437,7 @@ class Buy extends Base
             $vg_ca[] = $cookievalue;
         }
         $vg_ca = encrypt(serialize($vg_ca), MD5_KEY);
-        setBbcCookie('viewed_goods', $vg_ca);
+ //       setBbcCookie('viewed_goods', $vg_ca);
 
         //优先得到推荐商品
         $goods_commend_list = $model_goods->getGoodsOnlineList(array('vid' => $goods_info['vid'], 'goods_commend' => 1), 'gid,goods_name,goods_jingle,goods_image,vid,goods_price', 0, 'rand()', 12, 'goods_commonid');
@@ -430,17 +445,17 @@ class Buy extends Base
         // 获取最终价格
         $goods_commend_list = Model('goods_activity')->rebuild_goods_data($goods_commend_list,'pc');
 
-        Template::output('goods_commend',$goods_commend_list);
+//        Template::output('goods_commend',$goods_commend_list);
 
 
         // 当前位置导航
         $nav_link_list = Model('goods_class')->getGoodsClassNav($goods_info['gc_id'], 0);
         $nav_link_list[] = array('title' => $goods_info['goods_name']);
-        Template::output('nav_link_list', $nav_link_list );
+//        Template::output('nav_link_list', $nav_link_list );
 
         //评价信息
         $goods_evaluate_info = Model('evaluate_goods')->getEvaluateGoodsInfoByGoodsID($gid);
-        Template::output('goods_evaluate_info', $goods_evaluate_info);
+//        Template::output('goods_evaluate_info', $goods_evaluate_info);
 
         //判断商品是否收藏
         $favorite_model = Model('favorites');
@@ -450,7 +465,7 @@ class Buy extends Base
         }else{
             $favorites_flag = 1;
         }
-        Template::output('favorites_flag', $favorites_flag);
+//        Template::output('favorites_flag', $favorites_flag);
 
         $seo_param = array ();
         $seo_param['name'] = $goods_info['goods_name'];
@@ -458,7 +473,7 @@ class Buy extends Base
         $seo_param['description'] = $goods_info['goods_description'];
         Model('seo')->type('product')->param($seo_param)->show();
 
-        Template::showpage('goods');
+//        Template::showpage('goods');
     }
 
     /**
