@@ -12,10 +12,12 @@ use app\V1\model\GoodsClass;
 use app\V1\model\Grade;
 use app\V1\model\MyGoods;
 use app\V1\model\Seller;
+use app\V1\model\Seo;
 use app\V1\model\SnsGoods;
 use app\V1\model\VendorGlmb;
 use app\V1\model\VendorInfo;
 use app\V1\model\VendorLabel;
+use app\V1\model\VendorNavigation;
 use think\db;
 class Goods extends  Base
 {
@@ -132,7 +134,7 @@ class Goods extends  Base
         if (empty($goods_info)) {
             echo lang("商品没有找到");exit;
         }
-        $this->getStoreInfo($goods_info['vid']);
+        $goods_info=$this->getStoreInfo($goods_info['vid'],$goods_info);
         // 看了又看（同分类本店随机商品）
         $size = '3';
         $goods_rand_list = $model_goods->getGoodsGcStoreRandList($goods_info['gc_id_1'], $goods_info['vid'], $goods_info['gid'], $size);
@@ -357,13 +359,13 @@ class Goods extends  Base
         $seo_param['key'] = $goods_info['goods_keywords'];
         if(isset($goods_info['description'])) {
             $seo_param['description'] = $goods_info['goods_description'];
-            Model('seo')->type('product')->param($seo_param)->show();
+            $data['goods_info']['seo']=Model('seo')->type('product')->param($seo_param)->show();
         }
         $data['goods_info'] =$goods_info;
         return json_encode($data);
         //Template::showpage('goods');
     }
-    protected function getStoreInfo($vid) {
+    protected function getStoreInfo($vid,$data=array()) {
         $model_store = new VendorInfo();
         $store_info = $model_store->getStoreOnlineInfoByID($vid);
 
@@ -382,11 +384,12 @@ class Goods extends  Base
 
 
         $data['StoreNavigation']=$this->getStoreNavigation($vid);
-        //$data['Seo']=$this->outputSeoInfo($store_info);
+        $data['Seo']=$this->outputSeoInfo($store_info);
+        return $data;
     }
     protected function getStoreNavigation($vid) {
-        //$model_store_navigation = Model('vendor_navigation');
-        //$store_navigation_list = $model_store_navigation->getStoreNavigationList(array('sn_vid' => $vid));
+        $model_store_navigation = new VendorNavigation();
+        return $store_navigation_list = $model_store_navigation->getStoreNavigationList(array('sn_vid' => $vid));
         //Template::output('store_navigation_list', $store_navigation_list);
     }
 
@@ -395,7 +398,8 @@ class Goods extends  Base
         $seo_param['shopname'] = $store_info['store_name'];
         $seo_param['key']  = $store_info['store_keywords'];
         $seo_param['description'] = $store_info['store_description'];
-        return Model('seo')->type('shop')->param($seo_param)->show();
+        $seo = new Seo();
+        return $seo->type('shop')->param($seo_param)->show();
     }
     /**
      * 检查店铺开启状态

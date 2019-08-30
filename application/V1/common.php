@@ -763,3 +763,16 @@ function array_under_reset($array, $key, $type = 1)
         return $array;
     }
 }
+
+/**
+ * 数组转字符串
+ * @param $arr
+ */
+function arrayToString($arr){
+    $ids = "";
+    foreach($arr as $k=>$v){
+        $ids .=$v.",";
+    }
+    $ids = substr($ids,0,strlen($ids)-1);
+    return $ids;
+}

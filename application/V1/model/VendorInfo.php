@@ -212,11 +212,12 @@ class VendorInfo extends Model
     public function editStore($update, $condition){
         //清空缓存
         $store_list = $this->getStoreList($condition);
+        $base =new Base();
         foreach ($store_list as $value) {
-            wmemcache($value['vid'], array(), 'store_info');
+            $base->wmemcache($value['vid'], array(), 'store_info');
         }
 
-        return $this->where($condition)->update($update);
+        return DB::table("bbc_vendor")->where($condition)->update($update);
     }
 
     /*

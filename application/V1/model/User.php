@@ -199,13 +199,13 @@ class User extends Model
 
         //得到条件语句
         $condition_str	= $this->getCondition($param);
-        $param	= array();
+        /*$param	= array();
         $param['table']	= 'member';
         $param['where']	= $condition_str;
         $param['field']	= $field;
-        $param['limit'] = 1;
-        $member_list	= Db::table("bbc_member")->select($param);
-        $member_info	= $member_list[0];
+        $param['limit'] = 1;*/
+        $member_list	= Db::table("bbc_member")->where($param)->find();
+        $member_info	= $member_list;
         //if (intval($member_info['vid']) > 0){
             $param	= array();
             $param['table']	= 'store';

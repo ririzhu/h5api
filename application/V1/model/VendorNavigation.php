@@ -3,10 +3,10 @@ namespace app\V1\model;
 
 use think\Model;
 use think\db;
-class Seller extends Model
+class VendorNavigation extends Model
 {
     public function __construct(){
-        parent::__construct('seller');
+        parent::__construct('vendor_navigation');
     }
 
     /**
@@ -14,8 +14,8 @@ class Seller extends Model
      * @param array $condition
      *
      */
-    public function getSellerList($condition, $page='', $order='', $field='*') {
-        $result = db::table("bbc_seller")->field($field)->where($condition)->page($page)->order($order)->select();
+    public function getStoreNavigationList($condition, $page='', $order='', $field='*') {
+        $result = db::table('bbc_vendor_navigation')->field($field)->where($condition)->page($page)->order($order)->select();
         return $result;
     }
 
@@ -24,23 +24,9 @@ class Seller extends Model
      * @param array $condition
      *
      */
-    public function getSellerInfo($condition) {
+    public function getStoreNavigationInfo($condition) {
         $result = $this->where($condition)->find();
         return $result;
-    }
-
-    /*
-     *  判断是否存在
-     *  @param array $condition
-     *
-     */
-    public function isSellerExist($condition) {
-        $result = $this->getSellerInfo($condition);
-        if(empty($result)) {
-            return FALSE;
-        } else {
-            return TRUE;
-        }
     }
 
     /*
@@ -48,7 +34,7 @@ class Seller extends Model
      * @param array $param
      * @return bool
      */
-    public function addSeller($param){
+    public function addStoreNavigation($param){
         return $this->insert($param);
     }
 
@@ -58,7 +44,7 @@ class Seller extends Model
      * @param array $condition
      * @return bool
      */
-    public function editSeller($update, $condition){
+    public function editStoreNavigation($update, $condition){
         return $this->where($condition)->update($update);
     }
 
@@ -67,7 +53,7 @@ class Seller extends Model
      * @param array $condition
      * @return bool
      */
-    public function delSeller($condition){
+    public function delStoreNavigation($condition){
         return $this->where($condition)->delete();
     }
 }

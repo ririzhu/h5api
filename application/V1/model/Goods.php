@@ -264,7 +264,7 @@ class Goods extends Model
      */
     public function getGoodsStoreList($condition, $field = '*') {
         $condition = $this->_getRecursiveClass($condition);
-        return $this->table('goods,vendor')->field($field)->join('inner')->on('goods.vid = vendor.vid')->where($condition)->select();
+        return DB::table('bbc_goods')->alias("goods")->field($field)->join('bbc_vendor vendor','goods.vid = vendor.vid')->where($condition)->select();
     }
 
     /**
@@ -401,7 +401,7 @@ class Goods extends Model
         } else {
             return false;
         }
-    }w
+    }
 
     /**
      * 商品下架
@@ -1352,8 +1352,7 @@ class Goods extends Model
      * @return array
      */
     private function _rGoodsCache($gid, $fields) {
-        $base =new Base();
-        $base =new Base();return $base->$base->rcache($gid, 'goods', $fields);
+        $base =new Base();return $base->rcache($gid, 'goods', $fields);
     }
     /**
      * 写入商品缓存
@@ -1362,7 +1361,7 @@ class Goods extends Model
      * @return boolean
      */
     private function _wGoodsCache($gid, $goods_info) {
-        $base =new Base();$base =new Base();return $base->$base->wcache($gid, $goods_info, 'goods');
+        $base =new Base();$base =new Base();return $base->wcache($gid, $goods_info, 'goods');
     }
     /**
      * 删除商品缓存
@@ -1370,7 +1369,7 @@ class Goods extends Model
      * @return boolean
      */
     private function _dGoodsCache($gid) {
-        $base =new Base();$base =new Base();return $base->$base->dcache($gid, 'goods');
+        $base =new Base();$base =new Base();return $base->dcache($gid, 'goods');
     }
     /**
      * 读取商品公共缓存
@@ -1379,7 +1378,7 @@ class Goods extends Model
      * @return array
      */
     private function _rGoodsCommonCache($goods_commonid, $fields) {
-        $base =new Base();return $base->$base->rcache($goods_commonid, 'goods_common', $fields);
+        $base =new Base();return $base->rcache($goods_commonid, 'goods_common', $fields);
     }
     /**
      * 写入商品公共缓存
@@ -1388,7 +1387,7 @@ class Goods extends Model
      * @return boolean
      */
     private function _wGoodsCommonCache($goods_commonid, $common_info) {
-        $base =new Base();$base =new Base();return $base->$base->wcache($goods_commonid, $common_info, 'goods_common');
+        $base =new Base();$base =new Base();return $base->wcache($goods_commonid, $common_info, 'goods_common');
     }
     /**
      * 删除商品公共缓存
@@ -1396,7 +1395,7 @@ class Goods extends Model
      * @return boolean
      */
     private function _dGoodsCommonCache($goods_commonid) {
-        $base =new Base();$base =new Base();return $base->$base->dcache($goods_commonid, 'goods_common');
+        $base =new Base();$base =new Base();return $base->dcache($goods_commonid, 'goods_common');
     }
     /**
      * 读取商品规格缓存
@@ -1414,7 +1413,7 @@ class Goods extends Model
      * @return boolean
      */
     private function _wGoodsSpecCache($goods_commonid, $spec_list) {
-        $base =new Base();$base =new Base();return $base->$base->wcache($goods_commonid, $spec_list, 'goods_spec');
+        $base =new Base();$base =new Base();return $base->wcache($goods_commonid, $spec_list, 'goods_spec');
     }
     /**
      * 删除商品规格缓存

@@ -20,11 +20,12 @@ class Favorites extends Model
      */
     public function getFavoritesList($condition, $field = '*', $page = 0 , $order = 'fav_time desc') {
         if ($condition['fav_type'] == 'goods') {
-            return $this->table('bbc_favorites,bbc_goods')->on('goods.gid = favorites.fav_id')->field('favorites.*')->where($condition)->order($order)->page($page)->select();
+            $list = DB::table('bbc_favorites')->join('bbc_goods','bbc_goods.gid = bbc_favorites.fav_id')->field('bbc_favorites.*')->where($condition)->page($page)->select();
+            return $list;
         }else if ($condition['fav_type'] == 'store') {
-            return $this->table('bbc_favorites,bbc_vendor')->on('vendor.vid = favorites.fav_id')->field('favorites.*')->where($condition)->order($order)->page($page)->select();
+            return DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->page($page)->select();
         }else{
-            return $this->where($condition)->order($order)->page($page)->select();
+            return DB::table("bbc_favorites")->where($condition)->order($order)->page($page)->select();
         }
     }
 
@@ -36,7 +37,7 @@ class Favorites extends Model
      * @param string $order
      * @return array
      */
-    public function getGoodsFavoritesList($condition, $field = '*', $page = 0, $order = 'fav_time desc') {
+    public function getGoodsFavoritesList($condition, $field = '*', $page = 10, $order = 'fav_time desc') {
         $condition['fav_type'] = 'goods';
         return $this->getFavoritesList($condition, '*', $page, $order);
     }
@@ -95,10 +96,13 @@ class Favorites extends Model
         if (empty($param)){
             return false;
         }
-
+        $user = new User();
+        $uid = $param['member_id'];
         if ($param['fav_type'] == 'store') {
             $vid = intval($param['fav_id']);
             $model_store = new VendorInfo();
+            $userinfo = $user->infoMember(array("member_id"=>$uid));
+            $param['member_name'] = $userinfo['member_name'];
             $store = $model_store->getStoreInfoByID($vid);
             $param['store_name'] = $store['store_name'];
             $param['vid'] = $store['vid'];
@@ -106,25 +110,28 @@ class Favorites extends Model
             $param['goods_image'] = $store['store_label'];
         }
         if ($param['fav_type'] == 'goods') {
-//            $gid = intval($param['fav_id']);
-//            $model_goods = Model('goods');
-//            $fields = 'gid,vid,goods_name,goods_image,goods_price,goods_promotion_price';
-//            $goods = $model_goods->getGoodsInfoByID($gid,$fields);
-//            $param['goods_name'] = $goods['goods_name'];
-//            $param['goods_image'] = $goods['goods_image'];
-//            $param['log_price'] = $goods['goods_promotion_price'];//商品收藏时价格
-//            $param['log_msg'] = $goods['goods_promotion_price'];//收藏备注，默认为收藏时价格，可修改
-//            $param['gc_id'] = $goods['gc_id'];
-//
-//            $vid = intval($goods['vid']);
-//            $model_store = Model('vendor');
-//            $store = $model_store->getStoreInfoByID($vid);
-//            $param['store_name'] = $store['store_name'];
-//            $param['vid'] = $store['vid'];
-//            $param['sc_id'] = $store['sc_id'];
+            $gid = intval($param['fav_id']);
+            $model_goods = new Goods();
+            $userinfo = $user->infoMember(array("member_id"=>$uid));
+            $param['member_name'] = $userinfo['member_name'];
+            $fields = 'gid,vid,goods_name,goods_image,goods_price,goods_promotion_price';
+            $goods = $model_goods->getGoodsInfoByID($gid,$fields);
+            $param['goods_name'] = $goods['goods_name'];
+            $param['goods_image'] = $goods['goods_image'];
+            $param['log_price'] = $goods['goods_promotion_price'];//商品收藏时价格
+            $param['log_msg'] = $goods['goods_promotion_price'];//收藏备注，默认为收藏时价格，可修改
+            if(isset($goods['gc_id']))
+            $param['gc_id'] = $goods['gc_id'];
+
+            $vid = intval($goods['vid']);
+            $model_store = new VendorInfo();
+            $store = $model_store->getStoreInfoByID($vid);
+            $param['store_name'] = $store['store_name'];
+            $param['vid'] = $store['vid'];
+            $param['sc_id'] = $store['sc_id'];
         }
 
-        return Db::insert('favorites',$param);
+        return Db::table("bbc_favorites")->insert($param);
     }
 
     /**
@@ -169,8 +176,8 @@ class Favorites extends Model
         if (empty($condition)){
             return false;
         }
-        $condition_str = '';
-        if ($condition['fav_id'] != ''){
+        $condition_str = '1=1 ';
+        if (isset($condition['fav_id']) && $condition['fav_id'] != ''){
             $condition_str .= " and fav_id='{$condition['fav_id']}' ";
         }
         if ($condition['member_id'] != ''){
@@ -179,10 +186,10 @@ class Favorites extends Model
         if ($condition['fav_type'] != ''){
             $condition_str .= " and fav_type='{$condition['fav_type']}' ";
         }
-        if ($condition['fav_id_in'] !=''){
+        if (isset($condition['fav_id_in']) && $condition['fav_id_in'] !=''){
             $condition_str .= " and fav_id in({$condition['fav_id_in']}) ";
         }
-        return Db::delete('favorites',$condition_str);
+        return Db::table("bbc_favorites")->where("1=1 and $condition_str")->delete();
     }
     /**
      * 构造检索条件

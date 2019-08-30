@@ -2,7 +2,6 @@
 namespace app\V1\model;
 
 use app\V1\controller\Base;
-use think\facade\Cache;
 use think\Model;
 use think\db;
 $base =new Base();

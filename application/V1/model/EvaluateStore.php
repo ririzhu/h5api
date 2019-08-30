@@ -75,7 +75,8 @@ class EvaluateStore extends Model
      */
     public function getEvaluateStoreInfoByScID($sc_id) {
         $prefix = 'sc_evaluate_store_info';
-        $info = rcache($sc_id, $prefix);
+        $base = new Base();
+        $info = $base->rcache($sc_id, $prefix);
         $base= new Base();
         if(empty($info)) {
             $model_store = new VendorInfo();
