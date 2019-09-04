@@ -859,3 +859,23 @@ function orderPaymentName($payment_code) {
         LANG_TYPE=='zh_cn'?$zh_cn:$en,
         $payment_code);
 }
+/**
+ * 取得订单商品销售类型文字输出形式
+ *
+ * @param array $goods_type
+ * @return string 描述输出
+ */
+function orderGoodsType($goods_type) {
+    return strtr($goods_type,[
+        '1'=>'',
+        '2'=>'团购',
+        '3'=>'限时折扣',
+        '4'=>'优惠套装',
+        '5'=>'赠品',
+        '6'=>'批发商品',
+        '7'=>'拼团商品',
+        '8'=>'手机专享',
+        '9'=>'阶梯团购',
+        '10'=>'预售',
+    ]);
+}

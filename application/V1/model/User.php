@@ -539,4 +539,13 @@ class User extends Model
         }
         return $member_info;
     }
+    /**
+     * 会员详细信息
+     * @param array $condition
+     * @param string $field
+     * @return array
+     */
+    public function getMemberInfo($condition, $field = '*') {
+        return DB::name("member")->field($field)->where($condition)->find();
+    }
 }

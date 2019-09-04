@@ -102,7 +102,8 @@ class UserOrder extends Model
      * @return unknown
      */
     public function getOrderPayList($condition, $pagesize = '', $filed = '*', $order = '', $key = '') {
-        return $this->table('order_pay')->field($filed)->where($condition)->order($order)->page($pagesize)->key($key)->select();
+        $list = DB::name('order_pay')->field($filed)->where($condition)->order($order)->page($pagesize)->cache($key)->select();
+        return $list;
     }
 
     /**
@@ -122,7 +123,6 @@ class UserOrder extends Model
             $list = DB::name('order')->join('vendor','order.vid=vendor.vid')->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
         }else{
             $list = DB::name('order')->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
-            //echo DB::name("order")->getLastSql();
         }
         if (empty($list)) return array();
         $order_list = array();
@@ -144,7 +144,7 @@ class UserOrder extends Model
 
         //追加返回订单扩展表信息
         if (in_array('order_common',$extend)) {
-            $order_common_list = $this->getOrderCommonList(array('order_id'=>array('in',array_keys($order_list))));
+            $order_common_list = $this->getOrderCommonList(array('order_id'=>array('in',arrayToString(array_keys($order_list)))));
             foreach ($order_common_list as $value) {
                 $order_list[$value['order_id']]['extend_order_common'] = $value;
                 $order_list[$value['order_id']]['extend_order_common']['reciver_info'] = @unserialize($value['reciver_info']);
@@ -158,7 +158,7 @@ class UserOrder extends Model
                 if (!in_array($value['vid'],$store_id_array)) $store_id_array[] = $value['vid'];
             }
             $vendor=new VendorInfo();
-            $store_list = $vendor->getStoreList(array('vid'=>array('in',$store_id_array)));
+            $store_list = $vendor->getStoreList("vid in (".arrayToString($store_id_array).")");
             $store_new_list = array();
             foreach ($store_list as $store) {
                 $store_new_list[$store['vid']] = $store;
@@ -174,7 +174,7 @@ class UserOrder extends Model
             foreach ($order_list as $value) {
                 if (!in_array($value['buyer_id'],$member_id_array)) $member_id_array[] = $value['buyer_id'];
             }
-            $member_list = Model()->table('member')->where(array('member_id'=>array('in',$member_id_array)))->limit($pagesize)->key('member_id')->select();
+            $member_list = DB::name('member')->where(array('member_id'=>array('in',$member_id_array)))->limit($pagesize)->cache('member_id')->select();
             foreach ($order_list as $order_id => $order) {
                 $order_list[$order_id]['extend_member'] = $member_list[$order['buyer_id']];
             }
@@ -183,18 +183,24 @@ class UserOrder extends Model
         //追加返回商品信息
         if (in_array('order_goods',$extend)) {
             //取商品列表
-            $order_goods_list = $this->getOrderGoodsList(array('order_id'=>array('in',array_keys($order_list))));
+            $ids = "";
+            foreach($order_list as $k=>$v){
+                $ids.=$k.",";
+            };
+            $ids = substr($ids,0,strlen($ids)-1);
+            $order_goods_list = $this->getOrderGoodsList("order_id in($ids)");
 
             // // 获取最终价格
             // $order_goods_list = Model('goods_activity')->rebuild_goods_data($order_goods_list);
 
             foreach ($order_goods_list as $value) {
-                $item_goods_info = Model('goods')->getGoodsInfoByID($value['gid'],'goods_commonid,gc_id_1');
+                $goodsModel = new Goods();
+                $item_goods_info = $goodsModel->getGoodsInfoByID($value['gid'],'goods_commonid,gc_id_1');
                 // 获取 多规格商品 多规格相关信息
                 if ($value['has_spec']) {
                     $value['spec_num_arr'] = unserialize($value['spec_num']);
                     // 有规格 (获取规格信息)
-                    $spec_array = Model('goods')->getGoodsList(array('goods_commonid' => $item_goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage');
+                    $spec_array = $goodsModel->getGoodsList(array('goods_commonid' => $item_goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage');
                     $spec_list = array();       // 各规格商品地址，js使用
                     foreach ($spec_array as $s_key => $s_value) {
                         $s_array = unserialize($s_value['goods_spec']);
@@ -388,7 +394,7 @@ class UserOrder extends Model
      * @param unknown $condition
      */
     public function getOrderCount($condition) {
-        return $this->table('order')->where($condition)->count();
+        return DB::name('order')->where($condition)->count();
     }
 
     /**
@@ -398,7 +404,7 @@ class UserOrder extends Model
      * @param string $order
      */
     public function getOrderGoodsInfo($condition = array(), $fields = '*', $order = '') {
-        return $this->table('order_goods')->where($condition)->field($fields)->order($order)->find();
+        return DB::name('order_goods')->where($condition)->field($fields)->order($order)->find();
     }
 
     /**
@@ -412,7 +418,7 @@ class UserOrder extends Model
      * @param string $key
      */
     public function getOrderGoodsList($condition = array(), $fields = '*', $limit = null, $page = null, $order = 'rec_id desc', $group = null, $key = null) {
-        return $this->table('order_goods')->field($fields)->where($condition)->limit($limit)->order($order)->group($group)->key($key)->page($page)->select();
+        return DB::name('order_goods')->field($fields)->where($condition)->limit($limit)->order($order)->group($group)->cache($key)->page($page)->select();
     }
 
     /**
@@ -422,7 +428,7 @@ class UserOrder extends Model
      * @param string $limit
      */
     public function getOrderCommonList($condition = array(), $fields = '*', $limit = null) {
-        return $this->table('order_common')->field($fields)->where($condition)->limit($limit)->select();
+        return DB::name('order_common')->field($fields)->where($condition)->limit($limit)->select();
     }
 
     /**
@@ -431,7 +437,7 @@ class UserOrder extends Model
      * @return int 返回 insert_id
      */
     public function addOrderPay($data) {
-        return $this->table('bbc_order_pay')->insert($data);
+        return DB::table('bbc_order_pay')->insert($data);
     }
 
     /**
@@ -463,7 +469,7 @@ class UserOrder extends Model
      */
     public function addOrderGoods($data) {
         $data['teacher'] = "UCG";
-        return $this->table('bbc_order_goods')->insertAll($data);
+        return DB::table('bbc_order_goods')->insertAll($data);
     }
 
     /**
@@ -573,7 +579,7 @@ class UserOrder extends Model
                 break;
             //买家退款取消订单
             case 'refund_cancel':
-                $state = $order_info['refund'] == 1 && !intval($order_info['lock_state']);
+                $state = isset($order_info['refund']) && $order_info['refund'] == 1 && !intval($order_info['lock_state']);
                 break;
             //商家取消订单
             case 'store_cancel':
@@ -598,7 +604,7 @@ class UserOrder extends Model
             //买家投诉（pc端）使用
             case 'tousu':
                 $state = in_array($order_info['order_state'], array(ORDER_STATE_PAY, ORDER_STATE_SEND)) ||
-                    intval($order_info['finnshed_time']) > (TIMESTAMP - C('complain_time_limit'));
+                    intval($order_info['finnshed_time']) > (TIMESTAMP - Config('complain_time_limit'));
                 break;
             //调整运费
             case 'modify_price':
