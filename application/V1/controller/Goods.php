@@ -3,6 +3,7 @@ namespace app\V1\controller;
 
 use app\V1\model\Area;
 use app\V1\model\BrowserHistory;
+use app\V1\model\Dian;
 use app\V1\model\EvaluateGoods;
 use app\V1\model\EvaluateStore;
 use app\V1\model\Favorites;
@@ -14,6 +15,7 @@ use app\V1\model\MyGoods;
 use app\V1\model\Seller;
 use app\V1\model\Seo;
 use app\V1\model\SnsGoods;
+use app\V1\model\Transport;
 use app\V1\model\VendorGlmb;
 use app\V1\model\VendorInfo;
 use app\V1\model\VendorLabel;
@@ -43,6 +45,11 @@ class Goods extends  Base
 
 
         $goods_detail = $model_goods->getGoodsDetail($gid, $field,$memberId);
+        if(empty($goods_detail)){
+            $data['error_code'] = 10101;
+            $data['message'] = lang("商品没有找到");
+            return json_encode($data,true);
+        }
 
         $data['order_goods_info']=$goods_detail['order_goods_info'];
         //Template::output('order_goods_info', $goods_detail['order_goods_info']);
@@ -58,7 +65,7 @@ class Goods extends  Base
 
         //条件||pc去掉预售和阶梯团购活动的商品,以后可能会去掉
         //商品详情展示等级优惠列表
-
+        //print_r($goods_detail);die;
         $goods_detail['goods_info']['duration'] = Sec2Time($goods_detail['goods_info']['duration']);
         $grade_list =array();
         $supplier_buy_flag="";
@@ -215,7 +222,7 @@ class Goods extends  Base
         // 如果使用运费模板
         if ($goods_info['transport_id'] > 0) {
             // 取得三种运送方式默认运费
-            $model_transport = Model('transport');
+            $model_transport = new Transport();
             $transport = $model_transport->getExtendList(array('transport_id' => $goods_info['transport_id'], 'is_default' => 1));
             if (!empty($transport) && is_array($transport)) {
                 foreach ($transport as $v) {
@@ -278,7 +285,8 @@ class Goods extends  Base
         // 批发商品 去掉门店获取数据
         if (!$goods_info['goods_type'] && Config('dian') && Config('dian_isuse')) {
             //获取有该商品的门店
-            $dians = Model('dian')->getDiansByGid($gid);
+            $dianModel = new Dian();
+            $dians = $dianModel->getDiansByGid($gid);
             foreach ($dians as $k => $v) {
                 $dians[$k]['dian_phone'] = explode(',', $v['dian_phone']);
             }
@@ -450,5 +458,38 @@ class Goods extends  Base
 //        if (function_exists('getChat')) {
 ////            getChat('');//调用一次向页面抛出变量
 //        }
+    }
+    public function getComments() {
+        $condition = array();
+        $condition="geval_goodsid =".input("gid");
+        $type = input("type");
+        $page = input("page")?input("page"):1;
+        $hasImg = input("has_img");
+        switch ($type) {
+            case '1':
+                $condition .= " and geval_scores in (5,4)";
+                //Template::output('type', '1');
+                break;
+            case '2':
+                $condition .= " and geval_scores in (3,2)";
+                //Template::output('type', '2');
+                break;
+            case '3':
+                $condition .=" and geval_scores =1";
+                //Template::output('type', '3');
+                break;
+        }
+        if($hasImg==1){
+            $condition .=" and geval_image <>''";
+        }if($hasImg==0){
+            $condition .="";
+        }
+
+        //查询商品评分信息
+        $model_evaluate_goods = new EvaluateGoods();
+        $goodsevallist = $model_evaluate_goods->getEvaluateGoodsList($condition, $page);
+        return json_encode($goodsevallist);
+        //Template::output('goodsevallist',$goodsevallist);
+        //Template::output('show_page',$model_evaluate_goods->showpage('5'));
     }
 }

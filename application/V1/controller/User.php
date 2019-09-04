@@ -9,12 +9,53 @@
 
 namespace app\V1\controller;
 
+use app\V1\model\Points;
+use think\Config;
 use think\Request;
 use app\V1\model\User as Users;
 use app\V1\model\Sms;
 use app\V1\model\UserToken;
+use think\db;
 class User extends Base
 {
+    protected $member_info = array();
+
+    public function __construct()
+    {
+        parent::__construct();
+        if(input("member_id")) {
+            $this->member_info = $this->getMemberInfoByID(input("member_id"));
+            //$this->member_info['client_type'] = $mb_user_token_info['client_type'];
+            //$this->member_info['openid'] = $mb_user_token_info['openid'];
+            //$this->member_info['token'] = $mb_user_token_info['token'];
+        }
+    }
+    /**
+     * 取得会员详细信息（优先查询缓存）
+     * 如果未找到，则缓存所有字段
+     * @param int $member_id
+     * @param string $field 需要取得的缓存键值, 例如：'*','member_name,member_sex'
+     * @return array
+     */
+    public function getMemberInfoByID($member_id, $fields = '*') {
+        $base =new Base();
+        $member_info = $base->rcache($member_id, 'ssys_member', $fields);
+        if (empty($member_info)) {
+            $member_info = $this->getMemberInfo(array('member_id'=>$member_id),$fields,true);
+            $base->wcache($member_id, $member_info, 'ssys_member');
+        }
+        return $member_info;
+    }
+    /**
+     * 会员详细信息
+     * @param array $condition
+     * @param string $field
+     * @return array
+     */
+    public function getMemberInfo($condition, $field = '*') {
+        $return = DB::name('member')->field($field)->where($condition)->find();
+        return $return;
+    }
     /**
      * 微信小程序登录
      *
@@ -115,7 +156,8 @@ class User extends Base
             return json_encode($data, true);
         } else {
             $userModel = new users();
-            $phone = input("mobile");
+            $countryCode = input("country_code")?86:input("country_code");
+            $phone = $countryCode.input("mobile");
             $captcha = input('snscode');
             $condition = array();
             $condition['log_phone'] = $phone;
@@ -230,5 +272,67 @@ class User extends Base
 
     }
 
+    /**
+     * @return mixed国际区号列表
+     */
+    public function countries(){
+        $countries = include("countries.php");
+        return $countries;
+    }
+// 签到操作
 
+    /**
+     *
+     */
+    public function checkIn()
+    {
+        $checkin_stage = 'checkin';
+        $return_arr = array();
+        $log_list = array();
+
+        $eachNum = 10;
+        if (Config(['app'])['app']['points_isuse'] == 1){
+
+            // 校验 该用户 今天是否 签到；已签到用户不能再次签到
+            $points_model = new Points();
+            $condition = array();
+            $condition['pl_memberid'] = input("member_id");
+            $s_time = strtotime(date('Y-m-d',time()));
+            $e_time = $s_time + 86400;
+            $condition['saddtime'] = $s_time;
+            $condition['eaddtime'] = $e_time;
+            $condition['pl_stage'] = $checkin_stage;
+            $has_checked_flag = $points_model->getPointsInfo($condition,'pl_id');
+            if (!$has_checked_flag) {
+                //添加会员积分
+                $memberId = input("member_id");
+                $points_model->savePointsLog($checkin_stage,array('pl_memberid'=>$this->member_info['member_id'],'pl_membername'=>$this->member_info['member_name'],'pl_points'=>Config('sign_points')));
+
+                $state = 'success';
+                $message = '签到成功';
+
+                // $page_count = $points_model->gettotalpage();
+            }else{
+                $state = 'failuer';
+                $message = '每日只可签到一次';
+            }// 获取 当前会员的签到记录列表
+            $log_condition = array();
+            $log_condition['pl_memberid'] = $this->member_info['member_id'];
+            $log_condition['pl_stage'] = $checkin_stage;
+            $log_condition['order'] = 'pl_addtime desc';
+            $log_list = $points_model->getPointsLogList($log_condition,$eachNum);
+        }else{
+            $state = 'failuer';
+            $message = '积分功能未开启';
+        }
+
+        $return_arr['state'] = $state;
+        $return_arr['msg'] = $message;
+        $return_arr['log_list'] = $log_list;
+        if (isset($log_list) && !empty($log_list)) {
+            $return_arr['list'] = $log_list;
+        }
+
+        return json_encode($return_arr);
+    }
 }

@@ -6,7 +6,7 @@ use app\V1\model\GoodsActivity;
 use app\V1\model\Stats;
 use app\V1\model\VendorInfo;
 
-class Follow
+class Follow extends Base
 {
 
     /**

@@ -244,9 +244,10 @@ class User extends Model
      * @param array $data
      */
     public function editMember($condition, $data) {
-        $update = $this->table('member')->where($condition)->update($data);
+        $base = new Base();
+        $update = $this->name('member')->where($condition)->update($data);
         if ($update && $condition['member_id']) {
-            dcache($condition['member_id'], 'member');
+            $base->dcache($condition['member_id'], 'member');
         }
         return $update;
     }

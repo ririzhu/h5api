@@ -2,7 +2,9 @@
 namespace app\V1\controller;
 
 use app\V1\model\Grade;
+use app\V1\model\Payment;
 use app\V1\model\UserBuy;
+use app\V1\model\UserOrder;
 use think\Lang;
 class Buy extends Base
 {
@@ -481,28 +483,27 @@ class Buy extends Base
      */
     public function pay() {
         $pay_sn	= $_GET['pay_sn'];
-
+        $memberId = input("member_id");
         if (!preg_match('/^\d{18}$/',$pay_sn)){
-            showMsg(Language::get('该订单不存在'),'index.php?app=userorder','html','error');
+            lang('该订单不存在');
         }
 
         //查询支付单信息
-        $model_order= Model('order');
-        $pay_info = $model_order->getOrderPayInfo(array('pay_sn'=>$pay_sn,'buyer_id'=>$_SESSION['member_id']));
+        $model_order= new UserOrder();
+        $pay_info = $model_order->getOrderPayInfo(array('pay_sn'=>$pay_sn,'buyer_id'=>$memberId));
         if(empty($pay_info)){
-            showMsg(Language::get('该订单不存在'),'','html','error');
+            lang('该订单不存在');
         }
         $returns['pay_info']=$pay_info;
-
+        $page = input("page",0);
         //取子订单列表
-        $condition = array();
-        $condition['pay_sn'] = $pay_sn;
-        $condition['order_state'] = array('in',array(ORDER_STATE_NEW,ORDER_STATE_PAY,ORDER_STATE_SEND,ORDER_STATE_SUCCESS));
-        $order_list = $model_order->getOrderList($condition,'','order_id,order_state,payment_code,order_amount,pd_amount,order_sn,dian_id,pd_points,red_id,vred_id');
+        $condition = "pay_sn=$pay_sn";
+        $condition .=" and order_state in ('".ORDER_STATE_NEW."','".ORDER_STATE_PAY."','".ORDER_STATE_SEND."','".ORDER_STATE_SUCCESS."')";
+        $order_list = $model_order->getOrderList($condition,$page,'order_id,order_state,payment_code,order_amount,pd_amount,order_sn,dian_id,pd_points,red_id,vred_id,refund_state',"",10);
         if (empty($order_list)) {
-            showMsg(Language::get('未找到需要支付的订单'),'index.php?app=userorder','html','error');
+            $data['message']=lang('未找到需要支付的订单');
+            return json_encode($data);
         }
-
         //重新计算在线支付金额
         $pay_amount_online = 0;
         $pay_amount_offline = 0;
@@ -554,7 +555,7 @@ class Buy extends Base
 
         //显示支付接口列表
         if ($pay_amount_online > 0) {
-            $model_payment = Model('payment');
+            $model_payment = new Payment();
             $condition = array();
             $payment_list = $model_payment->getPaymentOpenList($condition);
             if (!empty($payment_list)) {
@@ -562,7 +563,7 @@ class Buy extends Base
                 unset($payment_list['offline']);
             }
             if (empty($payment_list)) {
-                showMsg(Language::get('暂未找到合适的支付方式'),'index.php?app=userorder','html','error');
+                lang('暂未找到合适的支付方式');
             }
             $returns['payment_list']=$payment_list;
         }
@@ -616,16 +617,16 @@ class Buy extends Base
         }
 
         //查询支付单信息
-        $model_order= Model('order');
+        $model_order= new UserOrder();
         $pay_info = $model_order->getOrderPayInfo(array('pay_sn'=>$pay_sn,'buyer_id'=>$_SESSION['member_id']));
         if(empty($pay_info)){
-            showMsg(Language::get('该订单不存在'),'index.php?app=userorder','html','error');
+            land('该订单不存在');
         }
         $returns['pay_info']=$pay_info;
 
         $returns['buy_step']='step4';
         return json_encode($returns,true);
-        Template::showpage('paysuccess');
+
     }
 
     /**
@@ -921,4 +922,5 @@ class Buy extends Base
         $pay_url = 'index.php?app=buy&mod=pay&pay_sn='.$result['pay_sn'];
         redirect($pay_url);
     }
+
 }

@@ -17,15 +17,15 @@ return [
     'V1'     => [
         '__file__'   => ['common.php'],
         '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order','Goods','Store','Vendor','Buy','Follow'],
-        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache','MBuy','Stats','UserBuy','Store','Address','Invoice','FirstOrder','Payment','Predeposit','Red','StoreGoods','Grade','EvaluateStore','EvaluateGoods','VendorLabel','Seller','MyGoods','BrowserHistory','SnsGoods','Area','VendorGlmb','GoodsClass','Favorites','Cache','VendorNavigation','Seo'],
+        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order','Goods','Store','Vendor','Buy','Follow','Payment','Teacher'],
+        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache','MBuy','Stats','UserBuy','Store','Address','Invoice','FirstOrder','Payment','Predeposit','Red','StoreGoods','Grade','EvaluateStore','EvaluateGoods','VendorLabel','Seller','MyGoods','BrowserHistory','SnsGoods','Area','VendorGlmb','GoodsClass','Favorites','Cache','VendorNavigation','Seo','Dian','Transport','Points'],
         'view'       => ['index/index'],
     ],
     'V2'     => [
         '__file__'   => ['common.php'],
         '__dir__'    => ['behavior', 'controller', 'model', 'view'],
-        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order','Goods','Store','Vendor','Buy','Follow'],
-        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache',"MBuy","Stats",'UserBuy','Store','Address','Invoice','FirstOrder','Payment','Predeposit','Red','StoreGoods','Grade','EvaluateStore','EvaluateGoods','VendorLabel','Seller','MyGoods','BrowserHistory','SnsGoods','Area','VendorGlmb','GoodsClass','Favorites','Cache','VendorNavigation','Seo'],
+        'controller' => ['Index', 'Base', 'UserType','User','Sms','Cart','Order','Goods','Store','Vendor','Buy','Follow','Payment','Teacher'],
+        'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache',"MBuy","Stats",'UserBuy','Store','Address','Invoice','FirstOrder','Payment','Predeposit','Red','StoreGoods','Grade','EvaluateStore','EvaluateGoods','VendorLabel','Seller','MyGoods','BrowserHistory','SnsGoods','Area','VendorGlmb','GoodsClass','Favorites','Cache','VendorNavigation','Seo','Dian','Transport','Points'],
         'view'       => ['index/index'],
     ],
 

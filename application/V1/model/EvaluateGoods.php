@@ -20,10 +20,12 @@ class EvaluateGoods extends Model
      * @return array
      */
     public function getEvaluateGoodsList($condition, $page = null, $order = 'geval_id desc', $field = '*') {
-        if($condition['goods.province_id|goods.city_id|goods.area_id']>0){
-            $list = $this->table('bbc_evaluate_goods,goods')->join('left join')->on('evaluate_goods.geval_goodsid=goods.gid')->field($field)->where($condition)->page($page)->order($order)->select();
+        if((isset($condition['goods.province_id']) && $condition['goods.province_id']>0)||(isset($condition['goods.city_id']) && $condition['goods.city_id']>0)||(isset($condition['goods.area_id']) && $condition['goods.area_id']>0)){
+            $list = DB::name('evaluate_goods')->join('goods','evaluate_goods.geval_goodsid=goods.gid')->field($field)->where($condition)->page($page)->order($order)->select();
         }else{
-            $list = $this->field($field)->where($condition)->page($page)->order($order)->select();
+
+                $list = DB::name('evaluate_goods')->field($field)->where($condition)->page($page)->order($order)->select();
+
         }
         return $list;
     }

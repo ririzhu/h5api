@@ -182,7 +182,7 @@ class Cart extends Base
             //会员等级价格--end
             if(empty($goods_info)) {
                 $data['error_code'] = 10017;
-                $data['message'] = "商品已经下架";
+                $data['message'] = lang("商品已经下架");
                 $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId));
                 exit(json_encode($return));
             }
@@ -260,7 +260,7 @@ class Cart extends Base
                         if ($goods_buy_num < $min_ladder_numbers) {
                             // 不满足 最低购买数量
                             $data['error_code'] = 10018;
-                            $data['message'] = "没满足批发的最低数量";
+                            $data['message'] = lang("没满足批发的最低数量");
                             $data['goods_price'] = $cart_info['goods_price'];
                             $data['spec_num'] = unserialize($cart_info['spec_num']);
                             exit(json_encode($data));
@@ -282,7 +282,7 @@ class Cart extends Base
                     if ($goods_buy_num < $min_ladder_numbers) {
                         // 不满足 最低购买数量
                         $data['error_code'] =10020;
-                        $data['message'] = "没满足批发的最低数量";
+                        $data['message'] = lang("没满足批发的最低数量");
                         $data['goods_price'] = $return['goods_price'] = $cart_info['goods_price'];;
                         $data['goods_num'] = $cart_info['goods_num'];
                         exit(json_encode($return));
@@ -370,17 +370,17 @@ class Cart extends Base
             //如果其中有商品下架，删除
             if (count($cart_list[$key]['bl_goods_list']) != count($goods_id_array)) {
                 $data['error_code'] = 10020;
-                $data['message'] = "该优惠套装已经无效，建议您购买单个商品";
+                $data['message'] = lang("该优惠套装已经无效，建议您购买单个商品");
                 $data['subtotal'] = 0;
                 $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId));
-                exit(json_encode($return));
+                exit(json_encode($return,true));
             }
 
             //如果有商品库存不足，更新购买数量到目前最大库存
             foreach ($cart_list[$key]['bl_goods_list'] as $goods_info) {
                 if ($quantitys > $goods_info['goods_storage']) {
                     $data['error_code'] = 10019;
-                    $data['message'] = "该优惠套装部分商品库存不足，<br/>建议您降低购买数量或购买库存足够的单个商品";
+                    $data['message'] = lang("该优惠套装部分商品库存不足，<br/>建议您降低购买数量或购买库存足够的单个商品");
                     $data['goods_num'] = $goods_info['goods_storage'];
                     $data['goods_price'] = $cart_info['goods_price'];
                     $data['subtotal'] = $cart_info['goods_price'] * $quantitys;

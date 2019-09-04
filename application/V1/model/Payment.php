@@ -3,7 +3,7 @@ namespace app\V1\model;
 
 use Exception;
 use think\Model;
-
+use think\db;
 class Payment extends Model
 {
     /**
@@ -34,7 +34,7 @@ class Payment extends Model
      */
     public function getPaymentOpenInfo($condition = array()) {
         $condition['payment_state'] = self::STATE_OPEN;
-        return $this->where($condition)->find();
+        return DB::name("payment")->where($condition)->find();
     }
 
     /**
@@ -55,7 +55,7 @@ class Payment extends Model
      */
     public function getPaymentOpenList($condition = array()){
         $condition['payment_state'] = self::STATE_OPEN;
-        return $this->where($condition)->key('payment_code')->select();
+        return DB::name("payment")->where($condition)->cache('payment_code')->select();
     }
 
     /**
@@ -107,7 +107,7 @@ class Payment extends Model
         $condition = array();
         $condition['pay_sn'] = $pay_sn;
         $condition['order_state'] = ORDER_STATE_NEW;
-        $order_list = $model_order->getOrderList($condition,'','order_id,order_sn,order_amount,pd_amount,pd_points');
+        $order_list = $model_order->getOrderList($condition,1,'order_id,order_sn,order_amount,pd_amount,pd_points,order_state,refund_state,payment_code','',10);
         if (empty($order_list)) {
             return array('error' => '该订单不存在');
         }

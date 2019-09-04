@@ -950,6 +950,7 @@ class usercenterCtl extends ssys_mobileMemberCtl {
 
             if (!$has_checked_flag) {
                 //添加会员积分
+
                 $points_model->savePointsLog($checkin_stage,array('pl_memberid'=>$this->member_info['member_id'],'pl_membername'=>$this->member_info['member_name']));
 
                 $state = 'success';

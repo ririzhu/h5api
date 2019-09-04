@@ -51,4 +51,15 @@ class Index extends Base
             return json_encode($data, true);
         }
     }
+    /**
+     * 获取分类列表
+     */
+    function categoryList(){
+        if(input("gc_parent_id")){
+            $data = DB::name("goods_class")->where(array("gc_parent_id"=>input("gc_parent_id"),"gc_show"=>1))->select();
+        }else{
+            $data = DB::name("goods_class")->where(array("gc_show"=>1))->select();
+        }
+        return json_encode($data);
+    }
 }

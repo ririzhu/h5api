@@ -84,11 +84,11 @@ class UserOrder extends Model
         return $order_info;
     }
     public function getOrderCommonInfo($condition = array(), $field = '*') {
-        return $this->table('order_common')->where($condition)->find();
+        return DB::name('order_common')->where($condition)->find();
     }
 
     public function getOrderPayInfo($condition = array()) {
-        return $this->table('order_pay')->where($condition)->find();
+        return DB::name('order_pay')->where($condition)->find();
     }
 
     /**
@@ -118,14 +118,16 @@ class UserOrder extends Model
      */
     public function getOrderList($condition, $pagesize = '', $field = '*', $order = 'order_id desc', $limit = '', $extend = array()){
         //联查的主要目的就是筛符合城市分站的店铺，从而筛选订单
-        if($condition['vendor.province_id|vendor.city_id|vendor.area_id']>0){
-            $list = $this->table('order,vendor')->join('left join')->on('order.vid=vendor.vid')->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
+        if((isset($condition['goods.province_id']) && $condition['goods.province_id']>0)||(isset($condition['goods.city_id']) && $condition['goods.city_id']>0)||(isset($condition['goods.area_id']) && $condition['goods.area_id']>0)){
+            $list = DB::name('order')->join('vendor','order.vid=vendor.vid')->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
         }else{
-            $list = $this->table('order')->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
+            $list = DB::name('order')->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
+            //echo DB::name("order")->getLastSql();
         }
         if (empty($list)) return array();
         $order_list = array();
-        $model = model();
+        //$model = model();
+        //print_r($list);die;
         foreach ($list as $order) {
             $order['state_desc'] = orderState($order);
             //退款退货状态说明文字
@@ -155,7 +157,8 @@ class UserOrder extends Model
             foreach ($order_list as $value) {
                 if (!in_array($value['vid'],$store_id_array)) $store_id_array[] = $value['vid'];
             }
-            $store_list = Model('vendor')->getStoreList(array('vid'=>array('in',$store_id_array)));
+            $vendor=new VendorInfo();
+            $store_list = $vendor->getStoreList(array('vid'=>array('in',$store_id_array)));
             $store_new_list = array();
             foreach ($store_list as $store) {
                 $store_new_list[$store['vid']] = $store;
@@ -218,7 +221,7 @@ class UserOrder extends Model
             }
         }
 
-        if(C('sld_pintuan') && C('pin_isuse')){
+        if(Config('sld_pintuan') && Config('pin_isuse')){
             $order_list=M('pin','pin')->order_list_state($order_list);
         }
 

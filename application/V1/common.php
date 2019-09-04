@@ -776,3 +776,86 @@ function arrayToString($arr){
     $ids = substr($ids,0,strlen($ids)-1);
     return $ids;
 }
+function request_post($url = '', $ispost = true, $post_data = array())
+{
+    if (empty($url) || empty($post_data)) {
+        return false;
+    }
+
+    $o = "";
+    foreach ($post_data as $k => $v) {
+        $o .= "$k=" . urlencode($v) . "&";
+    }
+    $post_data = substr($o, 0, -1);
+
+    if ($ispost) {
+        $url = $url;
+    } else {
+        $url = $url . '?' . $post_data;
+    }
+
+    $curlPost = 'key=' . $post_data['key'];
+    header("Content-type: text/html; charset=utf-8");
+    $ch = curl_init();//初始化curl
+    curl_setopt($ch, CURLOPT_URL, $url);//抓取指定网页
+    curl_setopt($ch, CURLOPT_HEADER, 0);//设置header
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);//要求结果为字符串且输出到屏幕上
+    if ($ispost) {
+        curl_setopt($ch, CURLOPT_POST, 1);//post提交方式
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $curlPost);
+    }
+    $data = curl_exec($ch);//运行curl
+    curl_close($ch);
+    return $data;
+}
+/**
+ * 取得订单状态文字输出形式
+ *
+ * @param array $order_info 订单数组
+ * @return string $order_state 描述输出
+ */
+function orderState($order_info) {
+    switch ($order_info['order_state']) {
+        case ORDER_STATE_CANCEL:
+            $order_state = Lang('状态文字：已取消');
+            break;
+        case ORDER_STATE_NEW:
+            $order_state = Lang('状态文字：待付款');
+            break;
+        case ORDER_STATE_PAY:
+            $order_state = Lang('状态文字：待发货');
+            break;
+        case ORDER_STATE_SEND:
+            if($order_info['dian_id']>0){
+                if($order_info['ziti']==1){
+                    $order_state = Lang('状态文字：待自提');
+                }else{
+                    $order_state = Lang('状态文字：门店配送');
+                }
+            }else{
+                $order_state = Lang('状态文字：待收货');
+            }
+
+            break;
+        case ORDER_STATE_SUCCESS:
+            $order_state = Lang('状态文字：交易完成');
+            break;
+    }
+    return $order_state;
+}
+/**
+ * 取得订单支付类型文字输出形式
+ *
+ * @param array $payment_code
+ * @return string
+ */
+function orderPaymentName($payment_code) {
+
+    $zh_cn = array('货到付款','在线付款','支付宝','财付通','网银在线','预存款','微信扫码支付','微信公众号支付','微信APP支付','微信小程序支付','微信支付');
+    $en = array('cod','online','alipay','tenpay','chinabank','deposit','wechat scan','wechat h5','wechat app','wehcat mini','wechat');
+
+    return str_replace(
+        array('offline','online','alipay','tenpay','chinabank','predeposit','wx_saoma','wxpay_jsapi','weixin','mini_wxpay','wxpay'),
+        LANG_TYPE=='zh_cn'?$zh_cn:$en,
+        $payment_code);
+}
