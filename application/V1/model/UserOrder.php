@@ -492,19 +492,20 @@ class UserOrder extends Model
      * @param unknown_type $condition
      */
     public function editOrder($data,$condition) {
-        if(C('distribution') && !(C("sld_spreader") && C("spreader_isuse"))){
+        if(Config('distribution') && !(Config("sld_spreader") && Config("spreader_isuse"))){
             if ($data['order_state'] == ORDER_STATE_PAY) {
                 $order_info = $this->getOrderInfo($condition);
                 $this->fanli($order_info);
             }else if($data['order_state']==ORDER_STATE_SUCCESS){
-                $list = $this->table('fenxiao_log')->field('*')->where(array('order_id'=>$condition[order_id],'status'=>0))->select();
+                $list = $this->table('fenxiao_log')->field('*')->where(array('order_id'=>$condition["order_id"],'status'=>0))->select();
 
                 foreach($list as $value){
                     $bs = 'rebate'.$value['description'];
 
-                    $member_model = Model('member');
+                    $member_model = new User();
                     $member_info=$member_model->getMemberInfoByID($value['reciver_member_id']);
-                    Model('points')->savePointsLog($bs,array('pl_memberid'=>$value['reciver_member_id'],'pl_membername'=>$member_info['member_name'],'rebate_amount'=>$value['yongjin']),true);
+                    $points = new Points();
+                    $points->savePointsLog($bs,array('pl_memberid'=>$value['reciver_member_id'],'pl_membername'=>$member_info['member_name'],'rebate_amount'=>$value['yongjin']),true);
 
 
 //                $model_pd = Model('predeposit');
@@ -519,12 +520,12 @@ class UserOrder extends Model
 //                    $data_pd['member_name'] = $member_info['member_name'];
 //                    $model_pd->changePd('cash_rebate',$data_pd);
                 }
-                $this->table('fenxiao_log')->where(array('order_id'=>$condition[order_id],'status'=>0))->update(array('status'=>1));
+                $this->table('bbc_fenxiao_log')->where(array('order_id'=>$condition[order_id],'status'=>0))->update(array('status'=>1));
             }
         }
 
         // 推手系统开启
-        if (C('spreader_isuse') && C('sld_spreader')) {
+        if (Config('spreader_isuse') && Config('sld_spreader')) {
             if ($data['order_state'] == ORDER_STATE_PAY) {
                 $order_info = $this->getOrderInfo($condition);
                 $par['order_id'] = $order_info['order_id'];
@@ -534,7 +535,7 @@ class UserOrder extends Model
                 con_addons('spreader',$par,'add_up_order_num','api','mobile');
             }
         }
-        return $this->table('order')->where($condition)->update($data);
+        return $this->table('bbc_order')->where($condition)->update($data);
     }
 
     /**
@@ -1887,7 +1888,7 @@ class UserOrder extends Model
     public function changeOrderStateCancel($order_info, $role, $user = '', $msg = '', $if_update_account = true, $if_quque = true) {
         try {
             $model_order = new UserOrder();
-            $model_order->beginTransaction();
+            Db::startTrans();
             $order_id = $order_info['order_id'];
 
             //库存销量变更
@@ -1939,6 +1940,8 @@ class UserOrder extends Model
             if ($if_update_account) {
                 $model_pd = new Predeposit();
                 //解冻充值卡
+                $rcb_amount = 0;
+                if(isset($order_info['rcb_amount']))
                 $rcb_amount = floatval($order_info['rcb_amount']);
                 if ($rcb_amount > 0) {
                     $data_pd = array();
@@ -1962,7 +1965,8 @@ class UserOrder extends Model
                 //退还积分
                 $pd_point = intval($order_info['pd_points']);
                 if ($pd_point > 0) {
-                    Model('points')->savePointsLog('returnpurpose', array('pl_memberid' => $order_info['buyer_id'], 'pl_membername' => $order_info['buyer_name'], 'orderprice' => $order_info['goods_amount'], 'order_sn' => $order_info['order_sn'], 'order_id' => $order_id, 'pl_points' => $pd_point), true);
+                    $points = new Points();
+                    $points->savePointsLog('returnpurpose', array('pl_memberid' => $order_info['buyer_id'], 'pl_membername' => $order_info['buyer_name'], 'orderprice' => $order_info['goods_amount'], 'order_sn' => $order_info['order_sn'], 'order_id' => $order_id, 'pl_points' => $pd_point), true);
                 }
 
                 if($order_info['red_id']>0){
@@ -1980,7 +1984,7 @@ class UserOrder extends Model
             $update_order = array('order_state' => ORDER_STATE_CANCEL, 'pd_amount' => 0);
             $update = $model_order->editOrder($update_order,array('order_id'=>$order_id));
             if (!$update) {
-                throw new Exception('保存失败');
+                return false;
             }
 
             //添加订单日志
@@ -2006,11 +2010,11 @@ class UserOrder extends Model
 
             $model_order->commit();
 
-            return callback(true,'操作成功');
+            return true;//callback(true,'操作成功');
 
         } catch (Exception $e) {
-            $this->rollback();
-            return callback(false,'操作失败');
+           // $this->rollback();
+            return print_r($e->getMessage());
         }
     }
     /**

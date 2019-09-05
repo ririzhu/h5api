@@ -493,4 +493,19 @@ class Goods extends  Base
         //Template::output('goodsevallist',$goodsevallist);
         //Template::output('show_page',$model_evaluate_goods->showpage('5'));
     }
+    /**
+     * 获取分类列表
+     */
+    function categoryList(){
+        $parentId = input("parent_id",0);
+        $gc = new GoodsClass();
+        $list = $gc->getGoodsClassListByParentId($parentId);
+        foreach($list as $k=>$v){
+            $list[$k]['children'] = $gc->getGoodsClassListByParentId($list[$k]['gc_id']);
+            foreach($list[$k]['children'] as $m=>$n){
+                $list[$k]['children'][$m]['children'] = $gc->getGoodsClassListByParentId($list[$k]['children'][$m]['gc_id']);
+            }
+        }
+        return json_encode($list);
+    }
 }

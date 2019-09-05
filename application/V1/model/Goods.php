@@ -1361,7 +1361,8 @@ class Goods extends Model
      * @return boolean
      */
     private function _wGoodsCache($gid, $goods_info) {
-        $base =new Base();$base =new Base();return $base->wcache($gid, $goods_info, 'goods');
+        $base =new Base();
+        return $base->wcache($gid, $goods_info, 'goods');
     }
     /**
      * 删除商品缓存
@@ -1369,7 +1370,8 @@ class Goods extends Model
      * @return boolean
      */
     private function _dGoodsCache($gid) {
-        $base =new Base();$base =new Base();return $base->dcache($gid, 'goods');
+        $base =new Base();
+        return $base->dcache($gid, 'goods');
     }
     /**
      * 读取商品公共缓存

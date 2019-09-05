@@ -69,6 +69,7 @@ class GoodsClass extends Model
             }
             foreach ((array) $data['children'][0] as $id) {
                 foreach ((array) $data['children'][$id] as $cid) {
+                    print_r($data['children']);
                     foreach ((array) $data['children'][$cid] as $ccid) {
                         $data['children2'][$id][] = $ccid;
                     }
@@ -102,7 +103,7 @@ class GoodsClass extends Model
      * @return array   返回二位数组
      */
     public function getGoodsClassList($condition, $field = '*') {
-        $result = $this->table('goods_class')->field($field)->where($condition)->order('gc_parent_id asc,gc_sort asc,gc_id asc')->limit(10000)->select();
+        $result = DB::name('goods_class')->field($field)->where($condition)->order('gc_parent_id asc,gc_sort asc,gc_id asc')->limit(10000)->select();
         return $result;
     }
 
@@ -293,8 +294,8 @@ class GoodsClass extends Model
      * @param array $ids 分类id数组
      */
     public function getGoodsClassListByIds($ids) {
-        //$data = $this->getCache();
-        $data = Cache('goods_class') ? Cache('goods_class') : Cache('goods_class', true);
+        $base = new Base();
+        $data = $this->H('goods_class') ? $this->H('goods_class') : $this->H('goods_class', true);
         $ret = array();
         foreach ((array) $ids as $i) {
             if ($data['data'][$i]) {
@@ -321,9 +322,16 @@ class GoodsClass extends Model
             $data['parent'][$id] = $ppid;
             $data['children'][$ppid][] = $id;
         }
-        $ret = array();
-        foreach ((array) $data['children'][$pid] as $i) {
-            if ($data['data'][$i]) {
+        $ret = array();//print_r($data['children']);die;
+//        foreach ((array) $data['data']['children'][$pid] as $i) {
+//            if ($data['data'][$i]) {
+//                $ret[] = $data['data'][$i];
+//            }
+//        }
+        if(isset($data['children'][$pid]))
+        foreach ($data['children'][$pid] as $i) {
+
+            if (isset($data['data'][$i])) {
                 $ret[] = $data['data'][$i];
             }
         }

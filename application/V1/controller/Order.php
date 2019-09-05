@@ -464,10 +464,34 @@ class Order extends Base
             //$logic_order = Logic('order');
             $if_allow = $model_order->getOrderOperateState('buyer_cancel',$order_info);
             if (!$if_allow) {
-                return lang('无权操作');
+                $data['error_code'] =10102;
+                $data['message'] = lang('无权操作');
             }
-            $msg = $post['state_info1'] != '' ? $post['state_info1'] : $post['state_info'];
-            return $model_order->changeOrderStateCancel($order_info,'buyer', $_SESSION['member_name'], $msg);
+            $msg = "1111";//$post['state_info1'] != '' ? $post['state_info1'] : $post['state_info'];
+        $user = new \app\V1\model\User();
+            $member = $user->getMemberInfo("member_name")["member_name"];
+            $result = $model_order->changeOrderStateCancel($order_info,'buyer', $member, $msg);
+            if($result == true){
+                $data['message'] = \lang("取消了订单");
+            }
+        if($result == true){
+            $data['error_code'] =200;
+            $data['message'] = \lang("取消订单失败");
+        }
+            return json_encode($data);
         //}
+    }
+    /**
+     * 回收站
+     */
+    private function _order_recycle($order_info, $get) {
+        $model_order = Model('order');
+        $logic_order = Logic('order');
+        $state_type = str_replace(array('order_delete','order_drop','order_restore'), array('delete','drop','restore'), $_GET['s']);
+        $if_allow = $model_order->getOrderOperateState($state_type,$order_info);
+        if (!$if_allow) {
+            return callback(false,language::get('无权操作'));
+        }
+        return $logic_order->changeOrderStateRecycle($order_info,'buyer',$state_type);
     }
 }

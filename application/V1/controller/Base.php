@@ -240,7 +240,7 @@ class Base extends Controller
     {
         //if (empty($key) || Config('cache.type') == 'file') return false;
         //$obj_cache = \Cache::getInstance(Config('cache.type'));
-        $value = Cache::get($prefix.$key);
+        $value = Cache($prefix.$key);
        // $data      = cache::get($key, false);
         return $unserialize ? unserialize($value) : $value;
     }
