@@ -244,10 +244,10 @@ class Refund extends Model
      */
     public function getRefundReturnList($condition = array(), $page = '', $fields = '*', $limit = '') {
         //联查的主要目的就是筛符合城市分站的店铺，从而筛选订单
-        if($condition['vendor.province_id|vendor.city_id|vendor.area_id']>0){
-            $result = $this->table('refund_return,vendor')->join('left join')->on('refund_return.vid=vendor.vid')->field($fields)->where($condition)->page($page)->limit($limit)->order('refund_id desc')->select();
+        if(isset($condition['vendor.province_id']) && $condition['vendor.province_id>0'] | isset($condition['vendor.city_id']) && $condition['vendor.city_id'>0]| isset($condition['vendor.city_id']) && $condition['vendor.area_id']>0){
+            $result = DB::name('refund_return')->join('vendor','refund_return.vid=vendor.vid')->field($fields)->where($condition)->page($page)->limit($limit)->order('refund_id desc')->select();
         }else{
-            $result = $this->table('refund_return')->field($fields)->where($condition)->page($page)->limit($limit)->order('refund_id desc')->select();
+            $result = DB::name('refund_return')->field($fields)->where($condition)->page($page)->limit($limit)->order('refund_id desc')->select();
         }
         return $result;
     }

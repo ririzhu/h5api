@@ -546,7 +546,8 @@ class UserCart extends Model
      */
     public function getGoodsOnlineInfo($gid,$quantity) {
         //取目前在售商品
-        $goods_info = Model('goods')->getGoodsOnlineInfo(array('gid'=>$gid));
+        $goods = new Goods();
+        $goods_info = $goods->getGoodsOnlineInfo(array('gid'=>$gid));
 
         if($goods_info['is_free']){
             $goods_info['goods_price'] = 0;
@@ -1076,7 +1077,13 @@ class UserCart extends Model
                 if(isset($cart['gc_id']))
                 $goods_list[$i]['gc_id'] = $cart['gc_id'];
                 $goods_list[$i]['goods_name'] = $cart['goods_name'];
-                $goods_list[$i]['goods_price'] = $cart['goods_price'];
+                $ispresale = DB::name("pre_goods")->join("bbc_presale",'bbc_pre_goods.pre_id = bbc_presale.pre_id')->where("gid=".$cart["gid"]." and pre_start_time<=".TIMESTAMP." and pre_end_time>=pre_end_time and pre_status=1")->find();
+                if(!empty($ispresale)){
+                    $goods_info['goods_price'] = $ispresale['pre_sale_price'];
+                }else{
+                    $goods_info['goods_price'] = $cart['goods_price'];
+                }
+
                 $goods_list[$i]['store_name'] = $cart['store_name'];
                 $goods_list[$i]['goods_image'] = $cart['goods_image'];
                 if(isset($cart['transport_id']))

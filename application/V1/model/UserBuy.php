@@ -1593,9 +1593,9 @@ class UserBuy extends Model {
         //输出默认使用的发票信息
         $invoiceModel = new Invoice();
         $inv_info = $invoiceModel->getDefaultInvInfo(array('member_id'=>$member_id));
-        if ($inv_info['inv_state'] == '2' && !$vat_deny) {
+        if ($inv_info['inv_state'] == '2' && !isset($vat_deny)) {
             $inv_info['content'] = '增值税发票'.' '.$inv_info['inv_company'].' '.$inv_info['inv_code'].' '.$inv_info['inv_reg_addr'];
-        } elseif ($inv_info['inv_state'] == '2' && $vat_deny) {
+        } elseif ($inv_info['inv_state'] == '2' && isset($vat_deny)) {
             $inv_info = array();
             $inv_info['content'] = '不需要发票';
         } elseif (!empty($inv_info)) {

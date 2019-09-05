@@ -15,7 +15,7 @@ class Invoice extends Model
      * @param array $condition
      */
     public function getDefaultInvInfo($condition = array()) {
-        return $this->where($condition)->order('inv_state asc')->find();
+        return DB::name("invoice")->where($condition)->order('inv_state asc')->find();
     }
 
     /**

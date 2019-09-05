@@ -1,6 +1,7 @@
 <?php
 namespace app\V1\controller;
 
+use app\V1\model\Dian;
 use app\V1\model\GoodsActivity;
 use app\V1\model\Refund;
 use app\V1\model\UserOrder;
@@ -262,5 +263,175 @@ class Order extends Base
         return $member_info;
         //Template::output('member_info',$member_info);
         //Template::output('header_menu_sign','snsindex');//默认选中顶部“买家首页”菜单
+    }
+    /**
+     * 订单详细
+     *
+     */
+    public function show_order() {
+        $order_id = intval(input('order_id'));
+        if ($order_id <= 0) {
+            $data['message'] = lang('该订单不存在');
+        }
+        $memberId = input("member_id");
+        $model_order = new UserOrder();
+        $condition = array();
+        $condition['order_id'] = $order_id;
+        $condition['buyer_id'] = $memberId;
+        $order_info = $model_order->getOrderInfo($condition,array('order_goods','order_common','store'));
+        if (empty($order_info)) {
+            $data['message'] = lang('该订单不存在');
+        }
+        $model_refund_return = new Refund();
+        $order_list = array();
+        $order_list[$order_id] = $order_info;
+        $order_list = $model_refund_return->getGoodsRefundList($order_list,1);//订单商品的退款退货显示
+        $order_info = $order_list[$order_id];
+        if(isset($order_info['refund_list'])) {
+            $refund_all = $order_info['refund_list'][0];
+            if (!empty($refund_all) && $refund_all['seller_state'] < 3) {//订单全部退款商家审核状态:1为待审核,2为同意,3为不同意
+                //Template::output('refund_all',$refund_all);
+            }
+        }
+        //显示锁定中
+        $order_info['if_lock'] = $model_order->getOrderOperateState('lock',$order_info);
+        //显示锁定中
+        $order_info['if_send'] = $model_order->getOrderOperateState('send',$order_info);
+
+        //显示取消订单
+        $order_info['if_buyer_cancel'] = $model_order->getOrderOperateState('buyer_cancel',$order_info);
+
+        //显示退款取消订单
+        $order_info['if_refund_cancel'] = $model_order->getOrderOperateState('refund_cancel',$order_info);
+
+        //显示投诉
+        $order_info['if_complain'] = $model_order->getOrderOperateState('complain',$order_info);
+
+        //显示收货
+        $order_info['if_receive'] = $model_order->getOrderOperateState('receive',$order_info);
+
+        //显示物流跟踪
+        $order_info['if_deliver'] = $model_order->getOrderOperateState('deliver',$order_info);
+
+        //显示评价
+        $order_info['if_evaluation'] = $model_order->getOrderOperateState('evaluation',$order_info);
+
+        //显示删除订单(放入回收站)
+        $order_info['if_delete'] = $model_order->getOrderOperateState('delete',$order_info);
+        //显示永久删除
+        $order_info['if_drop'] = $model_order->getOrderOperateState('drop',$order_info);
+
+        //显示还原订单
+        $order_info['if_restore'] = $model_order->getOrderOperateState('restore',$order_info);
+
+        //显示系统自动取消订单日期
+        if ($order_info['order_state'] == ORDER_STATE_NEW) {
+            $order_info['order_cancel_day'] = $order_info['add_time'] + ORDER_AUTO_CANCEL_TIME * 3600;
+        }
+
+        //显示快递信息
+        if ($order_info['shipping_code'] != '') {
+            $base =new Base();
+            $express = $base->rkcache('express',true);
+            $order_info['express_info']['e_code'] = $express[$order_info['extend_order_common']['shipping_express_id']]['e_code'];
+            $order_info['express_info']['e_name'] = $express[$order_info['extend_order_common']['shipping_express_id']]['e_name'];
+            $order_info['express_info']['e_url'] = $express[$order_info['extend_order_common']['shipping_express_id']]['e_url'];
+        }
+
+        //显示系统自动收获时间
+        if ($order_info['order_state'] == ORDER_STATE_SEND) {
+            $order_info['order_confirm_day'] = $order_info['delay_time'] + ORDER_AUTO_RECEIVE_DAY * 24 * 3600;
+        }
+
+        //查询消费者保障服务
+        if (Config('contract_allow') == 1) {
+            $contract_item = Model('contract')->getContractItemByCache();
+        }
+        foreach ($order_info['extend_order_goods'] as $value) {
+            $value['image_60_url'] = cthumb($value['goods_image'], 60, $value['vid']);
+            $value['image_240_url'] = cthumb($value['goods_image'], 240, $value['vid']);
+            $value['goods_type_cn'] = orderGoodsType($value['goods_type']);
+            $value['goods_url'] = urlShop('goods','index',array('gid'=>$value['gid']));
+            //处理消费者保障服务
+            if (trim($value['goods_contractid']) && $contract_item) {
+                $goods_contractid_arr = explode(',',$value['goods_contractid']);
+                foreach ((array)$goods_contractid_arr as $gcti_v) {
+                    $value['contractlist'][] = $contract_item[$gcti_v];
+                }
+            }
+            if ($value['goods_type'] == 5) {
+                $order_info['zengpin_list'][] = $value;
+            } else {
+                $order_info['goods_list'][] = $value;
+            }
+        }
+
+        if (empty($order_info['zengpin_list'])) {
+            if(isset($order_info['goods_list']))
+                $order_info['goods_count'] = count($order_info['goods_list']);
+            else
+                $order_info['goods_count'] = 0;
+        } else {
+            $order_info['goods_count'] = count($order_info['goods_list']) + 1;
+        }
+        $order_info['state_desc'] = orderStateVendor($order_info);
+
+
+        //取得其它订单类型的信息
+        $model_order->getOrderExtendInfo($order_info);
+        $data['order_info'] = $order_info;
+        //Template::output('order_info',$order_info);
+        //Template::output('left_show','order_view');
+
+        //卖家发货信息
+        if (!empty($order_info['extend_order_common']['daddress_id'])) {
+            $daddress_info = Model('daddress')->getAddressInfo(array('address_id'=>$order_info['extend_order_common']['daddress_id']));
+            //Template::output('daddress_info',$daddress_info);
+        }
+
+        //自提地址
+        if($order_info['dian_id']>0){
+            $dian = new Dian();
+            $dian_info = $dian->getDianInfoById(null,$order_info['dian_id']);
+            $dian_info['dian_phone_arr'] = explode(',',$dian_info['dian_phone']);
+            $dian_info['operation_time_arr'] = explode(',',$dian_info['operation_time']);
+            $dian_info['operation_time_arr'][0] = sprintf("%02d",$dian_info['operation_time_arr'][0]%1440/60).":".sprintf("%02d",$dian_info['operation_time_arr'][0]%60);
+            $dian_info['operation_time_arr'][1] = sprintf("%02d",$dian_info['operation_time_arr'][1]%1440/60).":".sprintf("%02d",$dian_info['operation_time_arr'][1]%60);
+            $t = $model_order->encode($order_info['order_sn'],$order_info['vid'].$order_info['dian_id']);
+            $new='';
+            $t=str_split($t);
+            for($i=0;$i<count($t);$i++){
+                if($i==4 || $i==8 || $i==12){
+                    $new.=' ';
+                }
+                $new.=$t[$i];
+            }
+            $dian_info['hexiao_code'] = $new;
+            $data['store_info'] = $dian_info;
+            //Template::output('dian_info',$dian_info);
+        }
+
+        //订单变更日志
+        $log_list	= $model_order->getOrderLogList(array('order_id'=>$order_info['order_id']));
+        $data['log_list'] = $log_list;
+        //Template::output('order_log',$log_list);
+
+        //退款退货信息
+        $model_refund = new Refund();
+        $condition = array();
+        $condition['order_id'] = $order_info['order_id'];
+        $condition['seller_state'] = 2;
+        $condition['admin_time'] = array('gt',0);
+        $return_list = $model_refund->getReturnList($condition);
+        $data['return_list'] = $return_list;
+        //Template::output('return_list',$return_list);
+//dd($order_info);die;
+        //退款信息
+        $refund_list = $model_refund->getRefundList($condition);
+        $data['refund_list'] = $return_list;
+        $data['error_code'] = 200;
+        return json_encode($data);
+        //Template::output('refund_list',$refund_list);
+        //Template::showpage('member_order.show');
     }
 }

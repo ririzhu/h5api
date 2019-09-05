@@ -350,7 +350,8 @@ class Goods extends  Base
         $goods_evaluate_info = $eg->getEvaluateGoodsInfoByGoodsID($gid);
         $data['goods_evaluate_info'] =$goods_evaluate_info;
         //Template::output('goods_evaluate_info', $goods_evaluate_info);
-
+        //判断是否为预售商品
+        $data['ispresale']=DB::name("pre_goods")->join("bbc_presale",'bbc_pre_goods.pre_id = bbc_presale.pre_id')->where("gid=$gid and pre_start_time<=".TIMESTAMP." and pre_end_time>=pre_end_time and pre_status=1")->find();
         //判断商品是否收藏
         $favorite_model = new Favorites();
         $favorite_info = $favorite_model->getOneFavorites(array('fav_id'=>"$gid",'fav_type'=>'goods','member_id'=>"$memberId"));

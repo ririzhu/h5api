@@ -114,10 +114,10 @@ class Goods extends Model
      * @return array
      */
     public function getGeneralGoodsList($condition, $field = '*', $page = 0, $order = 'gid desc') {
-//        $condition['is_virtual']    = 0;
-//        $condition['is_fcode']      = 0;
-//        $condition['is_presell']    = 0;
-//        $condition['is_book']       = 0;
+        $condition['is_virtual']    = 0;
+        $condition['is_fcode']      = 0;
+        $condition['is_presell']    = 0;
+        $condition['is_book']       = 0;
         return $this->getGoodsList($condition, $field, '', $order, 0, $page, 0);
     }
 
@@ -1447,7 +1447,8 @@ class Goods extends Model
      * @return boolean
      */
     private function _dGoodsImageCache($key) {
-        $base =new Base();return $base->dcache($key, 'goods_image');
+        $base =new Base();
+        return $base->dcache($key, 'goods_image');
     }
     /**
      * 获取单条商品信息
@@ -1540,6 +1541,7 @@ class Goods extends Model
             $goods_image[] = "{ title : '', levelA : '".thumb($goods_info, 60)."', levelB : '".thumb($goods_info, 360)."', levelC : '".thumb($goods_info, 360)."', levelD : '".thumb($goods_info, 1280)."'}";
             $goods_image_mobile[] = thumb($goods_info, 360);
         }
+        print_r($goods_info);die;
         // 新版结束
         if ($goods_info['is_book'] != '1') {
             //限时折扣
@@ -1615,9 +1617,10 @@ class Goods extends Model
         }
         // 商品受关注次数加1
         $goods_info['goods_click'] = intval($goods_info['goods_click']) + 1;
-        if (C('cache_open')) {
+        if (Config('cache_open')) {
+            $base =new Base();
             $this->_wGoodsCache($gid, array('goods_click' => $goods_info['goods_click']));
-            wcache('updateRedisDate', array($gid => $goods_info['goods_click']), 'goodsClick');
+            $base->wcache('updateRedisDate', array($gid => $goods_info['goods_click']), 'goodsClick');
         } else {
             $this->editGoodsById(array('goods_click' => array('exp', 'goods_click + 1')), $gid);
         }
@@ -1640,7 +1643,7 @@ class Goods extends Model
             return array();
         }
         //查询消费者保障服务
-        if (Cfong('contract_allow') == 1) {
+        if (Config('contract_allow') == 1) {
             if (!$contract_item) {
                 $contract_item = Model('contract')->getContractItemByCache();
             }

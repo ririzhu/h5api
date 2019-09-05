@@ -6,6 +6,9 @@ use app\V1\model\Stats;
 use app\V1\model\UserCart;
 use app\V1\model\Goods;
 use app\V1\model\VendorInfo;
+use think\Request;
+use think\Db;
+
 class Cart extends Base
 {
     /**
@@ -13,7 +16,7 @@ class Cart extends Base
      */
     public function index() {
         $model_cart	= new UserCart();
-        if(!$this->request->isPost()){
+        if(!\request()->isPost()){
             $data['error_code'] = 10001;
             $data['message'] = '使用了非法提交方式';
             return json_encode($data,true);
@@ -171,6 +174,12 @@ class Cart extends Base
             //普通商品
             $gid = intval($cart_info['gid']);
             $goods_info	= $model_goods->getGoodsOnlineInfo(array('gid'=>$gid));
+            $ispresale = DB::name("pre_goods")->join("bbc_presale",'bbc_pre_goods.pre_id = bbc_presale.pre_id')->where("gid=$gid and pre_start_time<=".TIMESTAMP." and pre_end_time>=pre_end_time and pre_status=1")->find();
+            if(!empty($ispresale)){
+                $goods_info['goods_price'] = $ispresale['pre_sale_price'];
+            }else
+                $goods_info['goods_price'] = $goods_info['goods_price'];
+
             if($goods_info['course_type']!=1){
                 $quantity = 1;
             }
@@ -534,7 +543,11 @@ class Cart extends Base
             $goods_info	= $model_goods->getGoodsOnlineInfo(array('gid'=>$gid));
             //会员等级价格--start
             $goods_info = $goodsActivityModel->rebuild_goods_data($goods_info,'pc',['grade'=>1]);
-            $goods_info['goods_price'] = $goods_info['show_price'];
+            $ispresale = DB::name("pre_goods")->join("bbc_presale",'bbc_pre_goods.pre_id = bbc_presale.pre_id')->where("gid=$gid and pre_start_time<=".TIMESTAMP." and pre_end_time>=pre_end_time and pre_status=1")->find();
+            if(!empty($ispresale)){
+                $goods_info['goods_price'] = $ispresale['pre_sale_price'];
+            }else
+            $goods_info['goods_price'] = $goods_info['goods_price'];
             //会员等级价格--end
 
             //判断是不是在限时折扣中，如果是返回折扣信息
@@ -694,7 +707,7 @@ class Cart extends Base
             }
         }else{
             if(intval($goods_info['goods_storage']) < $quantity) {
-                exit(json_encode(array('msg'=>Language::get('库存不足','UTF-8'))));
+                exit(json_encode(array('msg'=>lang('库存不足','UTF-8'))));
             }
         }
     }

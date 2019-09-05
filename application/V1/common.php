@@ -879,3 +879,38 @@ function orderGoodsType($goods_type) {
         '10'=>'预售',
     ]);
 }
+/**
+ * 取得订单状态文字输出形式---商户后台专用
+ *
+ * @param array $order_info 订单数组
+ * @return string $order_state 描述输出
+ */
+function orderStateVendor($order_info) {
+    switch ($order_info['order_state']) {
+        case ORDER_STATE_CANCEL:
+            $order_state = '已取消';
+            break;
+        case ORDER_STATE_NEW:
+            $order_state = '待付款';
+            break;
+        case ORDER_STATE_PAY:
+            $order_state = '待发货';
+            break;
+        case ORDER_STATE_SEND:
+            if($order_info['dian_id']>0){
+                if($order_info['ziti']==1){
+                    $order_state = '待自提';
+                }else{
+                    $order_state = '门店配送';
+                }
+            }else{
+                $order_state = '待收货';
+            }
+
+            break;
+        case ORDER_STATE_SUCCESS:
+            $order_state = '交易完成';
+            break;
+    }
+    return $order_state;
+}

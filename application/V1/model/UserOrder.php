@@ -15,7 +15,7 @@ class UserOrder extends Model
      * @return unknown
      */
     public function getOrderInfo($condition = array(), $extend = array(), $fields = '*', $order = '',$group = '') {
-        $order_info = $this->table('order')->field($fields)->where($condition)->group($group)->order($order)->find();
+        $order_info = DB::name('order')->field($fields)->where($condition)->group($group)->order($order)->find();
         if (empty($order_info)) {
             return array();
         }
@@ -31,12 +31,14 @@ class UserOrder extends Model
 
         //追加返回店铺信息
         if (in_array('store',$extend)) {
-            $order_info['extend_store'] = Model('vendor')->getStoreInfo(array('vid'=>$order_info['vid']));
+            $vendor = new VendorInfo();
+            $order_info['extend_store'] = $vendor->getStoreInfo(array('vid'=>$order_info['vid']));
         }
 
         //返回买家信息
         if (in_array('member',$extend)) {
-            $order_info['extend_member'] = Model('member')->getMemberInfo(array('member_id'=>$order_info['buyer_id']));
+            $member = new User();
+            $order_info['extend_member'] = $member->getMemberInfo(array('member_id'=>$order_info['buyer_id']));
         }
 
         //追加返回商品信息
@@ -48,12 +50,13 @@ class UserOrder extends Model
             // $order_goods_list = Model('goods_activity')->rebuild_goods_data($order_goods_list);
 
             foreach ($order_goods_list as $value) {
-                $item_goods_info = Model('goods')->getGoodsInfoByID($value['gid'],'goods_commonid,goods_serial');
+                $goods = new Goods();
+                $item_goods_info = $goods->getGoodsInfoByID($value['gid'],'goods_commonid,goods_serial');
                 // 获取 多规格商品 多规格相关信息
                 if ($value['has_spec']) {
                     $value['spec_num_arr'] = unserialize($value['spec_num']);
                     // 有规格 (获取规格信息)
-                    $spec_array = Model('goods')->getGoodsList(array('goods_commonid' => $item_goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage');
+                    $spec_array = $goods->getGoodsList(array('goods_commonid' => $item_goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage');
                     $spec_list = array();       // 各规格商品地址，js使用
                     foreach ($spec_array as $s_key => $s_value) {
                         $s_array = unserialize($s_value['goods_spec']);
@@ -559,7 +562,7 @@ class UserOrder extends Model
      * @return Ambigous <multitype:, unknown>
      */
     public function getOrderLogList($condition) {
-        return $this->table('order_log')->where($condition)->select();
+        return DB::name('order_log')->where($condition)->select();
     }
 
     /**
@@ -599,7 +602,7 @@ class UserOrder extends Model
             //买家投诉（wap端）使用
             case 'complain':
                 $state = in_array($order_info['order_state'], array(ORDER_STATE_PAY, ORDER_STATE_SEND)) ||
-                    intval($order_info['finnshed_time']) > (TIMESTAMP - C('complain_time_limit'));
+                    intval($order_info['finnshed_time']) > (TIMESTAMP - Config('complain_time_limit'));
                 break;
             //买家投诉（pc端）使用
             case 'tousu':
@@ -1413,7 +1416,7 @@ class UserOrder extends Model
      */
     public function getOrderExtendInfo(& $order_info) {
         //取得预定订单数据
-        if ($order_info['order_type'] == 2) {
+        if (isset($order_info['order_type']) && $order_info['order_type'] == 2) {
             $result = Logic('order_book')->getOrderBookInfo($order_info);
             //如果是未支付尾款
             if ($result['data']['if_buyer_repay']) {
