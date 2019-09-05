@@ -5,6 +5,7 @@ use Cache;
 use Exception;
 use think\Model;
 use think\db;
+use think\Queue;
 class UserOrder extends Model
 {
     /**
@@ -123,9 +124,9 @@ class UserOrder extends Model
     public function getOrderList($condition, $pagesize = '', $field = '*', $order = 'order_id desc', $limit = '', $extend = array()){
         //联查的主要目的就是筛符合城市分站的店铺，从而筛选订单
         if((isset($condition['goods.province_id']) && $condition['goods.province_id']>0)||(isset($condition['goods.city_id']) && $condition['goods.city_id']>0)||(isset($condition['goods.area_id']) && $condition['goods.area_id']>0)){
-            $list = DB::name('order')->join('vendor','order.vid=vendor.vid')->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
+            $list = DB::name('order')->join('bbc_vendor','bbc_order.vid=vendor.vid')->join("order_goods","order.order_id=order_goods.order_id")->join("goods","goods.gid=order_goods.gid")->field($field.",bbc_vendor.*")->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
         }else{
-            $list = DB::name('order')->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
+            $list = DB::name('order')->join("bbc_order_goods","bbc_order.order_id=bbc_order_goods.order_id")->join("bbc_goods","bbc_goods.gid=bbc_order_goods.gid")->field($field)->where($condition)->page($pagesize)->order($order)->limit($limit)->select();
         }
         if (empty($list)) return array();
         $order_list = array();
@@ -677,7 +678,8 @@ class UserOrder extends Model
             case 'pai':
                 $state = !$order_info['lock_state'] && $order_info['order_state'] == ORDER_STATE_PAY && !$order_info['dian_id'] &&!$order_info['extend_order_common']['dian_id'];
                 if ($state) {
-                    $geshu = Model('dian')->getDiansCountByAddress($order_info);
+                    $dian = new Dian();
+                    $geshu = $dian->getDiansCountByAddress($order_info);
                     $state = $geshu>0;
                 }
                 break;
@@ -1872,5 +1874,175 @@ class UserOrder extends Model
 
         return $list;
     }
+    /**
+     * 取消订单
+     * @param array $order_info
+     * @param string $role 操作角色 buyer、seller、admin、system 分别代表买家、商家、管理员、系统
+     * @param string $user 操作人
+     * @param string $msg 操作备注
+     * @param boolean $if_update_account 是否变更账户金额
+     * @param boolean $if_queue 是否使用队列
+     * @return array
+     */
+    public function changeOrderStateCancel($order_info, $role, $user = '', $msg = '', $if_update_account = true, $if_quque = true) {
+        try {
+            $model_order = new UserOrder();
+            $model_order->beginTransaction();
+            $order_id = $order_info['order_id'];
 
+            //库存销量变更
+            $goods_list = $this->getOrderGoodsList(array('order_id'=>$order_id));
+            $data = array();
+            foreach ($goods_list as $goods) {
+                if ($goods['has_spec']) {
+                    $goodsModel = new Goods();
+                    $item_goods_info = $goodsModel->getGoodsInfoByID($goods['gid'],'goods_commonid');
+
+                    // 有规格 (获取规格信息)
+                    $spec_array = $goodsModel->getGoodsList(array('goods_commonid' => $item_goods_info['goods_commonid']), 'goods_spec,gid');
+                    $spec_list = array();       // 各规格商品地址，js使用
+                    foreach ($spec_array as $s_key => $s_value) {
+                        $s_array = unserialize($s_value['goods_spec']);
+
+                        $tmp_array = array();
+                        if (!empty($s_array) && is_array($s_array)) {
+                            foreach ($s_array as $k => $v) {
+                                $tmp_array[] = $k;
+                            }
+                        }
+                        sort($tmp_array);
+                        $spec_sign = implode('|', $tmp_array);
+
+                        $spec_list[$spec_sign]['gid'] = $s_value['gid'];
+                    }
+
+                    $item_spec_num = unserialize($goods['spec_num']);
+                    foreach ($item_spec_num as $spec_key => $spec_value) {
+                        $data[$spec_list[$spec_key]['gid']] = $spec_value;
+                    }
+                }else{
+                    $data[$goods['gid']] = $goods['goods_num'];
+                }
+
+                //如果有首单优惠，取消订单把优惠使用权还回来
+                if($goods['first']){
+                    //修改首单满减记录
+                    DB::name('first_discount_log')->where(['order_id'=>$order_id])->update(['state'=>0]);
+                }
+            }
+            if ($if_quque) {
+                Queue::push('cancelOrderUpdateStorage', array('id'=>$order_info['dian_id'],'data'=>$data));
+            } else {
+                $this->cancelOrderUpdateStorage(array('id'=>$order_info['dian_id'],'data'=>$data));
+            }
+
+            if ($if_update_account) {
+                $model_pd = new Predeposit();
+                //解冻充值卡
+                $rcb_amount = floatval($order_info['rcb_amount']);
+                if ($rcb_amount > 0) {
+                    $data_pd = array();
+                    $data_pd['member_id'] = $order_info['buyer_id'];
+                    $data_pd['member_name'] = $order_info['buyer_name'];
+                    $data_pd['amount'] = $rcb_amount;
+                    $data_pd['order_sn'] = $order_info['order_sn'];
+                    $model_pd->changeRcb('order_cancel',$data_pd);
+                }
+
+                //解冻预存款
+                $pd_amount = floatval($order_info['pd_amount']);
+                if ($pd_amount > 0) {
+                    $data_pd = array();
+                    $data_pd['member_id'] = $order_info['buyer_id'];
+                    $data_pd['member_name'] = $order_info['buyer_name'];
+                    $data_pd['amount'] = $pd_amount;
+                    $data_pd['order_sn'] = $order_info['order_sn'];
+                    $model_pd->changePd('order_cancel',$data_pd);
+                }
+                //退还积分
+                $pd_point = intval($order_info['pd_points']);
+                if ($pd_point > 0) {
+                    Model('points')->savePointsLog('returnpurpose', array('pl_memberid' => $order_info['buyer_id'], 'pl_membername' => $order_info['buyer_name'], 'orderprice' => $order_info['goods_amount'], 'order_sn' => $order_info['order_sn'], 'order_id' => $order_id, 'pl_points' => $pd_point), true);
+                }
+
+                if($order_info['red_id']>0){
+                    //退回优惠券  平台
+                    M('red')->table('red_user')->where(array('id'=>$order_info['red_id']))->update(array('reduser_use'=>0));
+                }
+
+                if($order_info['vred_id']>0){
+                    //退回优惠券  店铺
+                    M('red')->table('red_user')->where(array('id'=>$order_info['vred_id']))->update(array('reduser_use'=>0));
+                }
+            }
+
+            //更新订单信息
+            $update_order = array('order_state' => ORDER_STATE_CANCEL, 'pd_amount' => 0);
+            $update = $model_order->editOrder($update_order,array('order_id'=>$order_id));
+            if (!$update) {
+                throw new Exception('保存失败');
+            }
+
+            //添加订单日志
+            $data = array();
+            $data['order_id'] = $order_id;
+            $data['log_role'] = $role;
+            $data['log_msg'] = '取消了订单';
+            $data['log_user'] = $user;
+            if ($msg) {
+                $data['log_msg'] .= ' ( '.$msg.' )';
+            }
+            $data['log_orderstate'] = ORDER_STATE_CANCEL;
+            $model_order->addOrderLog($data);
+
+            // 推手系统 订单状态更新
+            if (Config('spreader_isuse') && Config('sld_spreader')) {
+                $par['state_type'] = 'order_cancel';
+                $par['order_info'] = $order_info;
+                $par['extend_msg'] = '';
+                // 发送请求 添加订单信息
+                con_addons('spreader',$par,'update_order_status_speader','api','mobile');
+            }
+
+            $model_order->commit();
+
+            return callback(true,'操作成功');
+
+        } catch (Exception $e) {
+            $this->rollback();
+            return callback(false,'操作失败');
+        }
+    }
+    /**
+     * 取消订单变更库存销量 王强标记更新库存（加库存）
+     * @param unknown $goods_buy_quantity
+     * @param int     $dian_id  自提门店id
+     */
+    public function cancelOrderUpdateStorage($goods_buy_quantity) {
+        $dian_id=$goods_buy_quantity['id'];
+        $goods_buy_quantity = $goods_buy_quantity['data'];
+        if($dian_id){
+            $model_goods = new StoreGoods();
+            foreach ($goods_buy_quantity as $gid => $quantity) {
+                $data = array();
+                $data['stock'] = array('inc', 'stock+' . $quantity);
+                $data['sales'] = array('dec', 'sales-' . $quantity);
+                $result = $model_goods->editGoods($data, array('goods_id' => $gid,'dian_id'=>$dian_id));
+            }
+        }else{
+            $model_goods = new Goods();
+            foreach ($goods_buy_quantity as $gid => $quantity) {
+                $data = array();
+                $data['goods_storage'] = array('inc','goods_storage+'.$quantity);
+                $data['goods_salenum'] = array('dec','goods_salenum-'.$quantity);
+                $result = $model_goods->editGoods($data, array("gid"=>$gid));
+            }
+        }
+
+        if (!$result) {
+            return callback(false,'变更商品库存与销量失败');
+        } else {
+            return callback(true);
+        }
+    }
 }

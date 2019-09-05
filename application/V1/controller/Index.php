@@ -62,4 +62,24 @@ class Index extends Base
         }
         return json_encode($data);
     }
+    /**
+     * 读取列表
+     * @param array $condition 查询条件
+     * @param int $page 分页数
+     * @param string $order 排序
+     * @param string $field 所需字段
+     * @return array 团购列表
+     *
+     */
+    public function getRedList($condition, $page = null, $order = 'bbc_red.id desc', $field = 'bbc_red.*,bbc_red_info.redinfo_money,red_info.redinfo_start,red_info.redinfo_end,red_info.redinfo_type,red_info.redinfo_ids,red_info.redinfo_self,red_info.redinfo_store,red_info.redinfo_full,red_info.redinfo_create,red_info.redinfo_together', $limit = 0) {
+        $field.=',min(redinfo_money) min_money,
+        max(redinfo_money) max_money,
+        min(redinfo_start) as min_date,
+        max(redinfo_end) as max_date';
+        $condition['red_delete'] = 0;
+        $red_list = DB::name('red_info')->join('bbc_red','bbc_red.id=bbc_red_info.red_id')->field($field)->where($condition)
+            ->group('bbc_red_info.red_id')
+            ->page($page)->order($order)->limit($limit)->select();
+        return $red_list;
+    }
 }

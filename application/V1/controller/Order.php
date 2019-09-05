@@ -21,8 +21,8 @@ class Order extends Base
         $page = input("page",0);
         $memberId = input("member_id");
         //搜索
-        $condition = array();
-        $condition['buyer_id'] = $memberId;
+        $condition = "";
+        $condition = "bbc_order.buyer_id=". $memberId;
 
 //        if (preg_match('/^\d{10,20}$/',$_GET['order_sn'])) {
 //            $condition['order_sn'] = $_GET['order_sn'];
@@ -36,7 +36,7 @@ class Order extends Base
 //		$end_unixtime = $if_end_date ? strtotime($_GET['query_end_date']): null;
 
         if (input("key") && input("key") != '') {
-            $condition['order_sn'] = input("key");
+            $condition.= " and bbc_order_goods.gid=".input("key")." or bbc_order.order_id like '%".input("key")."%' or bbc_order_goods.goods_name like '%".input("key")."%'";
         }
         $sdate = input("sdate",null);
         $edate = input("edate",null);
@@ -45,47 +45,47 @@ class Order extends Base
         $start_unixtime = $if_start_date ? strtotime($sdate) : null;
         $end_unixtime = $if_end_date ? strtotime($edate): null;
         if ($start_unixtime || $end_unixtime) {
-            $condition['add_time'] = array('time',array($start_unixtime,$end_unixtime));
+            $condition.= " and add_time >$start_unixtime and add_time<=$end_unixtime";
         }
         if(input("s")) {
             if (input('s') != '') {
                 switch (input('s')) {
                     case 1:
-                        $condition['order_state'] = ORDER_STATE_NEW;
+                        $condition.=" and order_state=".ORDER_STATE_NEW;
                         break;
                     case 256:
-                        $condition['order_state'] = ORDER_STATE_PAY;
+                        $condition.=" and order_state=".ORDER_STATE_PAY;
                         break;
                     case 1024:
-                        $condition['order_state'] = ORDER_STATE_SEND;
+                        $condition.=" and order_state=".ORDER_STATE_SEND;
                         break;
                     case 2048:
-                        $condition['order_state'] = ORDER_STATE_SUCCESS;
+                        $condition.=" and order_state=".ORDER_STATE_SUCCESS;
                         break;
                     case 4096:
-                        $condition['order_state'] = ORDER_STATE_CANCEL;
+                        $condition.=" and order_state=".ORDER_STATE_CANCEL;
                         break;
                     case "nocomment":
-                        $condition['order_state'] = ORDER_STATE_SUCCESS;
+                        $condition.=" and order_state=".ORDER_STATE_SUCCESS;
                         break;
                 }
             }
             if (input('s') == '1') {
-                $condition['chain_code'] = 0;
+                $condition.= " and chain_code=0";
             }
             if (input('s') == 'nocomment') {
-                $condition['evaluation_state'] = 0;
-                $condition['order_state'] = ORDER_STATE_SUCCESS;
-                $condition['finnshed_time'] = array('gt', TIMESTAMP - ORDER_EVALUATE_TIME);
+                $condition.=" and evaluation_state=0";
+                $condition.=" and order_state = ".ORDER_STATE_SUCCESS;
+                $condition.=" and finnshed_time >".TIMESTAMP - ORDER_EVALUATE_TIME;
             }
         }
         //回收站
         if (input('recycle')) {
-            $condition['delete_state'] = 1;
+            $condition.=" and delete_state=1";
         } else {
-            $condition['delete_state'] = 0;
+            $condition.=" and delete_state= 0";
         }
-        $order_list = $model_order->getOrderList($condition, $page, '*', 'order_id desc',10, array('order_common','order_goods','store'));
+         $order_list = $model_order->getOrderList($condition, $page, "bbc_order.*,bbc_order_goods.goods_name,bbc_order_goods.gid", 'order_id desc',10, array('order_common','order_goods','store'));
 
 //        dd($order_list);
         // 获取订单 活动类型（根据订单商品的 goods_type 进行判断）
@@ -433,5 +433,41 @@ class Order extends Base
         return json_encode($data);
         //Template::output('refund_list',$refund_list);
         //Template::showpage('member_order.show');
+    }
+    /**
+     * 取消订单
+     */
+    public function orderCancel() {
+        /*if (!chksubmit()) {
+            Template::output('order_info', $order_info);
+            Template::showpage('member_order.cancel','null_layout');
+            exit();
+        } else {
+            */
+        if(empty(input("member_id"))){
+            return;
+        }
+        $state_type = input("s");
+        $post = input();
+        $order_id   = intval(input('order_id'));
+
+        $model_order = new UserOrder();
+
+        $condition = array();
+        $condition['order_id'] = $order_id;
+        $condition['buyer_id'] = input("member_id");
+        $order_info = $model_order->getOrderInfo($condition);
+
+        //取得其它订单类型的信息
+        $model_order->getOrderExtendInfo($order_info);
+            $model_order = new UserOrder();
+            //$logic_order = Logic('order');
+            $if_allow = $model_order->getOrderOperateState('buyer_cancel',$order_info);
+            if (!$if_allow) {
+                return lang('无权操作');
+            }
+            $msg = $post['state_info1'] != '' ? $post['state_info1'] : $post['state_info'];
+            return $model_order->changeOrderStateCancel($order_info,'buyer', $_SESSION['member_name'], $msg);
+        //}
     }
 }

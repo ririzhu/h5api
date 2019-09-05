@@ -914,3 +914,33 @@ function orderStateVendor($order_info) {
     }
     return $order_state;
 }
+/**
+ * 检测FORM是否提交
+ * @param  $check_token 是否验证token
+ * @param  $check_captcha 是否验证验证码
+ * @param  $return_type 'alert','num'
+ * @return boolean
+ */
+function chksubmit($check_token = false, $check_captcha = false, $return_type = 'alert')
+{
+    $submit = isset($_POST['form_submit']) ? $_POST['form_submit'] : $_GET['form_submit'];
+    if ($submit != 'ok') return false;
+    if ($check_token && !Security::checkToken()) {
+        if ($return_type == 'alert') {
+            showDialog('Token error!');
+        } else {
+            return -11;
+        }
+    }
+    if ($check_captcha) {
+        if (!checkSeccode(getSldhash(), $_POST['captcha'])) {
+            setBbcCookie('randcode' . $_POST['sldcode'], '', -3600);
+            if ($return_type == 'alert') {
+                showDialog('验证码错误!');
+            } else {
+                return -12;
+            }
+        }
+    }
+    return true;
+}
