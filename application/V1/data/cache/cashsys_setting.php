@@ -1,0 +1,1 @@
+<?php defined('DYMall') or exit('Access Invalid!'); return array ( 'cashersystem_isuse' => '1', 'cashsys_gzh_appid' => NULL, 'cashsys_gzh_secret' => NULL, 'cashsys_mobile_memo' => NULL, 'cashsys_mobile_signature' => NULL, 'cashsys_mobile_tplid' => NULL, ) ?>

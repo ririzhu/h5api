@@ -1,0 +1,1 @@
+<?php defined('DYMall') or exit('Access Invalid!'); return array ( 3 => array ( 'sc_name' => '服务', 'sc_parent_id' => '0', 'child' => array ( 0 => '4', 1 => '5', ), ), 2 => array ( 'sc_name' => '行业分类', 'sc_parent_id' => '1', ), 4 => array ( 'sc_name' => '课程', 'sc_parent_id' => '3', ), 5 => array ( 'sc_name' => '线下培训', 'sc_parent_id' => '3', ), ) ?>

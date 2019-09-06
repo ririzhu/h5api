@@ -1,0 +1,1 @@
+<?php defined('DYMall') or exit('Access Invalid!'); return array ( 'create_time' => '1564471777', 'data' => array ( 1188 => array ( 0 => array ( 'start_time' => '1564416000', 'end_time' => '1755705600', 'gid' => '1188', 'promotion_type' => 'tuan', 'promotion_price' => 100, ), ), ), ) ?>

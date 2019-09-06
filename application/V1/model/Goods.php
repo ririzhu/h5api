@@ -2878,4 +2878,5 @@ class Goods extends Model
         return ['error'=>0,'data'=>$result];
     }
 
+
 }

@@ -8,7 +8,7 @@
 
 use OSS\Core\OssException;
 use think\facade\Request;
-use think\Lang;
+use think\model;
 define("BASE_PATH",str_replace('\\','/',dirname(__FILE__)));
 function getIp()
 {
@@ -943,4 +943,29 @@ function chksubmit($check_token = false, $check_captcha = false, $return_type = 
         }
     }
     return true;
+}
+/**
+ * 行为模型实例
+ *
+ * @param string $model 模型名称
+ * @return obj 对象形式的返回结果
+ */
+function Logic($model = null, $base_path = null)
+{
+    static $_cache = array();
+    $cache_key = $model . '.' . $base_path;
+    if (!is_null($model) && isset($_cache[$cache_key])) return $_cache[$cache_key];
+    $file_name  = BASE_PATH . '/operate/' . $model . '.php';
+    $class_name = $model;
+    if (!file_exists($file_name)) {
+        return $_cache[$cache_key] = new $model();
+    } else {
+        require_once($file_name);
+        if (!class_exists($class_name)) {
+            $error = 'Operate Error:  Class ' . $class_name . ' is not exists!';
+            java_throw_exceptions($error);
+        } else {
+            return $_cache[$cache_key] = new $class_name();
+        }
+    }
 }

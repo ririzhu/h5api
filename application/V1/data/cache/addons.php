@@ -1,0 +1,1 @@
+<?php defined('DYMall') or exit('Access Invalid!'); return array ( 'pin' => array ( 'id' => '1', 'sld_key' => 'pin', 'sld_addons_name' => '拼团', 'sld_status' => '1', 'sld_version' => '1.00', ), ) ?>

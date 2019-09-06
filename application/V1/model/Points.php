@@ -223,7 +223,6 @@ class Points extends Model
             return false;
         }
         $result	= Db::name("points_log")->insert($param);
-        echo Db::name("points_log")->getLastSql();
         return $result;
     }
     /**
@@ -317,8 +316,7 @@ class Points extends Model
             $stage1 = "checkin";
             $arr = DB::name("points_log")->where(array("pl_stage"=>$stage1,"pl_memberId"=>$memberId))->field("*")->order("pl_addtime","asc")->select();
         //echo DB::name("points_log")->getLastSql();
-        $lastAddDay = DB::name("points_log")->where(array("pl_stage"=>"checkin_week","pl_memberId"=>$memberId))->field("*")->order("pl_id","desc")->find();
-        echo DB::name("points_log")->getLastSql();
+            $lastAddDay = DB::name("points_log")->where(array("pl_stage"=>"checkin_week","pl_memberId"=>$memberId))->field("*")->order("pl_id","desc")->find();
             if(empty($lastAddDay)){
                 $lastday = date("Y-M-D",TIMESTAMP);
             }else{

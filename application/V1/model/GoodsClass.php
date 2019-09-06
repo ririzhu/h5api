@@ -568,8 +568,8 @@ class GoodsClass extends Model
         return $gc_list;
     }
     private function _getGoodsClassNavById($gc_id) {
-        $model_class_nav = Model('goods_class_nav');
-        $model_brand = Model('brand');
+        $model_class_nav = new GoodsClassNav();
+        $model_brand = new Brand();
         $nav_info = $model_class_nav->getGoodsClassNavInfoByGcId($gc_id);
         if (empty($nav_info)) {
             return array();
@@ -604,9 +604,9 @@ class GoodsClass extends Model
         $type_brands = array();//类型关联品牌
         if (is_array($type_ids) && !empty($type_ids)) {
             $type_ids = array_unique($type_ids);
-            $type_list = $this->table('type_brand')->where(array('type_id'=>array('in',$type_ids)))->limit(10000)->select();
+            $type_list = DB::name('type_brand')->where(array('type_id'=>array('in',implode(",",$type_ids))))->limit(10000)->select();
             if (is_array($type_list) && !empty($type_list)) {
-                $brand_list = $this->table('brand')->field('brand_id,brand_name,brand_pic')->where(array('brand_apply'=>1))->limit(10000)->select();
+                $brand_list = DB::name('brand')->field('brand_id,brand_name,brand_pic')->where(array('brand_apply'=>1))->limit(10000)->select();
                 if (is_array($brand_list) && !empty($brand_list)) {
                     foreach ($brand_list as $key => $value) {
                         $brand_id = $value['brand_id'];

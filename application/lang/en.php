@@ -1031,7 +1031,7 @@ $lang['没有找到符合条件的商品']			= '没有找到符合条件的商�
 $lang['商品筛选']	= '商品筛选';
 $lang['精品课程']	= 'Excellent';
 $lang['热门视频']	= '热门视频';
-$lang['类型']	= 'Type';
+$lang['类型']	= 'Types';
 
 $lang['个人']='Preson';
 $lang['企业']='Company';
