@@ -289,6 +289,7 @@ class User extends Base
         $checkin_stage = 'checkin';
         $return_arr = array();
         $log_list = array();
+        $memberId = input("member_id");
 
         $eachNum = 10;
         if (Config(['app'])['app']['points_isuse'] == 1){
@@ -305,8 +306,7 @@ class User extends Base
             $has_checked_flag = $points_model->getPointsInfo($condition,'pl_id');
             if (!$has_checked_flag) {
                 //添加会员积分
-                $memberId = input("member_id");
-                $points_model->savePointsLog($checkin_stage,array('pl_memberid'=>$this->member_info['member_id'],'pl_membername'=>$this->member_info['member_name'],'pl_points'=>Config('sign_points')));
+                $points_model->savePointsLog($checkin_stage,array('pl_memberid'=>$this->member_info['member_id'],'pl_membername'=>$this->member_info['member_name'],'pl_points'=>Config('points_checkin')));
 
                 $state = 'success';
                 $message = '签到成功';
@@ -328,6 +328,8 @@ class User extends Base
 
         $return_arr['state'] = $state;
         $return_arr['msg'] = $message;
+        //计算连续签到天数
+        $return_arr['checkin_counts'] = $points_model->checkinDays($checkin_stage,array('pl_memberid'=>$this->member_info['member_id'],'pl_membername'=>$this->member_info['member_name'],'pl_points'=>Config('points_checkin')));
         $return_arr['log_list'] = $log_list;
         if (isset($log_list) && !empty($log_list)) {
             $return_arr['list'] = $log_list;

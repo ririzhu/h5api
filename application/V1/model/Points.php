@@ -3,6 +3,7 @@ namespace app\V1\model;
 
 use think\Model;
 use think\db;
+use think\queue;
 class Points extends Model
 {
     /**
@@ -45,6 +46,11 @@ class Points extends Model
                     $insertarr['pl_desc'] = '会员签到';
                 }
                 //$insertarr['pl_points'] = intval($GLOBALS['setting_config']['sign_points']);
+                break;
+            case 'checkin_week':
+                if (!isset($insertarr['pl_desc'])){
+                    $insertarr['pl_desc'] = '会员连续7天签到奖励';
+                }
                 break;
             case 'order':
                 if (!$insertarr['pl_desc']){
@@ -174,7 +180,7 @@ class Points extends Model
             $upmember_array = array();
 //			$upmember_array['member_points'] = array('sign'=>'increase','value'=>$insertarr['pl_points']);
 //			$obj_member->updateMember($upmember_array,$insertarr['pl_memberid']);
-            $upmember_array['member_points'] = array('exp','member_points+'.$insertarr['pl_points']);
+            $upmember_array['member_points'] = array('inc','member_points+'.$insertarr['pl_points']);
             $obj_member->editMember(array('member_id'=>$insertarr['pl_memberid']),$upmember_array);
 
             $now_member_info = $obj_member->name('member')->where(array('member_id'=>$value_array['pl_memberid']))->field('member_points')->find();
@@ -198,7 +204,7 @@ class Points extends Model
                 $param['param'] = $data_msg;
                 $param['link']=$data_msg['points_url'];
                 $param['system_type']=5;
-                QueueClient::push('sendMemberMsg', $param);
+                //Queue::push('sendMemberMsg', $param);
             }
 
             return true;
@@ -299,4 +305,52 @@ class Points extends Model
         }
         return $condition_sql;
     }
+    /**
+     * 统计连续签到天数以及累计签到天数
+     * @param string $user_long_id 用户ID
+     * @return array 一维数组
+     */
+    public function checkinDays($stage,$arr)
+    {
+            $memberId = $arr['pl_memberid'];
+            $memberName = $arr['pl_membername'];
+            $stage1 = "checkin";
+            $arr = DB::name("points_log")->where(array("pl_stage"=>$stage1,"pl_memberId"=>$memberId))->field("*")->order("pl_addtime","asc")->select();
+        //echo DB::name("points_log")->getLastSql();
+        $lastAddDay = DB::name("points_log")->where(array("pl_stage"=>"checkin_week","pl_memberId"=>$memberId))->field("*")->order("pl_id","desc")->find();
+        echo DB::name("points_log")->getLastSql();
+            if(empty($lastAddDay)){
+                $lastday = date("Y-M-D",TIMESTAMP);
+            }else{
+                $lastday = date("Y-M-D",$lastAddDay['pl_addtime']);
+            }
+            $add_count_days = 1;//连续签到天数
+            $count = 0;  //累计签到天数
+            $day_list = [];
+            if (!empty($arr)){
+                foreach ($arr as $k=>$v){
+                    $day_list[] = $v['pl_addtime'];
+                }
+                $count = count($day_list); //累计签到天数
+            }
+
+            for($i = 0;$i < $count - 1;$i++){
+                //print_r(date_create(date("Y-m-d",$day_list[$i])));print_r(date_create(date("Y-m-d",$day_list[$i+1])));
+               $res = date_diff(date_create(date("Y-m-d",$day_list[$i])),date_create(date("Y-m-d",$day_list[$i+1])))->days;
+                if($res==1) $add_count_days++;
+                else {};
+            }
+            if($add_count_days % 7 == 0){
+                $checkin_stage = "checkin_week";
+                //如果最后赠送积分的日期不等于今天的日期，就赠送积分
+                if(empty($lastAddDay) || ($lastday != date("Y-M-D",TIMESTAMP))){
+                    $this->savePointsLog($checkin_stage,array('pl_memberid'=>$memberId,'pl_membername'=>$memberName,'pl_points'=>Config('points_checkin_week')));
+                }
+
+
+
+            }
+            return array('add_days'=>$add_count_days,'total_day'=>$count);
+    }
+
 }
