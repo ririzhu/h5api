@@ -2,6 +2,7 @@
 namespace app\V1\model;
 
 use think\Model;
+use think\db;
 
 class Grade extends Model
 {
@@ -18,7 +19,7 @@ class Grade extends Model
      */
     public function getlist($condition=[],$field='*',$page='',$order='')
     {
-        $list = $this->table('grade')->where($condition)->field($field)->page($page)->order($order)->select();
+        $list = DB::name('grade')->where($condition)->field($field)->page($page)->order($order)->select();
         if($list){
             array_walk($list,function(&$v){
                 $v['grade_img_name'] = $v['grade_img'];
@@ -34,7 +35,7 @@ class Grade extends Model
      */
     public function getmembergrade($member_id,$lang_type = false)
     {
-        $member_info = $this->table('member')->where(['member_id'=>$member_id])->field('member_growthvalue')->find();
+        $member_info = DB::name('member')->where(['member_id'=>$member_id])->field('member_growthvalue')->find();
         if($member_info){
             $list = $this->getlist([],'*','','grade_value asc');
 

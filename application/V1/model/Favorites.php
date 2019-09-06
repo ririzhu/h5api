@@ -20,12 +20,15 @@ class Favorites extends Model
      */
     public function getFavoritesList($condition, $field = '*', $page = 0 , $order = 'fav_time desc') {
         if ($condition['fav_type'] == 'goods') {
-            $list = DB::table('bbc_favorites')->join('bbc_goods','bbc_goods.gid = bbc_favorites.fav_id')->field('bbc_favorites.*')->where($condition)->page($page)->select();
+//            $list = DB::table('bbc_favorites')->join('bbc_goods','bbc_goods.gid = bbc_favorites.fav_id')->field('bbc_favorites.*')->where($condition)->page($page)->select();
+            $list = DB::name('favorites')->join('bbc_goods','bbc_goods.gid = bbc_favorites.fav_id')->field('bbc_favorites.*')->where($condition)->limit($page)->select();
             return $list;
         }else if ($condition['fav_type'] == 'store') {
-            return DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->page($page)->select();
+//            return DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->page($page)->select();
+            return DB::name('favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->limit($page)->select();
         }else{
-            return DB::table("bbc_favorites")->where($condition)->order($order)->page($page)->select();
+//            return DB::table("bbc_favorites")->where($condition)->order($order)->page($page)->select();
+            return DB::name("favorites")->where($condition)->order($order)->limit($page)->select();
         }
     }
 

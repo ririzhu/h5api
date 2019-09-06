@@ -159,12 +159,12 @@ class BrowserHistory extends Model
     public function getGoodsbrowseList($where, $field = '*', $page = 0, $limit = 0, $order = '', $group = '') {
         if (is_array($page)){
             if ($page[1] > 0){
-                return $this->table('bbc_goods_browsehistory')->field($field)->where($where)->page($page[0],$page[1])->limit($limit)->order($order)->group($group)->select();
+                return DB::name('goods_browsehistory')->field($field)->where($where)->page($page[0],$page[1])->limit($limit)->order($order)->group($group)->select();
             } else {
-                return $this->table('bbc_goods_browsehistory')->field($field)->where($where)->page($page[0])->limit($limit)->order($order)->group($group)->select();
+                return DB::name('goods_browsehistory')->field($field)->where($where)->page($page[0])->limit($limit)->order($order)->group($group)->select();
             }
         } else {
-            return $this->table('bbc_goods_browsehistory')->field($field)->where($where)->page($page)->limit($limit)->order($order)->group($group)->select();
+            return DB::name('goods_browsehistory')->field($field)->where($where)->page($page)->limit($limit)->order($order)->group($group)->select();
         }
     }
     /**
