@@ -538,4 +538,19 @@ class BrowserHistory extends Model
         $vg_ca = encrypt(serialize($vg_ca), MD5_KEY);
         setBbcCookie('viewed_goods', $vg_ca);
     }
+
+    /**
+     * add by zhengyifan 2019-09-09
+     * 获取用户浏览记录
+     * @param $where
+     * @param string $field
+     * @param string $order
+     * @param int $page
+     * @param int $limit
+     * @param string $group
+     * @return array|\PDOStatement|string|\think\Collection
+     */
+    public function getGoodsBrowseHistory($where, $field = '*', $page = 0, $limit = 10, $order = '', $group = '') {
+        return DB::name('goods_browsehistory')->field($field)->where($where)->page($page)->limit($limit)->order($order)->group($group)->select();
+    }
 }

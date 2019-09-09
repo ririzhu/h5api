@@ -2893,5 +2893,21 @@ class Goods extends Model
         return ['error'=>0,'data'=>$result];
     }
 
+    /**
+     * add by zhengyifan 2019-09-09
+     * 获取商品信息
+     * @param $condition
+     * @param string $field
+     * @param string $group
+     * @param string $order
+     * @param int $limit
+     * @param int $page
+     * @param bool $lock
+     * @return array
+     */
+    public function getGoods($condition, $field = '*', $group = '',$order = '', $limit = 10, $page = 0, $lock = false) {
+        return DB::name('goods')->where($condition)->group($group)->order($order)->limit($limit)->page($page)->lock($lock)->column($field,'gid');
+    }
+
 
 }
