@@ -969,3 +969,92 @@ function Logic($model = null, $base_path = null)
         }
     }
 }
+/**
+ * 文件数据读取和保存 字符串、数组
+ *
+ * @param string $name 文件名称（不含扩展名）
+ * @param mixed $value 待写入文件的内容
+ * @param string $path 写入cache的目录
+ * @param string $ext 文件扩展名
+ * @return mixed
+ */
+function F($name, $value = null, $path = 'cache', $ext = '.php')
+{
+    if (strtolower(substr($path, 0, 5)) == 'cache') {
+        //$path = 'data/' . $path;
+    }
+    static $_cache = array();
+    if (isset($_cache[$name . $path])) return $_cache[$name . $path];
+    $filename = BASE_PATH. '../../../runtime/' . $path . '/' . $name . $ext;
+    if (!is_null($value)) {
+        $dir = dirname($filename);
+        if (!is_dir($dir)) mkdir($dir);
+        return write_file($filename, $value);
+    }
+
+    if (is_file($filename)) {
+        $_cache[$name . $path] = $value = include $filename;
+    } else {
+        $value = false;
+    }
+    return $value;
+}
+/**
+ * 内容写入文件
+ *
+ * @param string $filepath 待写入内容的文件路径
+ * @param string/array $data 待写入的内容
+ * @param  string $mode 写入模式，如果是追加，可传入“append”
+ * @return bool
+ */
+function write_file($filepath, $data, $mode = null)
+{
+    if (is_array($data)) {
+        $data = var_export($data, true);
+    } elseif (!is_scalar($data)) {
+        return false;
+    }
+    if ($data === '') $data = '\'\'';
+    $data = "<?php defined('DYMall') or exit('Access Invalid!'); return " . $data . "\n?>";
+    $mode = $mode == 'append' ? FILE_APPEND : null;
+    if (false === file_put_contents($filepath, compress_code($data), $mode)) {
+        return false;
+    } else {
+        return true;
+    }
+}
+/**
+ * 去除代码中的空白和注释
+ *
+ * @param string $content 待压缩的内容
+ * @return string
+ */
+function compress_code($content)
+{
+    $stripStr = '';
+    //分析php源码
+    $tokens     = token_get_all($content);
+    $last_space = false;
+    for ($i = 0, $j = count($tokens); $i < $j; $i++) {
+        if (is_string($tokens[$i])) {
+            $last_space = false;
+            $stripStr   .= $tokens[$i];
+        } else {
+            switch ($tokens[$i][0]) {
+                case T_COMMENT:    //过滤各种PHP注释
+                case T_DOC_COMMENT:
+                    break;
+                case T_WHITESPACE:    //过滤空格
+                    if (!$last_space) {
+                        $stripStr   .= ' ';
+                        $last_space = true;
+                    }
+                    break;
+                default:
+                    $last_space = false;
+                    $stripStr   .= $tokens[$i][1];
+            }
+        }
+    }
+    return $stripStr;
+}

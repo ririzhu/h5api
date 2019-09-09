@@ -69,7 +69,7 @@ class GoodsClass extends Model
             }
             foreach ((array) $data['children'][0] as $id) {
                 foreach ((array) $data['children'][$id] as $cid) {
-                    print_r($data['children']);
+                    //print_r($data['children']);
                     foreach ((array) $data['children'][$cid] as $ccid) {
                         $data['children2'][$id][] = $ccid;
                     }
@@ -525,25 +525,27 @@ class GoodsClass extends Model
                 foreach ($gc_list as $key => $value) {
                     $gc_id = $value['gc_id'];
                     $gc_list[$gc_id]['pic'] = UPLOAD_SITE_URL.'/'.ATTACH_COMMON.'/category-pic-'.$gc_id.'.jpg';
-                    $class3s = $class1_deep[$gc_id];
+                    if(isset($class1_deep[$gc_id])) {
+                        $class3s = $class1_deep[$gc_id];
 
-                    if (is_array($class3s) && !empty($class3s)) {//取关联的第3级
-                        $class3_n = 0;//已经找到的第3级分类个数
-                        ksort($class3s);//排序取到分类
-                        foreach ($class3s as $k3 => $v3) {
-                            if ($class3_n >= 5) {//最多取5个
-                                break;
-                            }
-                            foreach ($v3 as $k => $v) {
-                                if ($class3_n >= 5) {
+                        if (is_array($class3s) && !empty($class3s)) {//取关联的第3级
+                            $class3_n = 0;//已经找到的第3级分类个数
+                            ksort($class3s);//排序取到分类
+                            foreach ($class3s as $k3 => $v3) {
+                                if ($class3_n >= 5) {//最多取5个
                                     break;
                                 }
-                                if (is_array($v) && !empty($v)) {
-                                    $p_id = $v['gc_parent_id'];
-                                    $gc_id = $v['gc_id'];
-                                    $parent_id = $class2_ids[$p_id];//取第1级ID
-                                    $gc_list[$parent_id]['class3'][$gc_id] = $v;
-                                    $class3_n += 1;
+                                foreach ($v3 as $k => $v) {
+                                    if ($class3_n >= 5) {
+                                        break;
+                                    }
+                                    if (is_array($v) && !empty($v)) {
+                                        $p_id = $v['gc_parent_id'];
+                                        $gc_id = $v['gc_id'];
+                                        $parent_id = $class2_ids[$p_id];//取第1级ID
+                                        $gc_list[$parent_id]['class3'][$gc_id] = $v;
+                                        $class3_n += 1;
+                                    }
                                 }
                             }
                         }
@@ -554,11 +556,12 @@ class GoodsClass extends Model
                             $p_id = $v2['gc_parent_id'];
                             $gc_id = $v2['gc_id'];
                             $type_id = $v2['type_id'];
+                            if(isset($type_brands[$type_id]))
                             $gc_list[$p_id]['class2'][$gc_id]['brands'] = $type_brands[$type_id];
                         }
                     }
                 }
-                F('category', $gc_list, 'cache/index');
+                F('category', $gc_list, 'cache');
             }
         } else {
             $gc_list = include $file_name;
@@ -876,12 +879,14 @@ class GoodsClass extends Model
      */
     public function getGoodsClassNav($id = 0, $sign = 1,$find_top = 0) {
         if (intval ( $id ) > 0) {
-            $data = $this->H('goods_class');
+            $data = array_filter($this->H('bbc_goods_class'));
+            //print_r($data);die;
 
-            $data = $this->magicLang($data,'goods_class');
+            //$data = $this->magicLang($data,'bbc_goods_class');
 
             // 当前分类不加超链接
             if ($sign == 1) {
+                //print_r($data[$id]);
                 $nav_link [] = array(
                     'title' => $data[$id]['gc_name'],
                     'cid' =>$data[$id]['gc_id'],
@@ -915,11 +920,11 @@ class GoodsClass extends Model
         }
         $top_cid = 0;
 
-        foreach ($nav_link as $v){
+        /*foreach ($nav_link as $v){
             if($v['depth']==1){
                 $top_cid = $v['cid'];
             }
-        }
+        }*/
 
 
         // 首页导航
@@ -996,22 +1001,23 @@ class GoodsClass extends Model
      */
     public function getKeyWords($gc_id = null){
         if (empty($gc_id)) return false;
-        $keywrods = ($seo_info = H('goods_class_seo')) ? $seo_info : H('goods_class_seo',true);
+        $keywrods = ($seo_info = $this->H('bbc_goods_class_seo')) ? $seo_info : $this->H('bbc_goods_class_seo',true);
         $seo_title = $keywrods[$gc_id]['title'];
         $seo_key = '';
         $seo_desc = '';
-        if ($gc_id > 0){
+        if (intval($gc_id )> 0){
             if (isset($keywrods[$gc_id])){
                 $seo_key .= $keywrods[$gc_id]['key'].',';
                 $seo_desc .= $keywrods[$gc_id]['desc'].',';
             }
-            $goods_class = H('goods_class') ? H('goods_class') : H('goods_class', true);
+            $goods_class = $this->H('bbc_goods_class') ? $this->H('bbc_goods_class') : $this->H('bbc_goods_class', true);
             if(($gc_id = $goods_class[$gc_id]['gc_parent_id']) > 0){
                 if (isset($keywrods[$gc_id])){
                     $seo_key .= $keywrods[$gc_id]['key'].',';
                     $seo_desc .= $keywrods[$gc_id]['desc'].',';
                 }
             }
+            if($gc_id >0)
             if(($gc_id = $goods_class[$gc_id]['gc_parent_id']) > 0){
                 if (isset($keywrods[$gc_id])){
                     $seo_key .= $keywrods[$gc_id]['key'].',';

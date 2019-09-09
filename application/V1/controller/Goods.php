@@ -517,7 +517,10 @@ class Goods extends  Base
      * 获取分类商品列表
      */
     public function goodslist() {
+        $page = input("page",0);
         $this->_model_search = new Search();
+        $memberId = input("member_id");
+        $conditionstr = "1=1 ";
 
         //获取该城市的最后一级id
         $curSldCityId = Logic('city_site')->getUrlCityBindId($_SERVER['HTTP_HOST']);
@@ -528,7 +531,7 @@ class Goods extends  Base
         $order = 'gid desc';
         if (in_array(input('key'),array('1','2','3'))) {
             $sequence = input('sort') == '1' ? 'asc' : 'desc';
-            $order = str_replace(array('1','2','3'), array('goods_salenum','goods_click','goods_price'), $_GET['key']);
+            $order = str_replace(array('1','2','3'), array('goods_salenum','goods_click','goods_price'), input('key'));
             //虚拟销量
             if(Config('virtual_sale')){
                 if($order == 'goods_salenum'){
@@ -540,20 +543,13 @@ class Goods extends  Base
         $model_goods = new \app\V1\model\Goods();
 
         $condition = array();
-
-        // 当前位置导航
-        $model_goods_class = new GoodsClass();
-        list($nav_link_list) = $model_goods_class->getGoodsClassNav(intval(input("cid")),null,1);
-
-        $data['nav_link_list'] = $nav_link_list ;
-
-
         $tid = intval(input('tid'));
 
         $data['tid'] = $tid;
 
         if($tid){
             $condition['course_type'] = $tid;
+            $conditionstr.=" and course_type=$tid";
         }
         if (!isset($data_attr['sign']) || $data_attr['sign'] === true) {
             // 字段
@@ -565,36 +561,26 @@ class Goods extends  Base
             // 只检索零售商品
             $condition['goods_type'] = 0;
 
-            if (is_array($indexer_ids)) {  //这个存换成坏了，不走~！！！！
-                //商品主键搜索
-                $condition['gid'] = array('in',implode(",",$indexer_ids));
-                if($curSldCityId){
-                    $condition['province_id|city_id|area_id'] = $curSldCityId;
-                }
-                $goods_list = $model_goods->getGoodsOnlineList($condition, $fields, 0, $order, self::PAGESIZE, null, false);
-                //pagecmd('setEachNum',self::PAGESIZE);
-                //pagecmd('setTotalNum',$indexer_count);
-
-            } else {
-                //执行正常搜索，重新查库
-                if (isset($data_attr['gcid_array'])) {
-                    $condition['gc_id'] = array('in', implode(",",$data_attr['gcid_array']));
+            //执行正常搜索，重新查库
+            if (isset($data_attr['gcid_array'])) {
+                    $condition['gc_id'] = array('in', arrayToString($data_attr['gcid_array']));
+                    $conditionstr .= " and gc_id in ( ".arrayToString($data_attr['gcid_array']) .") ";
                 }
                 if (intval(input('b_id')) > 0) {
-                    $condition['brand_id'] = intval($_GET['b_id']);
+                    $condition['brand_id'] = intval(input('b_id'));
                 }
                 if (input('keyword') != '') {
-                    $condition['goods_name'] = array('like', '%' . $_GET['keyword'] . '%');
+                    $condition['goods_name'] = array('like', '%' . input('keyword') . '%');
                 }
                 //如果搜索的一级地区id跟当前绑定的城市分站一级id一致，正常搜索，不一致的话，以信息
 
                 if (intval(input('area_id')) > 0) {
-                    $condition['areaid_1'] = intval($_GET['area_id']);
+                    $condition['areaid_1'] = intval(input('area_id'));
                 }
                 if (in_array(input('t'), array(1,2))) {
-                    if ($_GET['t'] == 1) {
+                    if (input('t') == 1) {
                         $condition['is_own_shop'] = 1;
-                    } else if ($_GET['t'] == 2) {
+                    } else if (input('t') == 2) {
                         $condition['is_own_shop'] = 0;
                     }
                 }
@@ -606,14 +592,14 @@ class Goods extends  Base
                 //[start搜索优惠券的商品]
                 //点击优惠券过来的 首先判断是否有指定商品
                 if(input('red_gids')) {
-                    $gids = explode(',', $_GET['red_gids']);
+                    $gids = explode(',', input('red_gids'));
                 }else if(input('red_gc_id')){//判断是否有指定分类
-                    $gc_ids = explode(',', $_GET['red_gc_id']);
+                    $gc_ids = explode(',', input('red_gc_id'));
                 }
                 //商品
                 if(!empty($gids)){
-                    $condition['gid'] = array('in',$gids);
-                }else if(!empty($gc_ids) && $_GET['store_self'] == 1){//自营店分类
+                    $condition['gid'] = array('in',arrayToString($gids));
+                }else if(!empty($gc_ids) && input('store_self') == 1){//自营店分类
                     $condition['gc_id_1'] = array('in',implode(",",$gc_ids));
                     //获取与所有的自营店
                     $model_vendor = new VendorInfo();
@@ -626,7 +612,7 @@ class Goods extends  Base
                 }else if(!empty($gc_ids) && input('store_self') != 1){//所有店铺分类
                     $condition['gc_id_1'] = array('in',$gc_ids);
                 }else if(input('red_vid')){//如果没有指定商品和分类 判断店铺优惠券
-                    $condition['vid'] = $_GET['red_vid'];
+                    $condition['vid'] = input('red_vid');
                 }else if(input('store_self') == 1){//自营店所有商品
                     //获取与所有的自营店
                     $model_vendor = new VendorInfo();
@@ -635,55 +621,53 @@ class Goods extends  Base
                     foreach ($shop_vids as $v){
                         $vids[] = $v['vid'];
                     }
-                    $condition['vid'] = array('in',$vids);
+                    $condition['vid'] = array('in',arrayToString($vids));
                 }
 
                 //公开课时间筛选
                 if($tid==1){
 
                     if(input('con_time')) {
-                        list($con_start, $con_end) = explode(' ', $_GET['con_time']);
+                        list($con_start, $con_end) = explode(' ', input('con_time'));
 
                         $con_start = strtotime($con_start);
                         $con_end   = strtotime($con_end);
 
                         $condition['con_start'] = ['exp', "NOT ((con_end < $con_start) OR (con_start > $con_end))"];
+                        $conditionstr.=" and not ((con_end<$con_start ) OR (con_start > $con_end))";
                     }
                 }
 
 
                 //价格筛选字段
                 if(input('m_price')){
-                    list($m_min,$m_max) = explode('-',$_GET['m_price']);
+                    list($m_min,$m_max) = explode('-',input('m_price'));
 
                     $condition['goods_price'] = ['exp', " (goods_price <= $m_max) and (goods_price > $m_min) "];
+                    $conditionstr.=" and goods_price <=$m_max and goods_price >$m_min";
                 }
 
                 //评级筛选
                 if(input('m_star')){
-                    $star = intval($_GET['m_star']);
-                    $model_evaluate = new EvaluateGoods();// Model('evaluate_goods');
-                    $eva_data = $model_evaluate->field('geval_ordergoodsid as gcid,avg(geval_scores) as star')->group('geval_ordergoodsid')->having('star>'.$star.' and star<'.($star+1))->select();
+                    $star = intval(input('m_star'));
+                    $eva_data = DB::name("evaluate_goods")->field('geval_ordergoodsid as gcid,avg(geval_scores) as star')->group('geval_ordergoodsid')->having('star>'.$star.' and star<'.($star+1))->select();
                     $stars = low_array_column($eva_data,'gcid');
                     $condition['goods_commonid'] = ['in',join(',',$stars)];
+                    if(!empty($stars))
+                    $conditionstr.=" and goods_commonid in (0,".arrayToString($stars).") ";
                 }
 
                 //店铺类型
                 if(input('m_type')){
-                    $m_type = intval($_GET['m_type']);
+                    $m_type = intval(input('m_type'));
 
                     $condition['store_type'] = $m_type;
+                    $conditionstr.=" and store_type=$m_type";
                 }
                 //[end搜索优惠券的商品]
 
                 //按照商品的SPU展示
-                $goods_list = $model_goods->getGoodsListByCommonidDistinct($condition, $fields, $order, self::PAGESIZE);
-            }
-
-            //Template::output('show_page', $model_goods->showpage());
-
-
-
+                $goods_list = $model_goods->getGoodsListByCommonidDistinct($conditionstr, $fields, $order, $page);
             // 商品多图
             if (!empty($goods_list)) {
                 $goodsid_array = array();       // 商品id数组
@@ -700,17 +684,17 @@ class Goods extends  Base
 
                 // 商品多图
                 $goods = new \app\V1\model\Goods();
-                $goodsimage_more = $goods->getGoodsImageList(array('goods_commonid' => array('in', $commonid_array)));
+                $goodsimage_more = $goods->getGoodsImageList(array('goods_commonid' => array('in', arrayToString($commonid_array))));
 
                 // 店铺
                 $vendor = new VendorInfo();
-                $store_list = $vendor->getStoreMemberIDList($storeid_array);
+                $store_list = json_decode($vendor->getStoreMemberIDList($storeid_array),true);
                 $favorite_model = new Favorites();
                 // $model_sole = Model('p_mbuy');
 //                $tobuy_detail_model = Model('today_buy_detail');
 //                $tobuy_time_model = Model('today_buy');
                 foreach ($goods_list as $key => $value) {
-                    $favorite_info = $favorite_model->getOneFavorites(array('fav_id'=>"$value[gid]",'fav_type'=>'goods','member_id'=>"{$_SESSION['member_id']}"));
+                    $favorite_info = $favorite_model->getOneFavorites(array('fav_id'=>$value["gid"],'fav_type'=>'goods','member_id'=>$memberId));
                     if(empty($favorite_info)){
                         $favorites_flag = 0;
                     }else{
@@ -725,8 +709,10 @@ class Goods extends  Base
                     }
                     // 店铺的开店会员编号
                     $vid = $value['vid'];
-                    $goods_list[$key]['member_id'] = $store_list[$vid]['member_id'];
-                    $goods_list[$key]['store_domain'] = $store_list[$vid]['store_domain'];
+                    if(isset($store_list[$vid])) {
+                        $goods_list[$key]['member_id'] = $store_list[$vid]['member_id'];
+                        $goods_list[$key]['store_domain'] = $store_list[$vid]['store_domain'];
+                    }
                 }
             }
 
@@ -736,6 +722,7 @@ class Goods extends  Base
             $data['goods_list'] = $goods_list;
             //Template::output('goods_list', $goods_list);
         }
+        if(isset($data_attr['gc_name']))
         $data['class_name'] = $data_attr['gc_name'];
         //Template::output('class_name',  @$data_attr['gc_name']);
         //热卖推荐（销量的前4个）
@@ -758,6 +745,8 @@ class Goods extends  Base
             $goods_class_array = $this->_model_search->getLeftCategory(array(input('cid')));
         } elseif (input('keyword') != '') {
             $goods_class_array = $this->_model_search->getTagCategory(input('keyword'));
+        }else{
+            $goods_class_array = array();
         }
         $data['goods_class_array'] = $goods_class_array;
 
@@ -770,23 +759,29 @@ class Goods extends  Base
         }
 
         //抛出搜索属性
+        if(isset($data_attr['brand_array']))
         $data['brand_array'] = $data_attr['brand_array'];
+        if(isset($data_attr['attr_array']))
         $data['attr_array'] = $data_attr['attr_array'];
+        if(isset($data_attr['cate_array']))
         $data['cate_array'] = $data_attr['cate_array'];
+        if(isset($data_attr['checked_brand']))
         $data['checked_brand'] = $data_attr['checked_brand'];
+        if(isset($data_attr['checked_attr']))
         $data['checked_attr'] = $data_attr['checked_attr'];
 
 
         // SEO
         if (input('keyword') == '') {
             $seo_class_name = @$data_attr['gc_name'];
-            if (is_numeric($_GET['cid']) && empty($_GET['keyword'])) {
-                $seo_info = $model_goods_class->getKeyWords(intval($_GET['cid']));
+            if (is_numeric(input('cid')) && empty(input('keyword'))) {
+                $model_goods_class = new GoodsClass();
+                $seo_info = $model_goods_class->getKeyWords(input('cid'));
                 if (empty($seo_info[1])) {
                     $seo_info[1] = Config('site_name') . ' - ' . $seo_class_name;
                 }
-                Model('seo')->type($seo_info)->param(array('name' => $seo_class_name))->show();
-            } elseif ($_GET['keyword'] != '') {
+               // Model('seo')->type($seo_info)->param(array('name' => $seo_class_name))->show();
+            } else if (input('keyword') != '') {
                // Template::output('html_title', (empty($_GET['keyword']) ? '' : $_GET['keyword'] . ' - ') . C('site_name') . L('bbc_common_search'));
             }
         }
@@ -818,13 +813,13 @@ class Goods extends  Base
 
 
         // 得到自定义导航信息
-        $nav_id = intval($_GET['nav_id']) ? intval($_GET['nav_id']) : 0;
+        $nav_id = intval(input('nav_id')) ? intval(input('nav_id')) : 0;
         $data['index_sign'] =  $nav_id;
 
         // 根据商品筛选条件 得出存在的一级地区
         if($tid==1) {
             unset($condition['areaid_1']);
-            $area_list = $model_goods->table('goods_common')->alias('gc')->join('area a','gc.areaid_1=a.area_id')->where($condition)->group('a.area_id')->field('a.area_name,a.area_id')->key('area_id')->select();
+            $area_list = $model_goods->name('goods_common')->alias('gc')->join('area a','gc.areaid_1=a.area_id')->where($condition)->group('a.area_id')->field('a.area_name,a.area_id')->cache('area_id')->select();
             $data['area_list'] =  $area_list;
 
             //定义公开课的时间
@@ -843,8 +838,10 @@ class Goods extends  Base
         //loadfunc('search');
 
         // 浏览过的商品
+        $goods = new \app\V1\model\Goods();
         $viewed_goods = $goods->getViewedGoodsList();
         $data['viewed_goods'] = $viewed_goods;
+        //$data['goods_list'] = $goods_list;
         return json_encode($data);
         //$data['goodslist');
 
@@ -857,8 +854,8 @@ class Goods extends  Base
         $condition = array();
 
         //拼接条件
-        if (intval($_GET['cid']) > 0) {
-            $cid = intval($_GET['cid']);
+        if (intval(input('cid')) > 0) {
+            $cid = intval(input('cid'));
             $model = new \app\V1\model\Goods();
             $goods_class = $model->H('goods_class') ? $model->H('goods_class') : $model->H('goods_class', true);
             $depth = $goods_class[$cid]['depth'];

@@ -243,7 +243,7 @@ class Search extends Model
         //先查找$hash_key缓存
         $base = new Base();
         $data = $base->rcache($hash_key,'search_p');
-        if (!empty($data)) {
+        if (empty($data)) {
             $model_type = new Types();
 
             // 初始化统计数据为0
@@ -254,11 +254,12 @@ class Search extends Model
             $data = $class_array[$param['gc_id']];
             $child = (!empty($data['child'])) ? explode(',', $data['child']) : array();
             $childchild = (!empty($data['childchild'])) ? explode(',', $data['childchild']) : array();
+            //if(isset($data['gcid_array']))
             $data['gcid_array'] = array_merge(array($param['gc_id']), $child, $childchild);
             //print_r($data);die;
-            if (!empty($data) && count($data['gcid_array']) == 1) {
+            if (!empty($data) && isset($data['gcid_array']) && count($data['gcid_array']) == 1) {
                 // 根据属性查找商品
-                if (is_array($param['attr_id'])) {
+                if (isset($param['attr_id']) && is_array($param['attr_id'])) {
                     // 商品id数组
                     $goodsid_array = array();
                     $data['sign'] = false;
@@ -397,7 +398,7 @@ class Search extends Model
             if (!empty($gc_list[$value[0]])){   // 一级
                 $tpl_data[$value[0]]['gc_id'] = $gc_list[$value[0]]['gc_id'];
                 $tpl_data[$value[0]]['gc_name'] = $gc_list[$value[0]]['gc_name'];
-                if (!empty($gc_list[$value[0]]['class2'][$value[1]])) { // 二级
+                if (isset($value[1]) && isset($gc_list[$value[0]]['class2'][$value[1]])) { // 二级
                     $tpl_data[$value[0]]['class2'][$value[1]]['gc_id'] = $gc_list[$value[0]]['class2'][$value[1]]['gc_id'];
                     $tpl_data[$value[0]]['class2'][$value[1]]['gc_name'] = $gc_list[$value[0]]['class2'][$value[1]]['gc_name'];
                     if (!empty($gc_list[$value[0]]['class2'][$value[1]]['class3'][$value[2]])) {    // 三级

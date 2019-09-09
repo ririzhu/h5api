@@ -90,9 +90,14 @@ class Goods extends Model
         if(!$order){
             $order = 'gid asc';
         }
-        $condition['goods_state']   = self::STATE1;
-        $condition['goods_verify']  = self::VERIFY1;
-        $condition = $this->_getRecursiveClass($condition);
+        if(is_array($condition)) {
+            $condition['goods_state'] = true;
+            $condition['goods_verify'] = "" . self::VERIFY1 . "";
+            $condition = $this->_getRecursiveClass($condition);
+        }else{
+            $condition.=" and goods_state = true";
+            $condition.=" and goods_verify =" . self::VERIFY1 . "";
+        }
         $field = "goods_commonid as jmys_distinct ," . $field;
         $count = $this->getGoodsOnlineCount($condition,"distinct goods_commonid");
         $goods_list = array();
@@ -152,8 +157,12 @@ class Goods extends Model
      * @return array
      */
     public function getGoodsOnlineList($condition, $field = '*', $page = 0, $order = 'gid desc', $limit = 50, $group = '', $lock = false, $count = 0) {
-        $condition['goods_state']   = self::STATE1;
-        $condition['goods_verify']  = self::VERIFY1;
+        if(is_array($condition)) {
+            $condition['goods_state'] = self::STATE1;
+            $condition['goods_verify'] = self::VERIFY1;
+        }else{
+            $condition.="  and goods_state=".self::STATE1." and goods_verify=".self::VERIFY1;
+        }
         //echo $lock;die;
         //if(APP_ID=='mall' || APP_ID=='cmobile'){
          //   $condition['sites'] = ['exp',"FIND_IN_SET('".LANG_TYPE."',sites)"];
@@ -947,9 +956,15 @@ class Goods extends Model
      * @return int
      */
     public function getGoodsOnlineCount($condition, $field = '*', $group = '') {
-        $condition['goods_state']   = self::STATE1;
-        $condition['goods_verify']  = self::VERIFY1;
-        return $this->table('bbc_goods')->where($condition)->group($group)->count($field);
+        if(is_array($condition)) {
+            $condition['goods_state'] = true;
+            $condition['goods_verify'] = true;
+        }else{
+            $condition.=" and goods_state=1 and goods_verify=1 ";
+        }
+        //echo $condition;
+        $result=DB::name('goods')->where($condition)->group($group)->select();
+        return count($result);
     }
     /**
      * 获得商品数量
@@ -1030,7 +1045,7 @@ class Goods extends Model
      */
     public function getGoodsImageList($condition, $field = '*', $order = 'is_default desc,goods_image_sort asc') {
         $this->cls();
-        return $this->table('bbc_goods_images')->field($field)->where($condition)->order($order)->select();
+        return DB::table('bbc_goods_images')->field($field)->where($condition)->order($order)->select();
     }
     /**
      * 清空MODEL中的options、table_name属性
