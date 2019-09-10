@@ -11,112 +11,7 @@ class Base extends Controller
      * init
      */
     public  function __construct() {
-        // config info
-        $headInfo = Request()->header();
-       // Lang::load( "\lang\$headInfo['content-language']\$headInfo['content-language'].php");
-
-
         global $setting_config;
-        //self::parse_conf($setting_config);
-        /*define('MD5_KEY',md5($setting_config['md5_key']));
-        if(function_exists('date_default_timezone_set')){
-            if (is_numeric($setting_config['time_zone'])){
-                @date_default_timezone_set('Asia/Shanghai');
-            }else{
-                @date_default_timezone_set($setting_config['time_zone']);
-            }
-        }*/
-        //session start
-        //self::start_session();
-//短消息检查
-        //$this->checkMessage();
-        //购物车商品种数查询
-        //$this->queryCart();
-
-        //$this->getMemberAndGradeInfo(false);
-        //检查会员登录权限
-        //$this->checkMemberLogin();
-        //pc端是否禁止
-        //$this->checkpcopen();
-
-        //$city_logic = Logic('city_site');
-        //$city_logic -> checkDomain($_SERVER['HTTP_HOST']);
-
-        //获取所有的开启的城市分站和热门推荐城市分站
-        //$cityList = $city_logic->getCityAndHotList();
-        //$sldCityList = $cityList['citylist'];
-        //$sldHotCityList = $cityList['hotlist'];
-
-        //根据域名获取相应的绑定的城市分站信息
-        //$curCityInfo = $city_logic->getUrlCity($_SERVER['HTTP_HOST']);
-
-        // 获取 商品分类导航的样式
-        //$base_setting = H('setting');
-        //$goods_class_style = isset($base_setting['goods_class_style']) ? intval($base_setting['goods_class_style']) : 1;
-        //$goods_class_style_max_num = array(1=>14,2=>8);
-
-        //Template::output('goods_class_style',$goods_class_style);
-        //Template::output('goods_class_style_max_num',$goods_class_style_max_num);
-
-        //Language::read('common,home_layout');
-
-        //Template::setDir('home');
-        //$nav = H('nav')?:H('nav',true);
-        //foreach ($nav as $k=>$v){
-            //if($v['lang']!=LANG_TYPE){
-                //unset($nav[$k]);
-            //}
-        //}
-
-        //Template::output('nav_list',$nav);
-        //Template::output('sldCityList',$sldCityList);
-        //Template::output('sldHotCityList',$sldHotCityList);
-        //Template::output('curCitySite',$curCityInfo);
-//        Template::setLayout('home_layout');
-        //       Template::output('hot_search',@explode(',',C('hot_search')));
-        //获得语言
-        //$langlist = Model('lang_sites')->where(['state'=>1])->select();
-//        Template::output('langlist',$langlist);
-
-        //$model_class = Model('goods_class');
-        //$goods_class = $model_class->get_all_category();
-        //$model_channel = Model('web_channel');
-        //$goods_channel = $model_channel->getChannelList(array('channel_show'=>'1'));
-        //foreach ($goods_class as $key => $value) {
-            // foreach ($goods_channel as $k=> $v) {
-            //     if($value['gc_id']==$v['gc_id']){
-            //         $goods_class[$value['gc_id']]['channel_gc_id'] =$v['gc_id'];
-            //         $goods_class[$value['gc_id']]['channel_id'] =$v['channel_id'];
-            //     }
-            //     if(!empty($value['class2'])&&is_array($value['class2'])){
-            //         foreach ($value['class2'] as $kk=> $vv) {
-            //             if($vv['gc_id']==$v['gc_id']){
-            //                 $goods_class[$value['gc_id']]['class2'][$vv['gc_id']]['channel_gc_id'] =$v['gc_id'];
-            //                 $goods_class[$value['gc_id']]['class2'][$vv['gc_id']]['channel_id'] =$v['channel_id'];
-            //             }
-            //         }
-            //     }
-            // }
-            // 获取专题ID
-            //$model_web_home_page = Model('web_home_page');
-            //$goods_class[$value['gc_id']]['topic_id'] = $model_web_home_page->getTopicIdByGcId($value['gc_id']);
-            //if(!empty($value['class2'])&&is_array($value['class2'])){
-                //foreach ($value['class2'] as $kk=> $vv) {
-                    //$goods_class[$value['gc_id']]['class2'][$vv['gc_id']]['topic_id'] = $model_web_home_page->getTopicIdByGcId($vv['gc_id']);
-                //}
-            //}
-        //}
-//        Template::output('show_goods_class',$goods_class);
-//        echo '<pre>';
-//        print_r($goods_class);die;
-
-        //if ($_GET['column'] && strtoupper(CHARSET) == 'GBK'){
-            //$_GET = Language::getGBK($_GET);
-        //}
-        //$this->articles();//文章输出
-        //if(!C('site_status')) ShowQuillContent(C('closed_reason'),'<div class="container">网站正在升级，给您带来的不便深感抱歉</div>');
-        // 自动登录
-        //$this->auto_login();
     }
     /**
      * get setting
@@ -153,9 +48,6 @@ class Base extends Controller
         }
 
         $setting_config = array_merge_recursive($setting,$bbc_config);
-    }
-    public function test(){
-        echo "whello ,vechain";
     }
     /**
      * KV缓存 读

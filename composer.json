@@ -21,7 +21,8 @@
         "topthink/think-captcha": "2.0.*",
         "yunpian/yunpian-php-sdk" : "~1.0",
         "okcoder/think-addons": "^1.0",
-        "topthink/think-queue": "2.0.3"
+        "topthink/think-queue": "2.0.3",
+        "predis/predis": "^1.1"
     },
     "autoload": {
         "psr-4": {

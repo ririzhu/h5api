@@ -3,8 +3,12 @@
 namespace app\V1\controller;
 
 use app\V1\controller\Base;
+use app\V1\model\Area;
+use app\V1\model\Message;
+use think\cache\driver\Redis;
 use think\db;
 use think\captcha\Captcha;
+use think\cache;
 
 class Index extends Base
 {
@@ -81,5 +85,117 @@ class Index extends Base
             ->group('bbc_red_info.red_id')
             ->page($page)->order($order)->limit($limit)->select();
         return $red_list;
+    }
+    //选择地区城市
+    public function get_city(){
+        $id = input("id",99999999);
+        $md = new Area();
+        $type = input("type",2);
+        $word=$type == 2? lang('省份'): ($type==3? lang("市"):lang("区"));
+        $pro = $md->getAreaList(['area_parent_id'=>$id,'area_deep'=>$type], 'area_id,(case when merger_name is not null then name else area_name end) as area_name','',0);
+        return json_encode($pro,true);
+    }
+    /**
+     * 首页内容
+     */
+    function homePage(){echo 1;die;
+        $redis = new Redis();
+        $lang = input("lang","zh_cn");
+        if($lang == "en"){
+            $store_id = 13;
+        }
+        else{
+            $store_id = 0;
+        }
+        if($redis->has("homepage")){
+            $data['data']=$redis->get("homepage");
+        }else{
+        //获取轮播图数据
+            $result = DB::name("tpl_data")->where("sld_shop_id=$store_id and sld_tpl_type = 6")->field("sld_tpl_data")->find();
+            $serializeData = $result['sld_tpl_data'];
+            $imagelist = unserialize($serializeData)['pic_list'];
+            $result = array();
+            foreach($imagelist as $k=>$v){
+                $result[$k]['pic'] = DB::name("fixture_album_pic")->field("sld_pic_name,sld_pic_width,sld_pic_height")->where("id=".$v['pic_id'])->find();
+            }
+            $data['album'] = $result;
+            //获取通知
+            $data['annoucelist'] = DB::name("article")->where("acid=1")->order("article_sort",'desc')->select();
+            //热门课程
+            //教师列表
+            $field = '*';
+            $teachers = DB::name('member')->alias('m')->field($field)->join('teacher_extend e','m.member_id=e.member_id')->limit(9)->select();
+
+            //行业
+            $trade_list = DB::name('teacher_trade')->field("trade_id,trade_name")->select();
+            foreach ($trade_list as $val){
+                $arr1[] = $val['trade_id'];
+                $arr2[] = $val['trade_name'];
+            }
+            foreach ($teachers as &$val) {
+                $arr= explode(',',$val['trades']);
+                $res = str_replace($arr1,$arr2,$arr);
+                $res = implode(',',$res);
+                $val['trades'] = $res;
+            }
+            $data['teachers'] = $teachers;
+            //培训
+            $trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
+            $data['peixun'] = $trade_list;
+            $redis->set("homepage",$data);
+            $data=array();
+            $data['data'] = $redis->get("homepage");
+        }
+        return json_encode($data,true);
+    }
+    function messageCount(){
+        if(!input("member_id")){
+            return json_encode($data['count']=0,true);
+        }
+        $memberId = input("member_id");
+        //查询新接收到普通的消息
+        $newcommon = $this->receivedCommonNewNum($memberId);
+        //查询新接收到系统的消息
+        $newsystem = $this->receivedSystemNewNum($memberId);
+        //查询新接收到卖家的消息
+        $newpersonal = $this->receivedPersonalNewNum($memberId);
+        $count = $newcommon + $newsystem + $newpersonal;
+        $data['count'] = $count;
+        return json_encode($data);
+    }
+    /**
+     * 统计收到站内信未读条数
+     *
+     * @return int
+     */
+    private function receivedCommonNewNum($memberId){
+        $model_message	= new Message();
+        $countnum = $model_message->countMessage(array('message_type'=>'2','to_member_id_common'=>$memberId,'no_message_state'=>'2','message_open_common'=>'0'));
+        return $countnum;
+    }
+    /**
+     * 统计系统站内信未读条数
+     *
+     * @return int
+     */
+    private function receivedSystemNewNum($memberId){
+        $message_model =  new Message();
+        $condition_arr = array();
+        $condition_arr['message_type'] = '1';//系统消息
+        $condition_arr['to_member_id'] = $memberId;
+        $condition_arr['no_del_member_id'] = $memberId;
+        $condition_arr['no_read_member_id'] = $memberId;
+        $countnum = $message_model->countMessage($condition_arr);
+        return $countnum;
+    }
+    /**
+     * 统计私信未读条数
+     *
+     * @return int
+     */
+    private function receivedPersonalNewNum($memberId){
+        $model_message = new Message();
+        $countnum = $model_message->countMessage(array('message_type'=>'0','to_member_id_common'=>$memberId,'no_message_state'=>'2','message_open_common'=>'0'));
+        return $countnum;
     }
 }

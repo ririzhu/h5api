@@ -352,7 +352,8 @@ class Search extends Model
     public function getTagCategory($keyword = '') {
         if ($keyword != '') {
             // 跟据class_tag缓存搜索出与keyword相关的分类
-            $tag_list = ($tag = $this->H('class_tag')) ? $tag : $this->H('class_tag', true);
+            $tag_list = ($tag = $this->H('bbc_class_tag')) ? $tag : $this->H('bbc_class_tag', true);
+            $data = array();
             if (!empty($tag_list) && is_array($tag_list)) {
                 foreach($tag_list as $key => $val) {
                     $tag_value = str_replace(',', '==DYMall==', $val['gc_tag_value']);

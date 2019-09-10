@@ -3,7 +3,7 @@ namespace app\V1\model;
 
 use app\V1\controller\Base;
 use think\Model;
-
+use think\db;
 class Area extends Model
 {
     public function __construct() {
@@ -23,7 +23,7 @@ class Area extends Model
      * @return mixed
      */
     public function getAreaList($condition = array(), $fields = '*', $group = '', $page = null) {
-        return $this->where($condition)->field($fields)->page($page)->limit(false)->order('area_name asc')->group($group)->select();
+        return DB::name("world_area")->where($condition)->field($fields)->page($page)->limit($page,100000)->order('area_name asc')->group($group)->select();
     }
 
     /**

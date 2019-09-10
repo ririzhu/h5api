@@ -535,7 +535,8 @@ class Goods extends  Base
             //虚拟销量
             if(Config('virtual_sale')){
                 if($order == 'goods_salenum'){
-                    $order = 'goods_salenum+virtual_sale';
+                    //$order = '(goods_salenum+virtual_sale) as goods_salenum';
+                    $order = 'goods_salenum';
                 }
             }
             $order .= ' '.$sequence;
@@ -571,6 +572,7 @@ class Goods extends  Base
                 }
                 if (input('keyword') != '') {
                     $condition['goods_name'] = array('like', '%' . input('keyword') . '%');
+                    $conditionstr .= " and goods_name like '%".input('keyword') . "%'";
                 }
                 //如果搜索的一级地区id跟当前绑定的城市分站一级id一致，正常搜索，不一致的话，以信息
 
@@ -580,12 +582,15 @@ class Goods extends  Base
                 if (in_array(input('t'), array(1,2))) {
                     if (input('t') == 1) {
                         $condition['is_own_shop'] = 1;
+                        $conditionstr.=" and is_own_shop=1";
                     } else if (input('t') == 2) {
                         $condition['is_own_shop'] = 0;
+                        $conditionstr.=" and is_own_shop=0";
                     }
                 }
                 if (isset($data_attr['goodsid_array'])){
                     $condition['gid'] = array('in', $data_attr['goodsid_array']);
+                    $conditionstr.=" and gid  in (".arrayToString($data_attr['goodsid_array']).")";
                 }
 
 
@@ -599,6 +604,7 @@ class Goods extends  Base
                 //商品
                 if(!empty($gids)){
                     $condition['gid'] = array('in',arrayToString($gids));
+                    $conditionstr.=" and gid in (".arrayToString($gids).")";
                 }else if(!empty($gc_ids) && input('store_self') == 1){//自营店分类
                     $condition['gc_id_1'] = array('in',implode(",",$gc_ids));
                     //获取与所有的自营店
@@ -611,8 +617,10 @@ class Goods extends  Base
                     $condition['vid'] = array('in',implode(",",$vids));
                 }else if(!empty($gc_ids) && input('store_self') != 1){//所有店铺分类
                     $condition['gc_id_1'] = array('in',$gc_ids);
+                    $conditionstr .="gc_id_1 in (".arrayToString($gc_ids).")";
                 }else if(input('red_vid')){//如果没有指定商品和分类 判断店铺优惠券
                     $condition['vid'] = input('red_vid');
+                    $conditionstr.=" and vid=".input("red_vid");
                 }else if(input('store_self') == 1){//自营店所有商品
                     //获取与所有的自营店
                     $model_vendor = new VendorInfo();
@@ -622,6 +630,7 @@ class Goods extends  Base
                         $vids[] = $v['vid'];
                     }
                     $condition['vid'] = array('in',arrayToString($vids));
+                    $conditionstr .= " and vid in (".arrayToString($vids).")";
                 }
 
                 //公开课时间筛选
@@ -890,8 +899,8 @@ class Goods extends  Base
         $order = array();
         $order['key'] = 'gid';
         $order['value'] = false;
-        if (in_array($_GET['key'],array('1','2','3'))) {
-            $order['value'] = $_GET['sort'] == '1' ? true : false;
+        if (in_array(input('key'),array('1','2','3'))) {
+            $order['value'] = input('sort') == '1' ? true : false;
             $order['key'] = str_replace(array('1','2','3'), array('goods_salenum','goods_click','goods_price'), $_GET['key']);
         }
 
