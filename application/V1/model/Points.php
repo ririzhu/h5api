@@ -1,6 +1,7 @@
 <?php
 namespace app\V1\model;
 
+use app\V1\controller\Order;
 use think\Model;
 use think\db;
 use think\queue;
@@ -30,10 +31,17 @@ class Points extends Model
                 $insertarr['pl_points'] = intval($GLOBALS['setting_config']['points_reg']);
                 break;
             case 'login':
-                if (!$insertarr['pl_desc']){
+                if (!isset($insertarr['pl_desc'])){
                     $insertarr['pl_desc'] = '会员登录';
                 }
-                $insertarr['pl_points'] = intval($GLOBALS['setting_config']['points_login']);
+//                $insertarr['pl_points'] = intval($GLOBALS['setting_config']['points_login']);
+                $insertarr['pl_points'] = config('points_login');
+                break;
+            case 'login_week':
+                if (!isset($insertarr['pl_desc'])){
+                    $insertarr['pl_desc'] = '会员连续7天登录奖励';
+                }
+                $insertarr['pl_points'] = config('points_login_week');
                 break;
             case 'comments':
                 if (!$insertarr['pl_desc']){
@@ -64,7 +72,7 @@ class Points extends Model
                     }
                 }
                 //订单添加赠送积分列
-                $obj_order = Model('order');
+                $obj_order = new Order();
                 $data = array();
                 $data['order_pointscount'] = array('exp','order_pointscount+'.$insertarr['pl_points']);
                 $obj_order->editOrderCommon($data,array('order_id'=>$insertarr['order_id']));
@@ -143,7 +151,7 @@ class Points extends Model
             //检测是否有相关信息存在，如果没有，入库
             $condition['pl_memberid'] = $insertarr['pl_memberid'];
             $condition['pl_stage'] = $stage;
-            $log_array = self::getPointsInfo($condition,$page);
+            $log_array = self::getPointsInfo($condition);
             if (!empty($log_array)){
                 $save_sign = false;
             }
@@ -181,7 +189,8 @@ class Points extends Model
 //			$upmember_array['member_points'] = array('sign'=>'increase','value'=>$insertarr['pl_points']);
 //			$obj_member->updateMember($upmember_array,$insertarr['pl_memberid']);
             $upmember_array['member_points'] = array('inc','member_points+'.$insertarr['pl_points']);
-            $obj_member->editMember(array('member_id'=>$insertarr['pl_memberid']),$upmember_array);
+//            $obj_member->editMember(array('member_id'=>$insertarr['pl_memberid']),$upmember_array); //zhengyifan注释的 2019-09-10
+            DB::name('member')->where('member_id',$insertarr['pl_memberid'])->setInc('member_points',$insertarr['pl_points']); //zhengyifan添加的 2019-09-10
 
             $now_member_info = $obj_member->name('member')->where(array('member_id'=>$value_array['pl_memberid']))->field('member_points')->find();
 
@@ -349,6 +358,19 @@ class Points extends Model
 
             }
             return array('add_days'=>$add_count_days,'total_day'=>$count);
+    }
+
+    /**
+     * add by zhengyifan 2019-09-10
+     * 获取积分记录
+     * @param $condition
+     * @param string $fields
+     * @param string $order
+     * @return array|\PDOStatement|string|\think\Collection
+     */
+    public function getPointList($condition, $fields = '*', $order = '')
+    {
+        return DB::name('points_log')->where($condition)->field($fields)->order($order)->select();
     }
 
 }

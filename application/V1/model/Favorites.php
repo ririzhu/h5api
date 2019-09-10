@@ -20,15 +20,12 @@ class Favorites extends Model
      */
     public function getFavoritesList($condition, $field = '*', $page = 0 , $order = 'fav_time desc') {
         if ($condition['fav_type'] == 'goods') {
-//            $list = DB::table('bbc_favorites')->join('bbc_goods','bbc_goods.gid = bbc_favorites.fav_id')->field('bbc_favorites.*')->where($condition)->page($page)->select();
-            $list = DB::name('favorites')->join('bbc_goods','bbc_goods.gid = bbc_favorites.fav_id')->field('bbc_favorites.*')->where($condition)->limit($page)->select();
+            $list = DB::table('bbc_favorites')->join('bbc_goods','bbc_goods.gid = bbc_favorites.fav_id')->field('bbc_favorites.*')->where($condition)->page($page)->select();
             return $list;
         }else if ($condition['fav_type'] == 'store') {
-//            return DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->page($page)->select();
-            return DB::name('favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->limit($page)->select();
+            return DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->page($page)->select();
         }else{
-//            return DB::table("bbc_favorites")->where($condition)->order($order)->page($page)->select();
-            return DB::name("favorites")->where($condition)->order($order)->limit($page)->select();
+            return DB::table("bbc_favorites")->where($condition)->order($order)->page($page)->select();
         }
     }
 
@@ -230,5 +227,24 @@ class Favorites extends Model
         $Num['return_num']=$this->table('bbc_refund_return')->field('count(*) as count')->where(array('buyer_id'=>$member_id))->find();
         return $Num;
 
+    }
+
+    /**
+     * add by zhengyifan 2019-09-10
+     * 收藏列表
+     * @param array $condition
+     * @param string $fav_type
+     * @param int $limit
+     * @param string $order
+     * @return array|\PDOStatement|string|\think\Collection
+     */
+    public function getFavorites($condition, $fav_type = '', $limit = 20 , $order = 'fav_time desc') {
+        if ($fav_type == 'goods') {
+            return DB::name('favorites')->alias('f')->join('bbc_goods g','g.gid = f.fav_id')->field('f.*')->where($condition)->order($order)->limit($limit)->select();
+        }else if ($fav_type == 'store') {
+            return DB::name('favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->limit($limit)->select();
+        }else{
+            return DB::name("favorites")->where($condition)->order($order)->limit($limit)->select();
+        }
     }
 }

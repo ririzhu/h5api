@@ -232,10 +232,11 @@ class User extends Model
         if(empty($param)) {
             return false;
         }
-        $update		= false;
+        /*$update		= false;
         //得到条件语句
         $condition_str	= " member_id='{$member_id}' ";
-        $update		= Db::update('member',$param,$condition_str);
+        $update		= Db::update('member',$param,$condition_str);*/
+        $update = DB::name('member')->where('member_id',$member_id)->update($param);
         return $update;
     }
     /**
@@ -547,5 +548,53 @@ class User extends Model
      */
     public function getMemberInfo($condition, $field = '*') {
         return DB::name("member")->field($field)->where($condition)->find();
+    }
+
+    /**
+     * add by zhengyifan 2019-09-10
+     * 获取连续登录天数
+     * @param $arr
+     * @param $stage
+     * @return int
+     */
+    public function getLoginDays($arr, $stage)
+    {
+        $memberId = $arr['pl_memberid'];
+        $memberName = $arr['pl_membername'];
+        $points_log = DB::name("points_log")->where(array("pl_stage"=>"login","pl_memberId"=>$memberId))->field("*")->select();
+        $lastAddDay = DB::name("points_log")->where(array("pl_stage"=>"login_week","pl_memberId"=>$memberId))->field("*")->order("pl_id","desc")->find();
+        if(empty($lastAddDay)){
+            $lastday = date("Y-m-d",TIMESTAMP);
+        }else{
+            $lastday = date("Y-m-d",$lastAddDay['pl_addtime']);
+        }
+
+        $login_days = 1;//连续登录天数
+        $count = 0;  //累计登录天数
+        $day_list = [];
+        if (!empty($points_log)){
+            foreach ($points_log as $k=>$v){
+                $day_list[] = $v['pl_addtime'];
+            }
+            $count = count($day_list); //累计登录天数
+        }
+
+        for($i = 0;$i < $count - 1;$i++){
+            $res = date_diff(date_create(date("Y-m-d",$day_list[$i])),date_create(date("Y-m-d",$day_list[$i+1])))->days;
+            if ($res == 1){
+                $login_days++;
+            }else{
+                $login_days = 1;
+            }
+        }
+        if($login_days % 7 == 0){
+            $checkin_stage = "login_week";
+            //如果最后赠送积分的日期不等于今天的日期，就赠送积分
+            if(empty($lastAddDay) || ($lastday != date("Y-m-d",TIMESTAMP))){
+                $points = new Points();
+                $points->savePointsLog($checkin_stage,array('pl_memberid'=>$memberId,'pl_membername'=>$memberName,'pl_points'=>Config('points_checkin_week')));
+            }
+        }
+        return $login_days;
     }
 }

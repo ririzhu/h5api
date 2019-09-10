@@ -7,6 +7,7 @@ namespace app\V1\model;
 use Exception;
 use QueueClient;
 use think\Model;
+use think\Db;
 
 class Predeposit extends Model
 {
@@ -92,13 +93,14 @@ class Predeposit extends Model
 
     /**
      * 取得预存款变更日志列表
-     * @param unknown $condition
-     * @param string $pagesize
+     * @param array $condition
      * @param string $fields
      * @param string $order
+     * @param string $limit
+     * @param string $pagesize
      */
-    public function getPdLogList($condition = array(), $pagesize = '', $fields = '*', $order = '', $limit = '') {
-        return $this->table('pd_log')->where($condition)->field($fields)->order($order)->limit($limit)->page($pagesize)->select();
+    public function getPdLogList($condition, $fields = '*', $order = '', $limit = 10, $pagesize = '') {
+        return DB::name('pd_log')->where($condition)->field($fields)->order($order)->limit($limit)->page($pagesize)->select();
     }
 
     /**

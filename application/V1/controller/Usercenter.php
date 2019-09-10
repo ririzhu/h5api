@@ -2,8 +2,11 @@
 namespace app\V1\controller;
 use app\V1\model\BrowserHistory;
 use app\V1\model\Favorites;
+use app\V1\model\Fenxiao;
 use app\V1\model\GoodsActivity;
 use app\V1\model\Grade;
+use app\V1\model\Points;
+use app\V1\model\Predeposit;
 use app\V1\model\SnsVisitor;
 use app\V1\model\UserCart;
 use app\V1\model\UserOrder;
@@ -277,6 +280,83 @@ class Usercenter extends Base {
         $data['message'] = '成功';
         $data['browser_list'] = $browser_list_new;
 //        $data['browser_list_new_date'] = $browser_list_new_date;
+        return json_encode($data,true);
+    }
+
+    /**
+     * 账户余额变动详情
+     * @return false|string
+     */
+    public function memberPdLog()
+    {
+        if(!input("member_id")){
+            $data['code']=1;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $member_id = input("member_id");
+        $predeposit = new Predeposit();
+        $param = [
+            'lg_member_id' =>$member_id,
+        ];
+        $pd_log = $predeposit->getPdLogList($param);
+        $data['code'] = 0;
+        $data['message'] = '请求成功';
+        $data['pd_log'] = $pd_log;
+        return json_encode($data,true);
+    }
+
+    /**
+     * 我的收益
+     * @return false|string
+     */
+    public function memberIncome()
+    {
+        if(!input("member_id")){
+            $data['code']=1;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $member_id = input("member_id");
+        $fenxiao = new Fenxiao();
+        $param = [
+            'reciver_member_id' =>$member_id,
+        ];
+        $fenxiao_list = $fenxiao->getCommissionInfo($param);
+        $total_income = 0;
+        foreach ($fenxiao_list as $key => $val){
+            if($val['status'] == 1){
+                $total_income += $val['yongjin'];
+            }
+        }
+        $data['code'] = 0;
+        $data['message'] = '请求成功';
+        $data['income_list'] = $fenxiao_list;
+        $data['total_income'] = $total_income;
+        return json_encode($data,true);
+    }
+
+    /**
+     * 我的积分
+     * @return false|string
+     */
+    public function memberPoints()
+    {
+        if(!input("member_id")){
+            $data['code']=1;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $member_id = input("member_id");
+        $points = new Points();
+        $param = [
+            'pl_memberid' =>$member_id,
+        ];
+        $points_list = $points->getPointList($param,'*','pl_addtime desc');
+
+        $data['code'] = 0;
+        $data['message'] = '请求成功';
+        $data['points_list'] = $points_list;
         return json_encode($data,true);
     }
 
