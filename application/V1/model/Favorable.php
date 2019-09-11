@@ -5,7 +5,7 @@ use think\Model;
 use think\db;
 /**
  * Class Favorable
- * @package app\V1\model
+ * @package app\v1\model
  * 满送优惠
  */
 class Favorable extends Model
