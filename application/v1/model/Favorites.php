@@ -270,4 +270,29 @@ class Favorites extends Model
             return DB::name("favorites")->where($condition)->order($order)->limit($limit)->select();
         }
     }
+
+    /**
+     * add by zhengyifan 2019-09-12
+     * 获取收藏数量
+     * @param $condition
+     * @param $type
+     * @return float|string
+     */
+    public function getFavoritesCount($condition,$type) {
+        if ($type == 'goods') {
+            $list = DB::name('favorites')
+                ->alias('f')
+                ->join('bbc_goods g','g.gid = f.fav_id')
+                ->where($condition)
+                ->count();
+            return $list;
+        }else if ($type == 'store') {
+            $list = DB::name('favorites')
+                ->alias('f')
+                ->join('bbc_vendor v','v.vid = f.fav_id')
+                ->where($condition)
+                ->count();
+            return $list;
+        }
+    }
 }

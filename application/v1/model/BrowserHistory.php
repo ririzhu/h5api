@@ -542,7 +542,7 @@ class BrowserHistory extends Model
     /**
      * add by zhengyifan 2019-09-09
      * 获取用户浏览记录
-     * @param $where
+     * @param $condition
      * @param string $field
      * @param string $order
      * @param int $page
@@ -550,7 +550,17 @@ class BrowserHistory extends Model
      * @param string $group
      * @return array|\PDOStatement|string|\think\Collection
      */
-    public function getGoodsBrowseHistory($where, $field = '*', $page = 0, $limit = 10, $order = '', $group = '') {
-        return DB::name('goods_browsehistory')->field($field)->where($where)->page($page)->limit($limit)->order($order)->group($group)->select();
+    public function getGoodsBrowseHistory($condition, $field = '*', $page = 0, $limit = 10, $order = '', $group = '') {
+        return DB::name('goods_browsehistory')->field($field)->where($condition)->page($page)->limit($limit)->order($order)->group($group)->select();
+    }
+
+    /**
+     * add by zhengyifan 2019-09-12
+     * 获取足迹数量
+     * @param $condition
+     * @return float|string
+     */
+    public function getGoodsBrowseHistoryCount($condition) {
+        return DB::name('goods_browsehistory')->where($condition)->count();
     }
 }

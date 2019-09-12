@@ -12,7 +12,7 @@ class Login extends Base {
      */
 	public function index(){
         if(!input("member_name") || !input("member_password")){
-            $data['code']=1;
+            $data['code'] = 10001;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }
@@ -22,12 +22,12 @@ class Login extends Base {
         $field = "member_id,member_name,member_state,member_login_num,member_login_time,member_email,is_buy,member_avatar,member_qqopenid,member_sinaopenid,member_login_ip";
         $member_info = $member->getMemberInfo(array('member_name'=>$member_name,'member_passwd'=>md5($member_password)),$field);
         if (empty($member_info)){
-            $data['code']=2;
+            $data['code'] = 10002;
             $data['message'] = lang("用户名或者密码错误");
             return json_encode($data,true);
         }
         if ($member_info['member_state'] == 0){
-            $data['code']=3;
+            $data['code'] = 10003;
             $data['message'] = lang("账号被停用");
             return json_encode($data,true);
         }
@@ -58,7 +58,7 @@ class Login extends Base {
         //如果连续登录7天,奖励积分
         $member->getLoginDays(array('pl_memberid'=>$member_info['member_id'],'pl_membername'=>$member_info['member_name']));
 
-        $data['code'] = 0;
+        $data['code'] = 200;
         $data['message'] = lang("登录成功");
         $data['member_info'] = $member_info;
         return json_encode($data,true);
