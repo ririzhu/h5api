@@ -23,7 +23,30 @@ class Favorites extends Model
             $list = DB::table('bbc_favorites')->join('bbc_goods','bbc_goods.gid = bbc_favorites.fav_id')->field('bbc_favorites.*')->where($condition)->page($page)->select();
             return $list;
         }else if ($condition['fav_type'] == 'store') {
-            return DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*')->where($condition)->order($order)->page($page)->select();
+            if($order == "sale"){
+                return DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*,v.store_desccredit')->where($condition)->order($order)->page($page)->select();
+            }
+            else{
+                $data = DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*,v.store_desccredit')->where($condition)->order($order)->page($page)->select();
+                $storeids = "";
+                if(!empty($data)){
+                    foreach($data as $k=>$v){
+                        $storeids.=$v['vid'].",";
+                    }
+                    $storeids=substr($storeids,0,strlen($storeids)-1);
+                    $storeArr = DB::name("goods")->where(" vid in($storeids)")->group("vid")->field("vid")->order(["goods_promotion_type","vid"=>"asc"])->select();
+                    $return =array();
+                    foreach($storeArr as $kk=>$vv){
+                        foreach($data as $aa=>$bb){
+                            if($vv['vid'] == $bb['vid']){
+                                $return[$kk]=$bb;
+                            };
+                        }
+                    }
+                    return $return;
+                }
+            }
+            return DB::table('bbc_favorites')->alias('f')->join('bbc_vendor v','v.vid = f.fav_id')->field('f.*,v.store_desccredit')->where($condition)->order($order)->page($page)->select();
         }else{
             return DB::table("bbc_favorites")->where($condition)->order($order)->page($page)->select();
         }

@@ -120,6 +120,7 @@ class Follow extends Base
             $data['message'] = lang("缺少参数");
             return json_encode($data);
         }
+        $page = input("page",0);
         $data['error_code'] = 200;
         $memberId = input("member_id");
         $favorites_model = new Favorites();
@@ -128,8 +129,10 @@ class Follow extends Base
         $store_array = array('list'=>'favorites_goods_index','pic'=>'favorites_goods_picshowlist','store'=>'favorites_goods_shoplist');
         //if (array_key_exists($show,$store_array)) $show_type = $store_array[$show];
 
-        $favorites_list = $favorites_model->getGoodsFavoritesList(array('member_id'=>$memberId), '*', 0);
-        $data['favorites_list'] = $favorites_list;
+        $favorites_list = $favorites_model->getGoodsFavoritesList(array('member_id'=>$memberId), '*', $page);
+        foreach($favorites_list as $k=>$v){
+            $favorites_list[$k]['count'] = ($favorites_model->getOneFavorites(array("goods_name"=>$v['goods_name']),'count(1) as count'))['count'];
+        }
         //Template::output('show_page',$favorites_model->showpage(2));
         if (!empty($favorites_list) && is_array($favorites_list)){
             $favorites_id = array();//收藏的商品编号
@@ -142,7 +145,7 @@ class Follow extends Base
             }
             $ids =substr($ids,0,strlen($ids)-1);
             $goods_model = new \app\v1\model\Goods();
-            $field = 'goods.gid,goods.goods_name,goods.vid,goods.goods_image,goods.goods_price,goods.evaluation_count,goods.goods_salenum,goods.goods_collect,vendor.store_name,vendor.member_id,vendor.member_name,vendor.store_qq,vendor.store_ww,vendor.store_domain';
+            $field = 'goods.gid,goods.goods_name,goods.vid,goods.goods_image,goods.goods_price,goods.evaluation_count,goods.goods_salenum,goods.goods_collect,goods.goods_price,vendor.store_name,vendor.member_id,vendor.member_name,vendor.store_qq,vendor.store_ww,vendor.store_domain';
             $goods_list = $goods_model->getGoodsStoreList(array('gid' => array('in', $ids)), $field);
 
             // 获取最终价格
@@ -162,6 +165,7 @@ class Follow extends Base
                     $store_goods_list[$vid][] = $favorites_list[$key];
                 }
             }
+            //print_r($store_goods_list);die;
             $data['store_goods_list']=$store_goods_list;
             $store_favorites = array();//店铺收藏信息
             if (!empty($store_array) && is_array($store_array)){
@@ -173,6 +177,8 @@ class Follow extends Base
                     }
                 }
             }
+            $data['favorites_list'] = $favorites_list;
+
             $data['store_favorites']=$store_favorites;
         }
         return json_encode($data,true);
@@ -189,16 +195,25 @@ class Follow extends Base
             $data['message'] = lang("缺少参数");
             return json_encode($data);
         }
+        $inputorder = input("order",0);
+        if($inputorder==0){
+            $order = "log_id desc";
+        }
+        else{
+            $order = "sale desc";
+        }
+        $page = input("page",0);
         $memberId = input("member_id");
         $data['error_code'] = 200;
         $favorites_model = new Favorites();
-        $favorites_list = $favorites_model->getStoreFavoritesList(array('bbc_favorites.member_id'=>$memberId), '*', 0);
+        $favorites_list = $favorites_model->getStoreFavoritesList(array('bbc_favorites.member_id'=>$memberId), '*', $page,$order);
         if (!empty($favorites_list) && is_array($favorites_list)){
             $favorites_id = array();//收藏的店铺编号
             foreach ($favorites_list as $key=>$favorites){
                 $fav_id = $favorites['fav_id'];
                 $favorites_id[] = $favorites['fav_id'];
                 $favorites_key[$fav_id] = $key;
+                $favorites_list[$key]['count'] = ($favorites_model->getOneFavorites(array("vid"=>$favorites['vid']),'count(1) as count'))['count'];
             }
             $store_model = new VendorInfo();
             $store_list = $store_model->getStoreList(array('vid'=>array('in', arrayToString($favorites_id))));

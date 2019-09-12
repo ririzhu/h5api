@@ -141,13 +141,13 @@ class Index extends Base
             $ga = new GoodsActivity();
             $goods_list = $ga->rebuild_goods_data($goods_list,'web');
             foreach ($goods_list as $k=>$v){
-                if(!isset($goods_list[$v])) {
+               // if($goods_list[$v]) {
                     $lession[$k]['goods_name'] = $v['goods_name'];
                     $lession[$k]['gid'] = $v['gid'];
                     $lession[$k]['goods_price'] = $v['goods_price'];
                     $lession[$k]['goods_image'] = $v['goods_image'];
-                }
-            }
+               //}
+             }
             $data['hot_lession'] = $lession;
                 //教师列表
             $field = '*';

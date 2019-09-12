@@ -10,7 +10,9 @@ class Chongzhi extends  Base
      */
     public function chongzhilist(){
         if(!input("member_id")){
-            return null;
+            $data['message'] = lang("缺少参数");
+            $data['error_code'] = 10016;
+            return json_encode($data,true);
         }
         $page = input("page",0);
         $model_pd = new Predeposit();
@@ -25,9 +27,6 @@ class Chongzhi extends  Base
         //查询用户信息
         $model_member = new \app\v1\model\User();
         $member_info = $model_member->infoMember(array('member_id'=>input("member_id")));
-        if (!is_array($member_info) || count($member_info)<=0){
-            //showMsg(Language::get('会员信息错误'),'index.php?app=usercenter','html','error');
-        }
         $data['list'] = $list;
         return json_encode($data,true);
     }
