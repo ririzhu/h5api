@@ -145,6 +145,7 @@ class Index extends Base
                     $lession[$k]['goods_name'] = $v['goods_name'];
                     $lession[$k]['gid'] = $v['gid'];
                     $lession[$k]['goods_price'] = $v['goods_price'];
+                    $lession[$k]['goods_image'] = $v['goods_image'];
                 }
             }
             $data['hot_lession'] = $lession;
