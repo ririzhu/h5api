@@ -141,7 +141,7 @@ class Index extends Base
             $ga = new GoodsActivity();
             $goods_list = $ga->rebuild_goods_data($goods_list,'web');
             foreach ($goods_list as $k=>$v){
-                if(!empty($goods_list[$v])) {
+                if(!isset($goods_list[$v])) {
                     $lession[$k]['goods_name'] = $v['goods_name'];
                     $lession[$k]['gid'] = $v['gid'];
                     $lession[$k]['goods_price'] = $v['goods_price'];
@@ -168,7 +168,7 @@ class Index extends Base
             //培训
             $trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
             $data['peixun'] = $trade_list;
-            $redis->set("homepage",$data);
+            $redis->set("homepage",$data,120);
             $data=array();
             $data['data'] = $redis->get("homepage");
         }
