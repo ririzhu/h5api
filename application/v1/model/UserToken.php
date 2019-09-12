@@ -2,6 +2,7 @@
 namespace app\v1\model;
 
 use think\Model;
+use think\Db;
 
 class UserToken extends Model
 {public function __construct(){
@@ -39,7 +40,8 @@ class UserToken extends Model
      * @return bool 布尔类型的返回结果
      */
     public function addMbUserToken($param){
-        return $this->insert($param);
+//        return $this->insert($param);
+        return DB::name("mb_user_token")->insert($param);
     }
 
     /**

@@ -190,7 +190,7 @@ class Points extends Model
 //			$obj_member->updateMember($upmember_array,$insertarr['pl_memberid']);
             $upmember_array['member_points'] = array('inc','member_points+'.$insertarr['pl_points']);
 //            $obj_member->editMember(array('member_id'=>$insertarr['pl_memberid']),$upmember_array); //zhengyifan注释的 2019-09-10
-            DB::name('member')->where('member_id',$insertarr['pl_memberid'])->setInc('member_points',$insertarr['pl_points']); //zhengyifan添加的 2019-09-10
+            $res = DB::name('member')->where('member_id',$insertarr['pl_memberid'])->setInc('member_points',$insertarr['pl_points']); //zhengyifan添加的 2019-09-10
 
             $now_member_info = $obj_member->name('member')->where(array('member_id'=>$value_array['pl_memberid']))->field('member_points')->find();
 
@@ -216,7 +216,11 @@ class Points extends Model
                 //Queue::push('sendMemberMsg', $param);
             }
 
-            return true;
+            if ($res){
+                return true;
+            }else{
+                return false;
+            }
         }else {
             return false;
         }

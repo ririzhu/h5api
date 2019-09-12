@@ -552,17 +552,24 @@ class User extends Model
 
     /**
      * add by zhengyifan 2019-09-10
-     * 获取连续登录天数
-     * @param $arr
-     * @param $stage
-     * @return int
+     * 连续登录7天额外获得积分
+     * @param $param
+     * @return bool
      */
-    public function getLoginDays($arr, $stage)
+    public function getLoginDays($param)
     {
-        $memberId = $arr['pl_memberid'];
-        $memberName = $arr['pl_membername'];
-        $points_log = DB::name("points_log")->where(array("pl_stage"=>"login","pl_memberId"=>$memberId))->field("*")->select();
-        $lastAddDay = DB::name("points_log")->where(array("pl_stage"=>"login_week","pl_memberId"=>$memberId))->field("*")->order("pl_id","desc")->find();
+        $memberId = $param['pl_memberid'];
+        $memberName = $param['pl_membername'];
+        $points_log = DB::name("points_log")
+            ->where(array("pl_stage"=>"login","pl_memberId"=>$memberId))
+            ->field("*")
+            ->order("pl_addtime desc")
+            ->select();
+        $lastAddDay = DB::name("points_log")
+            ->where(array("pl_stage"=>"login_week","pl_memberId"=>$memberId))
+            ->field("*")
+            ->order("pl_id","desc")
+            ->find();
         if(empty($lastAddDay)){
             $lastday = date("Y-m-d",TIMESTAMP);
         }else{
@@ -584,17 +591,73 @@ class User extends Model
             if ($res == 1){
                 $login_days++;
             }else{
-                $login_days = 1;
+                break;
             }
         }
         if($login_days % 7 == 0){
-            $checkin_stage = "login_week";
             //如果最后赠送积分的日期不等于今天的日期，就赠送积分
             if(empty($lastAddDay) || ($lastday != date("Y-m-d",TIMESTAMP))){
                 $points = new Points();
-                $points->savePointsLog($checkin_stage,array('pl_memberid'=>$memberId,'pl_membername'=>$memberName,'pl_points'=>Config('points_checkin_week')));
+                $res = $points->savePointsLog("login_week",array('pl_memberid'=>$memberId,'pl_membername'=>$memberName));
+                if ($res){
+                    return true;
+                }else{
+                    return false;
+                }
             }
         }
-        return $login_days;
+        return true;
+    }
+
+    /**
+     * 登录时创建会话SESSION
+     *
+     * @param array $member_info 会员信息
+     */
+    public function createSession($member_info = array()) {
+        if (empty($member_info) || !is_array($member_info)) return ;
+        $_SESSION['is_login']	= '1';
+        $_SESSION['member_id']	= $member_info['member_id'];
+        $_SESSION['member_name']= $member_info['member_name'];
+        $_SESSION['member_email']= $member_info['member_email'];
+        $_SESSION['is_buy']		= $member_info['is_buy'];
+        $_SESSION['avatar'] 	= $member_info['member_avatar'];
+        $seller = new Seller();
+        $vendorinfo = $seller->getSellerInfo(array('member_id'=>$_SESSION['member_id']));
+        $_SESSION['vid'] = $vendorinfo['vid'];
+        if (trim($member_info['member_qqopenid'])){
+            $_SESSION['openid']		= $member_info['member_qqopenid'];
+        }
+        if (trim($member_info['member_sinaopenid'])){
+            $_SESSION['slast_key']['uid'] = $member_info['member_sinaopenid'];
+        }
+        if(!empty($member_info['member_login_time'])) {//登录时间更新
+            $update_info	= array(
+                'member_login_time'=> time(),
+                'member_old_login_time'=> $member_info['member_login_time'],
+                'member_login_ip'=> getIp(),
+                'member_old_login_ip'=> $member_info['member_login_ip']
+            );
+            $this->updateMember($update_info,$member_info['member_id']);
+        }
+        // 自动登录
+        /*if ($member_info['auto_login'] == 1) {
+            $this->auto_login();
+        }*/
+
+        $model_mb_user_token = new UserToken();
+
+        //生成新的token
+        $mb_user_token_info = array();
+        $token = md5($member_info['member_name'] . strval(TIMESTAMP) . strval(rand(0,999999)));
+        $mb_user_token_info['member_id'] = $member_info['member_id'];
+        $mb_user_token_info['member_name'] = $member_info['member_name'];
+        $mb_user_token_info['token'] = $token;
+        $mb_user_token_info['login_time'] = TIMESTAMP;
+        $mb_user_token_info['client_type'] = 'android';
+
+        $model_mb_user_token->addMbUserToken($mb_user_token_info);
+        $_SESSION['token_key'] 	= $token;
+
     }
 }

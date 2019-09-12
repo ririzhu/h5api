@@ -25,7 +25,8 @@ class Seller extends Model
      *
      */
     public function getSellerInfo($condition) {
-        $result = $this->where($condition)->find();
+//        $result = $this->where($condition)->find();
+        $result = DB::name("seller")->where($condition)->find();
         return $result;
     }
 
