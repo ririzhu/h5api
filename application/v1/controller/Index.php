@@ -110,7 +110,7 @@ class Index extends Base
         else{
             $store_id = 0;
         }
-        if(!$redis->has("homepage")){
+        if($redis->has("homepage")){
             $data['data']=$redis->get("homepage");
         }else{
         //获取轮播图数据
@@ -131,16 +131,21 @@ class Index extends Base
             $lession = array();
             foreach($goods_list as $k=>$v){
                 $gid = $goods_list[$k]['goods_id'];
+                unset($goods_list[$k]);
                 $a =$model_goods->getGoodsList("gid = $gid", "*","","",1,0,1,1);
-                $goods_list[$k] = $a[0];
+                if(!empty($a)) {
+                    $goods_list[$k] = $a[0];
+                }
                 $goods_list[$k]['gid'] = $gid;
             }
             $ga = new GoodsActivity();
             $goods_list = $ga->rebuild_goods_data($goods_list,'web');
             foreach ($goods_list as $k=>$v){
-                $lession[$k]['goods_name'] = $v['goods_name'];
-                $lession[$k]['gid'] = $v['gid'];
-                $lession[$k]['goods_price'] = $v['goods_price'];
+                if(!empty($goods_list[$v])) {
+                    $lession[$k]['goods_name'] = $v['goods_name'];
+                    $lession[$k]['gid'] = $v['gid'];
+                    $lession[$k]['goods_price'] = $v['goods_price'];
+                }
             }
             $data['hot_lession'] = $lession;
                 //教师列表
