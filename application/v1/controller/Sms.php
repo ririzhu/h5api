@@ -1,7 +1,7 @@
 <?php
-namespace app\V1\controller;
-use app\V1\model\Sms as Smslog;
-use app\V1\model\User;
+namespace app\v1\controller;
+use app\v1\model\Sms as Smslog;
+use app\v1\model\User;
 class Sms extends Base
 {
     /**

@@ -1,10 +1,10 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\model\Dian;
-use app\V1\model\GoodsActivity;
-use app\V1\model\Refund;
-use app\V1\model\UserOrder;
+use app\v1\model\Dian;
+use app\v1\model\GoodsActivity;
+use app\v1\model\Refund;
+use app\v1\model\UserOrder;
 use think\Lang;
 class Order extends Base
 {
@@ -253,7 +253,7 @@ class Order extends Base
             }
         } else {
             $model_order = new UserOrder();
-            $model_member = new \app\V1\model\User();
+            $model_member = new \app\v1\model\User();
             $member_info = $model_member->getMemberInfo(array('member_id'=>$memberId));
             $member_info['order_nopay'] = $model_order->getOrderStateNewCount(array('buyer_id'=>$memberId));
             $member_info['order_nodelivery'] = $model_order->getOrderStatePayCount(array('buyer_id'=>$memberId));
@@ -468,7 +468,7 @@ class Order extends Base
                 $data['message'] = lang('无权操作');
             }
             $msg = "1111";//$post['state_info1'] != '' ? $post['state_info1'] : $post['state_info'];
-        $user = new \app\V1\model\User();
+        $user = new \app\v1\model\User();
             $member = $user->getMemberInfo("member_name")["member_name"];
             $result = $model_order->changeOrderStateCancel($order_info,'buyer', $member, $msg);
             if($result == true){

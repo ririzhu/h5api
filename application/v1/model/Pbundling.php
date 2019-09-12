@@ -1,7 +1,7 @@
 <?php
 
 
-namespace app\V1\model;
+namespace app\v1\model;
 use think\Model;
 use think\db;
 class Pbundling extends Model

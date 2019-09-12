@@ -1,5 +1,5 @@
 <?php
-namespace app\V1\model;
+namespace app\v1\model;
 use think\addons\red\red;
 use think\addons\red\red1;
 use think\db;
@@ -404,7 +404,7 @@ class UserBuy extends Model {
 
         //平台优惠券作废时机是存订单的时候
         if($red || $vred) {
-            $redModel = new \app\V1\model\Red();
+            $redModel = new \app\v1\model\Red();
             $red_re =$redModel-> use_red($member_id, array('red'=>$red,'vred'=>$vred), $store_cart_list,$store_final_order_total);
             if (is_array($red_re) && isset($red_re['error'])) {
 

@@ -1,7 +1,7 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\model\Predeposit;
+use app\v1\model\Predeposit;
 include("../extend/pay/alipay/AopSdk.php");
 class Payment extends Base
 {
@@ -28,7 +28,7 @@ class Payment extends Base
             land('参数错误');
         }
 
-        $model_payment = new \app\V1\model\Payment();
+        $model_payment = new \app\v1\model\Payment();
         $result = $model_payment->productBuy($pay_sn, $payment_code, input("member_id"));
         if(!empty($result['error'])) {
             //showMsg($result['error'], $url, 'html', 'error');
@@ -51,7 +51,7 @@ class Payment extends Base
         }
 
         //取支付方式信息
-        $model_payment = new \app\V1\model\Payment();
+        $model_payment = new \app\v1\model\Payment();
         $condition = array();
         $condition['payment_code'] = $payment_code;
         $payment_info = $model_payment->getPaymentOpenInfo($condition);
@@ -263,7 +263,7 @@ class Payment extends Base
         if ($payment_code) {
 
             //取得支付方式信息
-            $paymentModel = new \app\V1\model\Payment();
+            $paymentModel = new \app\v1\model\Payment();
             $payment_info = $paymentModel->getPaymentOpenInfo(array('payment_code'=>$payment_code));
 
             switch ($payment_code) {

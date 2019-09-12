@@ -1,17 +1,17 @@
 <?php
-namespace app\V1\controller;
-use app\V1\model\BrowserHistory;
-use app\V1\model\Favorites;
-use app\V1\model\Fenxiao;
-use app\V1\model\GoodsActivity;
-use app\V1\model\Grade;
-use app\V1\model\Points;
-use app\V1\model\Predeposit;
-use app\V1\model\SnsVisitor;
-use app\V1\model\UserCart;
-use app\V1\model\UserOrder;
-use app\V1\model\Goods;
-use app\V1\model\User;
+namespace app\v1\controller;
+use app\v1\model\BrowserHistory;
+use app\v1\model\Favorites;
+use app\v1\model\Fenxiao;
+use app\v1\model\GoodsActivity;
+use app\v1\model\Grade;
+use app\v1\model\Points;
+use app\v1\model\Predeposit;
+use app\v1\model\SnsVisitor;
+use app\v1\model\UserCart;
+use app\v1\model\UserOrder;
+use app\v1\model\Goods;
+use app\v1\model\User;
 use think\db;
 use think\facade\Request;
 

@@ -1,7 +1,7 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\model\Red;
+use app\v1\model\Red;
 use think\console\command\make\Model;
 use think\Db;
 

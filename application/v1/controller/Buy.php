@@ -1,10 +1,11 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\model\Grade;
-use app\V1\model\Payment;
-use app\V1\model\UserBuy;
-use app\V1\model\UserOrder;
+use app\v1\model\Grade;
+use app\v1\model\Payment;
+use app\v1\model\Transport;
+use app\v1\model\UserBuy;
+use app\v1\model\UserOrder;
 use think\Lang;
 class Buy extends Base
 {
@@ -176,7 +177,7 @@ class Buy extends Base
         $is_supplier_close = 0;
 
         // 商品详细信息
-        $model_goods = new \app\V1\model\Goods();
+        $model_goods = new \app\v1\model\Goods();
         //虚拟销量
         if(Config('virtual_sale')){
             $field = '*,(goods_salenum+virtual_sale) as goods_salenum';
@@ -339,7 +340,7 @@ class Buy extends Base
         // 如果使用运费模板
         if ($goods_info['transport_id'] > 0) {
             // 取得三种运送方式默认运费
-            $model_transport = Model('transport');
+            $model_transport = new Transport();
             $transport = $model_transport->getExtendList(array('transport_id' => $goods_info['transport_id'], 'is_default' => 1));
             if (!empty($transport) && is_array($transport)) {
                 foreach ($transport as $v) {

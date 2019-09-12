@@ -1,5 +1,5 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 
 class UserType
 {

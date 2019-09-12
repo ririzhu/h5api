@@ -4,7 +4,7 @@
  *
  */
 
-use app\V1\model\Citysite;
+use app\v1\model\Citysite;
 
 defined('DYMall') or exit('Access Invalid!');
 class city_site {

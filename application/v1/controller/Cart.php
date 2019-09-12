@@ -1,11 +1,11 @@
 <?php
-namespace app\V1\controller;
-use app\V1\model\GoodsActivity;
-use app\V1\model\Pbundling;
-use app\V1\model\Stats;
-use app\V1\model\UserCart;
-use app\V1\model\Goods;
-use app\V1\model\VendorInfo;
+namespace app\v1\controller;
+use app\v1\model\GoodsActivity;
+use app\v1\model\Pbundling;
+use app\v1\model\Stats;
+use app\v1\model\UserCart;
+use app\v1\model\Goods;
+use app\v1\model\VendorInfo;
 use think\Request;
 use think\Db;
 

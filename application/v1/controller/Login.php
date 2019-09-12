@@ -1,8 +1,8 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\model\Points;
-use app\V1\model\User;
+use app\v1\model\Points;
+use app\v1\model\User;
 
 class Login extends Base {
     /**

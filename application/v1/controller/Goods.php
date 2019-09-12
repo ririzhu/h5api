@@ -1,26 +1,26 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\model\Area;
-use app\V1\model\BrowserHistory;
-use app\V1\model\Dian;
-use app\V1\model\EvaluateGoods;
-use app\V1\model\EvaluateStore;
-use app\V1\model\Favorites;
-use app\V1\model\FirstOrder;
-use app\V1\model\GoodsActivity;
-use app\V1\model\GoodsClass;
-use app\V1\model\Grade;
-use app\V1\model\MyGoods;
-use app\V1\model\Search;
-use app\V1\model\Seller;
-use app\V1\model\Seo;
-use app\V1\model\SnsGoods;
-use app\V1\model\Transport;
-use app\V1\model\VendorGlmb;
-use app\V1\model\VendorInfo;
-use app\V1\model\VendorLabel;
-use app\V1\model\VendorNavigation;
+use app\v1\model\Area;
+use app\v1\model\BrowserHistory;
+use app\v1\model\Dian;
+use app\v1\model\EvaluateGoods;
+use app\v1\model\EvaluateStore;
+use app\v1\model\Favorites;
+use app\v1\model\FirstOrder;
+use app\v1\model\GoodsActivity;
+use app\v1\model\GoodsClass;
+use app\v1\model\Grade;
+use app\v1\model\MyGoods;
+use app\v1\model\Search;
+use app\v1\model\Seller;
+use app\v1\model\Seo;
+use app\v1\model\SnsGoods;
+use app\v1\model\Transport;
+use app\v1\model\VendorGlmb;
+use app\v1\model\VendorInfo;
+use app\v1\model\VendorLabel;
+use app\v1\model\VendorNavigation;
 use think\console\command\make\Model;
 use think\db;
 class Goods extends  Base
@@ -39,7 +39,7 @@ class Goods extends  Base
         $is_supplier_close = 0;
 
         // 商品详细信息
-        $model_goods = new \app\V1\model\Goods();
+        $model_goods = new \app\v1\model\Goods();
         //虚拟销量
         if(Config('virtual_sale')){
             $field = '*,(goods_salenum+virtual_sale) as goods_salenum';
@@ -250,7 +250,7 @@ class Goods extends  Base
 
         //*******拼接老师名*********************************************************
 
-        $model_member = new \app\V1\model\User();
+        $model_member = new \app\v1\model\User();
         $tmp = $model_member->table('bbc_member')->field('member_name')->where(['member_id'=>$goods_info['teacher']])->find();
         $goods_info['teacher'] = $tmp['member_name'];
 
@@ -541,7 +541,7 @@ class Goods extends  Base
             }
             $order .= ' '.$sequence;
         }
-        $model_goods = new \app\V1\model\Goods();
+        $model_goods = new \app\v1\model\Goods();
 
         $condition = array();
         $tid = intval(input('tid'));
@@ -692,7 +692,7 @@ class Goods extends  Base
                 $storeid_array = array_unique($storeid_array);
 
                 // 商品多图
-                $goods = new \app\V1\model\Goods();
+                $goods = new \app\v1\model\Goods();
                 $goodsimage_more = $goods->getGoodsImageList(array('goods_commonid' => array('in', arrayToString($commonid_array))));
 
                 // 店铺
@@ -847,7 +847,7 @@ class Goods extends  Base
         //loadfunc('search');
 
         // 浏览过的商品
-        $goods = new \app\V1\model\Goods();
+        $goods = new \app\v1\model\Goods();
         $viewed_goods = $goods->getViewedGoodsList();
         $data['viewed_goods'] = $viewed_goods;
         //$data['goods_list'] = $goods_list;
@@ -865,7 +865,7 @@ class Goods extends  Base
         //拼接条件
         if (intval(input('cid')) > 0) {
             $cid = intval(input('cid'));
-            $model = new \app\V1\model\Goods();
+            $model = new \app\v1\model\Goods();
             $goods_class = $model->H('goods_class') ? $model->H('goods_class') : $model->H('goods_class', true);
             $depth = $goods_class[$cid]['depth'];
             $cate_field = 'cate_'.$depth;

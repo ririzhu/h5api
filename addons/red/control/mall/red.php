@@ -4,7 +4,7 @@
  *
  */
 defined('DYMall') or exit('Access Invalid!');
-class red extends \app\V1\controller\Base
+class red extends \app\v1\controller\Base
 {
 
     public function __construct()

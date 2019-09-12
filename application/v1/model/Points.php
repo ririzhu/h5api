@@ -1,7 +1,7 @@
 <?php
-namespace app\V1\model;
+namespace app\v1\model;
 
-use app\V1\controller\Order;
+use app\v1\controller\Order;
 use think\Model;
 use think\db;
 use think\queue;

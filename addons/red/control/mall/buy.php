@@ -1,6 +1,6 @@
 <?php
 //include(dirname(__FILE__)."/../../model/red.php");
-class red extends \app\V1\controller\Base
+class red extends \app\v1\controller\Base
 {
 
     public function __construct()

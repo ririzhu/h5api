@@ -1,5 +1,5 @@
 <?php
-namespace app\V1\model;
+namespace app\v1\model;
 
 use Cache;
 use Exception;

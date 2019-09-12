@@ -1,5 +1,5 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 use Exception;
 use think\facade\Cache;
 use think\Controller;
@@ -72,7 +72,7 @@ class Base extends Controller
         $value = Cache($key);
         if (($value === false || empty($value)) && $callback !== false) {
             if ($callback === true) {
-                $callback = array(new \app\V1\model\Cache(), 'call');
+                $callback = array(new \app\v1\model\Cache(), 'call');
             }
             if (!is_callable($callback)) {
                 throw new Exception('Invalid rkcache callback!');

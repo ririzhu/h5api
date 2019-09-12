@@ -490,7 +490,7 @@ class redModel   {
     function filter_red($store_cart_list,$red_list,$info=true)
     {
         //获得自营店铺id
-        $vendor =new \app\V1\model\VendorInfo();
+        $vendor =new \app\v1\model\VendorInfo();
         $own_ids = $vendor->getOwnShopIds();
 
         //初始 多个总价

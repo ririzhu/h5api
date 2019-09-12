@@ -7,14 +7,14 @@
  * @version     1.0 版本号
  */
 
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\model\Points;
+use app\v1\model\Points;
 use think\Config;
 use think\Request;
-use app\V1\model\User as Users;
-use app\V1\model\Sms;
-use app\V1\model\UserToken;
+use app\v1\model\User as Users;
+use app\v1\model\Sms;
+use app\v1\model\UserToken;
 use think\db;
 class User extends Base
 {

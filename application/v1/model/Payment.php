@@ -1,5 +1,5 @@
 <?php
-namespace app\V1\model;
+namespace app\v1\model;
 
 use Exception;
 use think\Model;

@@ -1,5 +1,5 @@
 <?php
-namespace app\V1\model;
+namespace app\v1\model;
 
 use think\Db;
 use think\Model;
@@ -38,15 +38,14 @@ class Red extends Model
      * @return array 团购列表
      *
      */
-    public function getRedList($condition, $page = null, $order = 'red.id desc', $field = 'red.*,red_info.redinfo_money,red_info.redinfo_start,red_info.redinfo_end,red_info.redinfo_type,red_info.redinfo_ids,red_info.redinfo_self,red_info.redinfo_store,red_info.redinfo_full,red_info.redinfo_create,red_info.redinfo_together', $limit = 0) {
+    public function getRedList($condition, $page = null, $order = 'bbc_red.id desc', $field = 'bbc_red.*,bbc_red_info.redinfo_money,bbc_red_info.redinfo_start,bbc_red_info.redinfo_end,bbc_red_info.redinfo_type,bbc_red_info.redinfo_ids,bbc_red_info.redinfo_self,bbc_red_info.redinfo_store,bbc_red_info.redinfo_full,bbc_red_info.redinfo_create,bbc_red_info.redinfo_together', $limit = 0) {
         $field.=',min(redinfo_money) min_money,
         max(redinfo_money) max_money,
         min(redinfo_start) as min_date,
         max(redinfo_end) as max_date';
         $condition['red_delete'] = 0;
-        $red_list = $this->table('red_info,red')->join('right')
-            ->on('red.id=red_info.red_id')->field($field)->where($condition)
-            ->group('red_info.red_id')
+        $red_list = DB::name('red_info')->join('red','bbc_red.id=bbc_red_info.red_id')->field($field)->where($condition)
+            ->group('bbc_red_info.red_id')
             ->page($page)->order($order)->limit($limit)->select();
         return $red_list;
     }
@@ -80,8 +79,14 @@ class Red extends Model
      *
      */
     public function getRedInfo($where){
-        $red = $this->table('red')->where($where)->find();
-        $redinfo = $this->table('red_info')->where(array('red_id'=>$red['id']))->select();
+        if(isset($where['red_receive_start'])){
+            unset($where["red_receive_start"]);
+            unset($where["red_receive_end"]);
+            $red = DB::name('red')->where($where)->where("red_receive_start<".TIMESTAMP)->where("red_receive_end >".TIMESTAMP)->find();
+        }else {
+            $red = DB::name('red')->where($where)->find();
+        }
+        $redinfo = DB::name('red_info')->where(array('red_id'=>$red['id']))->select();
         $red['arr'] = $redinfo;
         return $red;
     }
@@ -172,12 +177,19 @@ class Red extends Model
             foreach ($par['arr'] as $vv) {
                 $orderSn = $yCode[intval(date('Y')) - 2011] . strtoupper(dechex(date('m'))) . date('d') . substr(time(), -5) . substr(microtime(), 2, 5) . sprintf('%02d', rand(0, 99));
                 $sql .= '(\''.$orderSn.'\','.$v.','.$par['id'].','.$vv['id'].','.TIMESTAMP.','.$vv['redinfo_start'].','.$vv['redinfo_end'].'),';
+                $data['reduser_proof']= $orderSn;
+                $data['reduser_uid']=$v;
+                $data['red_id'] = $par['id'];
+                $data['redinfo_id']=$vv['id'];
+                $data['reduser_get']=TIMESTAMP;
+                $data['redinfo_start']=$vv['redinfo_start'];
+                $data['redinfo_end']=$vv['redinfo_end'];
             }
         }
-        $sql = substr($sql,0,strlen($sql)-1);
-        $geshu = Db::query($sql);
+        //$sql = substr($sql,0,strlen($sql)-1);
+        $geshu = DB::name("red_user")->insert($data);
         if($geshu){
-            $this->table('red')->where(array('id'=>$par['id']))->update(array('red_hasget'=>array('exp','red_hasget+'.intval($geshu))));
+            DB::name('red')->where(array('id'=>$par['id']))->update(array('red_hasget'=>array('inc',$geshu)));
         }
         return $geshu;
     }
@@ -258,25 +270,26 @@ class Red extends Model
      * @return array
      *
      */
-    public function getRedLingList($member_id='',$condition, $page = null, $order = 'red_info.id desc') {
+    public function getRedLingList($member_id='',$condition, $page = null, $order = 'bbc_red_info.id desc') {
 
-        if($_GET['vid']){
-            $order = 'red.red_vid='.$_GET['vid'].' desc,'.$order;
+        if(isset($_GET['vid'])){
+            $order = 'bbc_red.red_vid='.$_GET['vid'].' desc,'.$order;
         }
 
         //优惠券信息、优惠券数据
-        $red_list = $this->table('red_info,red')->join('left')->on('red_info.red_id=red.id')->
-        field('red_info.*,red.id as red_id,red.red_title,red.red_type,red_status,red.red_limit,red.red_hasget,red.red_rach_max,red.red_receive_end,red.red_receive_start')->where($condition)->page($page)->order($order)->select();
+        $red_list = DB::table('bbc_red_info')->join('bbc_red','bbc_red_info.red_id=bbc_red.id')->
+        field('bbc_red_info.*,red_limit,bbc_red.id as red_id,bbc_red.red_title,bbc_red.red_type,red_status,bbc_red.red_limit,bbc_red.red_hasget,bbc_red.red_rach_max,bbc_red.red_receive_end,bbc_red.red_receive_start')->where($condition)->where("red_receive_start<".TIMESTAMP)->where("red_receive_end >".TIMESTAMP)->page($page)->order($order)->select();
+        //print_r($red_list);die;
         $red_ids = low_array_column($red_list,'id');
-
-
         //读取用户优惠券数据
         if($member_id){
             $where['reduser_uid'] = $member_id;
         }
-        $where['redinfo_id'] = array('in',join(',',$red_ids));
-        $use_red_ids = $this->table('red_user')->where($where)->field('redinfo_id,reduser_use,count(*) as num')->group('redinfo_id')->key('redinfo_id')->select();
+        $where['bbc_red_user.redinfo_id'] = array('in',arrayToString($red_ids));
+        $use_red_ids = DB::table('bbc_red_user')->where($where)->field('redinfo_id,reduser_use,count(*) as num')->group("redinfo_id")->force('redinfo_id')->select();
+        //$use_red_ids = DB::table('bbc_red_user')->where($where)->field('redinfo_id,reduser_use,count(*) as num')->group('redinfo_id')->cache('redinfo_id')->select();
 
+        //print_r($use_red_ids);die;
         foreach ($red_list as $k=>$v){
             //计算领取百分比
             if($v['red_limit']) {
@@ -288,9 +301,9 @@ class Red extends Model
 
             //结束时间格式化
             $red_list[$k]['red_receive_end_text'] = date('Y/m/d H:i:s', $v['red_receive_end']);
-
+            //print_r($use_red_ids);die;
             //判断用户是否已领
-            if($use_red_ids[$v['id']] && $member_id && $use_red_ids[$v['id']]['num']>=$v['red_rach_max']){
+            if(isset($use_red_ids[$v['id']]) && $member_id && $use_red_ids[$v['id']]['num']>=$v['red_rach_max']){
                 if($use_red_ids[$v['id']]['reduser_use']){
                     unset($red_list[$k]);
                     continue;
@@ -311,7 +324,7 @@ class Red extends Model
      * @return array
      *
      */
-    function ling_red($member_id,$red_id){
+    function lingRed($member_id,$red_id){
 
 
         if(!$member_id){
@@ -321,8 +334,6 @@ class Red extends Model
         $condition['red_status'] = 1;
         $condition['red_info.id'] = $red_id;
         $condition['red_front_show'] = 1;
-        $condition['red_receive_start'] = array('lt',TIMESTAMP);
-        $condition['red_receive_end'] = array('gt',TIMESTAMP);
         $red_info  = $this->getRedLingList($member_id,$condition);
 
         if($red_info && count($red_info)){
@@ -339,7 +350,7 @@ class Red extends Model
                     return '领取失败，优惠券找不到了';
                 }
                 if( $this->SendRed( array(0 => $member_id), $red_info2 ) ){
-                    return '1';
+                    return true;
                 }else{
                     return '领取失败';
                 }
@@ -500,7 +511,7 @@ class Red extends Model
     function filter_red($store_cart_list,$red_list,$info=true)
     {
         //获得自营店铺id
-        $vendor =new \app\V1\model\VendorInfo();
+        $vendor =new \app\v1\model\VendorInfo();
         $own_ids = $vendor->getOwnShopIds();
 
         //初始 多个总价
@@ -1008,4 +1019,6 @@ class Red extends Model
         Template::output('inv_list',$list);
         Template::showpage('buy_red.load','null_layout');
     }
+
+
 }

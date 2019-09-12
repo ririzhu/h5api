@@ -1,8 +1,8 @@
 <?php
 
-namespace app\V1\model;
+namespace app\v1\model;
 
-use app\V1\controller\Base;
+use app\v1\controller\Base;
 use think\Db;
 use think\Exception;
 use think\Model;

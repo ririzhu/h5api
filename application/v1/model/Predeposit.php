@@ -2,7 +2,7 @@
 /**
  * 预存款
  */
-namespace app\V1\model;
+namespace app\v1\model;
 
 use Exception;
 use QueueClient;

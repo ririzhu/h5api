@@ -5,7 +5,7 @@
  */
 
 defined('DYMall') or exit('Access Invalid!');
-class member_redCtl extends \app\V1\controller\Base
+class member_redCtl extends \app\v1\controller\Base
 {
 
     public function __construct()

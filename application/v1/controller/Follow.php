@@ -1,10 +1,10 @@
 <?php
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\model\Favorites;
-use app\V1\model\GoodsActivity;
-use app\V1\model\Stats;
-use app\V1\model\VendorInfo;
+use app\v1\model\Favorites;
+use app\v1\model\GoodsActivity;
+use app\v1\model\Stats;
+use app\v1\model\VendorInfo;
 
 class Follow extends Base
 {
@@ -32,7 +32,7 @@ class Follow extends Base
             die;
         }
         //判断商品是否为当前会员所有
-        $goods_model = new \app\V1\model\Goods();
+        $goods_model = new \app\v1\model\Goods();
         $goods_info = $goods_model->getGoodsInfo(array('gid' => $fav_id));
         if ($goods_info['vid'] == input("member_id")){
             echo json_encode(array('done'=>false,'msg'=>lang('不能收藏自己的商品','UTF-8')));
@@ -141,7 +141,7 @@ class Follow extends Base
                 $favorites_key[$fav_id] = $key;
             }
             $ids =substr($ids,0,strlen($ids)-1);
-            $goods_model = new \app\V1\model\Goods();
+            $goods_model = new \app\v1\model\Goods();
             $field = 'goods.gid,goods.goods_name,goods.vid,goods.goods_image,goods.goods_price,goods.evaluation_count,goods.goods_salenum,goods.goods_collect,vendor.store_name,vendor.member_id,vendor.member_name,vendor.store_qq,vendor.store_ww,vendor.store_domain';
             $goods_list = $goods_model->getGoodsStoreList(array('gid' => array('in', $ids)), $field);
 
@@ -252,7 +252,7 @@ class Follow extends Base
                 if (!empty($fav_arr)){
                     if ($type=='goods'){
                         //更新收藏数量
-                        $goods_model = new \app\V1\model\Goods();
+                        $goods_model = new \app\v1\model\Goods();
                         $goods_model->editGoods(array('goods_collect'=>array('exp', 'goods_collect - 1')), array('gid' => array('in', $fav_arr)));
                         $data['error_code'] = 200;
                         $data['message'] = lang('删除成功');

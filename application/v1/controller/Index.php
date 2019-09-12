@@ -1,11 +1,14 @@
 <?php
 
-namespace app\V1\controller;
+namespace app\v1\controller;
 
-use app\V1\controller\Base;
-use app\V1\model\Area;
-use app\V1\model\Message;
+use app\v1\controller\Base;
+use app\v1\model\Area;
+use app\v1\model\GoodsActivity;
+use app\v1\model\Message;
+use app\v1\model\Red;
 use think\cache\driver\Redis;
+use think\console\command\make\Model;
 use think\db;
 use think\captcha\Captcha;
 use think\cache;
@@ -98,7 +101,7 @@ class Index extends Base
     /**
      * 首页内容
      */
-    function homePage(){echo 1;die;
+    function homePage(){
         $redis = new Redis();
         $lang = input("lang","zh_cn");
         if($lang == "en"){
@@ -107,7 +110,7 @@ class Index extends Base
         else{
             $store_id = 0;
         }
-        if($redis->has("homepage")){
+        if(!$redis->has("homepage")){
             $data['data']=$redis->get("homepage");
         }else{
         //获取轮播图数据
@@ -122,7 +125,25 @@ class Index extends Base
             //获取通知
             $data['annoucelist'] = DB::name("article")->where("acid=1")->order("article_sort",'desc')->select();
             //热门课程
-            //教师列表
+            $goods_list = unserialize((DB::name("tpl_data")->where("sld_tpl_type=2 and sld_is_vaild=1 and sld_tpl_code ='goods_floor2'")->field("sld_tpl_data")->find())['sld_tpl_data']);
+            $goods_list = $goods_list['goods'];
+            $model_goods = new \app\v1\model\Goods();
+            $lession = array();
+            foreach($goods_list as $k=>$v){
+                $gid = $goods_list[$k]['goods_id'];
+                $a =$model_goods->getGoodsList("gid = $gid", "*","","",1,0,1,1);
+                $goods_list[$k] = $a[0];
+                $goods_list[$k]['gid'] = $gid;
+            }
+            $ga = new GoodsActivity();
+            $goods_list = $ga->rebuild_goods_data($goods_list,'web');
+            foreach ($goods_list as $k=>$v){
+                $lession[$k]['goods_name'] = $v['goods_name'];
+                $lession[$k]['gid'] = $v['gid'];
+                $lession[$k]['goods_price'] = $v['goods_price'];
+            }
+            $data['hot_lession'] = $lession;
+                //教师列表
             $field = '*';
             $teachers = DB::name('member')->alias('m')->field($field)->join('teacher_extend e','m.member_id=e.member_id')->limit(9)->select();
 
@@ -138,7 +159,7 @@ class Index extends Base
                 $res = implode(',',$res);
                 $val['trades'] = $res;
             }
-            $data['teachers'] = $teachers;
+            //$data['teachers'] = $teachers;
             //培训
             $trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
             $data['peixun'] = $trade_list;
@@ -198,4 +219,70 @@ class Index extends Base
         $countnum = $model_message->countMessage(array('message_type'=>'0','to_member_id_common'=>$memberId,'no_message_state'=>'2','message_open_common'=>'0'));
         return $countnum;
     }
+    /**
+     * 领券中心页
+     *
+     */
+    public function redGetList()
+    {
+        if(input("member_id")){
+            $memberId = input("member_id");
+        }else{
+            $memberId = null;
+        }
+        $page = input("page",1);
+        $model_red = new Red();
+        //$condition['bbc_red.red_type'] = array('neq','3');
+        $condition['red_status'] = 1;
+        $condition['red_front_show'] = 1;
+        if(isset($_GET['red_id'])){
+            $condition['red.id'] = $_GET['red_id'];
+        }
+
+
+        $red_list = $model_red->getRedLingList($memberId,$condition,$page);
+
+        $red_list = $model_red->getUseInfo($red_list);
+        return json_encode($red_list,true);
+
+    }
+
+    /**
+     * 领取优惠券
+     *
+     */
+    public function sendRed()
+    {
+
+        $red_id = input('red_id');
+
+        if(!input('member_id') || !input("red_id")){
+            $data['message'] = lang("缺少参数");
+            return json_encode($data);
+        }
+
+        $red = new Red();
+        $msg = $red->lingRed(input('member_id'),$red_id);
+
+        if($msg==true){
+            $data['message'] = lang("领取成功");
+            $data['error_code'] = 200;
+        }else{
+            $data['message'] = lang("领取失败");
+            $data['error_code'] =10202;
+        }
+        return json_encode($data,true);
+
+    }
+    /**
+     * 公告详情
+     */
+    function articleDetail(){
+        if(!input('article_id')){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+    }
+
 }
