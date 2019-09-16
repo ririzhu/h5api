@@ -327,13 +327,12 @@ class Predeposit extends Model
 
     /**
      * 取得提现列表
-     * @param unknown $condition
-     * @param string $pagesize
+     * @param array $condition
      * @param string $fields
      * @param string $order
      */
-    public function getPdCashList($condition = array(), $pagesize = '', $fields = '*', $order = '', $limit = '') {
-        return $this->table('pd_cash')->where($condition)->field($fields)->order($order)->limit($limit)->page($pagesize)->select();
+    public function getPdCashList($condition, $fields = '*', $order = '') {
+        return DB::name('pd_cash')->where($condition)->field($fields)->order($order)->select();
     }
 
     /**

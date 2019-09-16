@@ -610,6 +610,18 @@ class User extends Model
     }
 
     /**
+     * add by zhengyifan 2019-09-16
+     * 获取下级
+     * @param $condition
+     * @param $field
+     * @return array
+     */
+    public function getChildMember($condition,$field)
+    {
+        return Db::name('member')->field($field)->whereOr($condition)->select();
+    }
+
+    /**
      * 登录时创建会话SESSION
      *
      * @param array $member_info 会员信息

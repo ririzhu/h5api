@@ -1,5 +1,6 @@
 <?php
 namespace app\v1\controller;
+use app\v1\model\Area;
 use app\v1\model\BrowserHistory;
 use app\v1\model\Favorites;
 use app\v1\model\Fenxiao;
@@ -61,6 +62,7 @@ class Usercenter extends Base {
 		$data['member_info'] = $member_info;
         echo json_encode($data,true);
 	}
+
 	private function formatDate($time){
 		$handle_date = @date('Y-m-d',$time);//需要格式化的时间
 		$reference_date = @date('Y-m-d',time());//参照时间
@@ -103,7 +105,7 @@ class Usercenter extends Base {
             return json_encode($data,true);
         }
         $data['code'] = 200;
-        $data['message'] = '成功';
+        $data['message'] = '请求成功';
         $data['member_info'] = $member_info;
         return json_encode($data,true);
     }
@@ -156,9 +158,9 @@ class Usercenter extends Base {
             }
         }
         $data['code'] = 200;
-        $data['message'] = '成功';
-        $data['browser_list'] = $browser_list_new;
-//        $data['browser_list_new_date'] = $browser_list_new_date;
+        $data['message'] = '请求成功';
+//        $data['browser_list'] = $browser_list_new;
+        $data['browser_list_new_date'] = $browser_list_new_date;
         return json_encode($data,true);
     }
 
@@ -197,20 +199,72 @@ class Usercenter extends Base {
             return json_encode($data,true);
         }
         $member_id = input("member_id");
+        
+        $member = new User();
+        $member_condition = [
+            'inviter_id' => $member_id,
+            'inviter2_id' => $member_id,
+            'inviter3_id' => $member_id,
+        ];
+        $member_field = 'member_id';
+        $team = $member->getChildMember($member_condition,$member_field);
+        $count = count($team);
+
         $fenxiao = new Fenxiao();
-        $param = [
+        $fenxiao_condition = [
             'reciver_member_id' =>$member_id,
         ];
-        $fenxiao_list = $fenxiao->getCommissionInfo($param);
+        $fenxiao_field = 'yongjin,add_time,status';
+        $fenxiao_list = $fenxiao->getCommissionInfo($fenxiao_condition,$fenxiao_field);
+
         $total_income = 0;
-        foreach ($fenxiao_list as $key => $val){
-            if($val['status'] == 1){
-                $total_income += $val['yongjin'];
+        $account = 0;
+        $list = [];
+        if (!empty($fenxiao_list)) {
+            foreach ($fenxiao_list as $key => $val) {
+                $list1['type'] = 1;
+                $list1['amount'] = $val['yongjin'];
+                $list1['add_time'] = $val['add_time'];
+                $list1['status'] = $val['status'];
+                if ($val['status'] == 1) {
+                    $total_income += $val['yongjin'];
+                    $account += $val['yongjin'];
+                }
+                $list[] = $list1;
             }
         }
+
+        $predepoist = new Predeposit();
+        $predepoist_codition = [
+            'pdc_member_id' => $member_id,
+        ];
+        $predepoist_field = 'pdc_amount,pdc_add_time,pdc_payment_state';
+        $pdcash_list = $predepoist->getPdCashList($predepoist_codition,$predepoist_field);
+        if (!empty($pdcash_list)){
+            foreach ($pdcash_list as $key => $val) {
+                $list1['type'] = 2;
+                $list1['amount'] = -$val['pdc_amount'];
+                $list1['add_time'] = $val['pdc_add_time'];
+                $list1['status'] = $val['pdc_payment_state'];
+                if ($val['pdc_payment_state'] == 1) {
+                    $account -= $val['pdc_amount'];
+                }
+                $list[] = $list1;
+            }
+        }
+        //根据时间排序
+        $add_time = array_column($list,'add_time');
+        array_multisort($add_time,SORT_DESC,$list);
+
+        foreach ($list as $key => $val){
+            $list[$key]['add_time'] = date('m-d H:i:s',$val['add_time']);
+        }
+
         $data['code'] = 200;
         $data['message'] = '请求成功';
-        $data['income_list'] = $fenxiao_list;
+        $data['list'] = $list;
+        $data['count'] = $count;
+        $data['account'] = $account;
         $data['total_income'] = $total_income;
         return json_encode($data,true);
     }
@@ -237,6 +291,58 @@ class Usercenter extends Base {
         $data['message'] = '请求成功';
         $data['points_list'] = $points_list;
         return json_encode($data,true);
+    }
+
+    /**
+     * 我的团队
+     * @return false|string
+     */
+    public function userTree()
+    {
+        if(!input("member_id")){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $member_id = input("member_id");
+
+        $member = new User();
+        $condition = [
+            'inviter_id' => $member_id,
+            'inviter2_id' => $member_id,
+            'inviter3_id' => $member_id,
+        ];
+        $field= 'member_id,member_name,member_avatar,member_mobile,member_time';
+        $child_member = $member->getChildMember($condition,$field);
+        foreach ($child_member as $k => $v){
+            $new_condition = [
+                'inviter_id' => $v['member_id'],
+                'inviter2_id' => $v['member_id'],
+                'inviter3_id' => $v['member_id'],
+            ];
+            $new_child = $member->getChildMember($new_condition,$field);
+            $child_member[$k]['num'] = count($new_child);
+            $child_member[$k]['member_time'] = date("Y-m-d H:i:s",$v['member_time']);
+        }
+
+        $data['code'] = 200;
+        $data['message'] = '请求成功';
+        $data['list'] = $child_member;
+        return json_encode($data,true);
+    }
+
+    /**
+     * 地区设置
+     * @return false|string
+     */
+    public function worldArea()
+    {
+        $area = new Area();
+
+        $condition['area_parent_id'] = 0;
+        $field = 'area_id,name';
+        $area_list = $area->getWorldAreaList($condition,$field);
+        return json_encode($area_list,true);
     }
 
 
