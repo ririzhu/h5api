@@ -281,6 +281,45 @@ class Index extends Base
 
     }
     /**
+     * 我的优惠券列表
+     * @param member_id
+     */
+    public function myRed(){
+        if(!input('member_id')){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+        }
+        $page = input("page",0);
+        $model_red = new Red();
+        $conditionstr = " 1=1";
+        if (input('red_status')!=='') { //使用状态筛选
+            if(input('red_status')=='used'){  //使用过
+                $condition['reduser_use'] = array( 'neq',0);
+                $conditionstr .=" and reduser_use <>0";
+            }elseif(input('red_status')=='not_used'){  //未使用
+                $condition['reduser_use'] = array( 'eq',0);
+                $conditionstr .=" and reduser_use =0";
+                $condition['redinfo_end'] = array( '<',TIMESTAMP);
+                $conditionstr .=" and redinfo_end >=".TIMESTAMP;
+            }elseif(input('red_status')=='expired'){  //过期
+                $condition['redinfo_end'] = array( '>',TIMESTAMP);
+                $conditionstr .=" and redinfo_end <".TIMESTAMP;
+            }
+        }else{
+            $condition['reduser_use'] = array( 'eq',0);
+            $conditionstr .= " and reduser_use =0";
+            $condition['redinfo_end'] = array( 'gt',TIMESTAMP);
+            $conditionstr .= " and redinfo_end >".TIMESTAMP;
+        }
+        $condition['reduser_uid'] = input("member_id");
+
+        $red_list = $model_red->getRedUserList($conditionstr,$page,"","list");
+        $red_list = $model_red->getUseInfo($red_list);
+        $data['error_code'] = 200;
+        $data['list']= $red_list;
+        return json_encode($data,true);
+    }
+    /**
      * 公告详情
      */
     function articleDetail(){
@@ -289,6 +328,15 @@ class Index extends Base
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }
+        $articleId = input("article_id");
+        $article = db::name("article")->where(['id'=>$articleId])->find();
+        $data['error_code'] = 200;
+        $data['title'] = $article['article_title'];
+        $data['html'] = str_replace("\n","",strip_tags($article['article_content']));
+        $data['html'] = str_replace("\r","",$data['html']);
+        $data['html'] = trim(str_replace("\t","",$data['html']));
+        $data['html'] = str_replace("&nbsp;","",$data['html']);
+        return json_encode($data,true);
     }
 
 }

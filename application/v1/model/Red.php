@@ -2,6 +2,7 @@
 namespace app\v1\model;
 
 use think\Db;
+use think\Exception;
 use think\Model;
 
 class Red extends Model
@@ -232,7 +233,7 @@ class Red extends Model
      * @return array
      *
      */
-    public function getRedUserList($condition, $page = null, $order = 'reduser_use desc,bbc_red_user.id asc') {
+    public function getRedUserList($condition, $page = null, $order = 'reduser_use desc,bbc_red_user.id asc',$to="list") {
 
         //优惠券用户、优惠券数据
         $red_user_list = DB::table('bbc_red_user')->join("bbc_red",'bbc_red_user.red_id=bbc_red.id')->
@@ -240,16 +241,25 @@ class Red extends Model
 
         //用户数据
         $member_ids = low_array_column($red_user_list,'reduser_uid');
-        $where['member_id'] = array('in',join(',',$member_ids));
-        $member_list = DB::table('bbc_member')->field('member_id,member_name,member_truename,wx_nickname')->where($where)->column("member_id,member_id,member_name,member_truename,wx_nickname","member_id");
+        $where['member_id'] = array('in',arrayToString($member_ids));
+        $member_list = DB::table('bbc_member')->field('member_id,member_name,member_truename,wx_nickname')->where($where)->force("member_id")->select();//column("member_id,member_id,member_name,member_truename,wx_nickname","member_id");
+        $all_list = array();
+        if($to=="list"){
+            foreach($red_user_list as $k=>$v){
+                $all_list[$k] = DB::table('bbc_red_info')->where(" red_id = ".$v['red_id'])->force("id")->find();
+                $all_list[$k]['red_type']=$red_user_list[$k]['red_type'];
+                $all_list[$k]['red_status']=$red_user_list[$k]['red_status'];
+            }
+            return $all_list;
+        }
         //优惠券信息数据
         $redinfo_ids = low_array_column($red_user_list,'redinfo_id');
-        $where2['id'] = array('in',join(',',$redinfo_ids));
-        $redinfo_list = DB::table('bbc_red_info')->where($where2)->column("*","id");
+        $where2['id'] = array('in',arrayToString($redinfo_ids));
+        $redinfo_list = DB::table('bbc_red_info')->where(" id in (".arrayToString(array_unique($redinfo_ids)).")")->force("id")->select();
         $all_list = array();
         //全数据
         foreach ($red_user_list as $k=>$v){
-            $all_list[] = array_merge($member_list[$v['reduser_uid']],$redinfo_list[$v['redinfo_id']],$v);
+            $all_list[] = array_merge($member_list[$v['reduser_uid']], $redinfo_list[$v['redinfo_id']], $v);
         }
         foreach ($all_list as $k=>$v){
             if($v['redinfo_end']-TIMESTAMP < 259200){

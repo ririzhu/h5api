@@ -923,7 +923,8 @@ function orderStateVendor($order_info) {
  */
 function chksubmit($check_token = false, $check_captcha = false, $return_type = 'alert')
 {
-    $submit = isset($_POST['form_submit']) ? $_POST['form_submit'] : $_GET['form_submit'];
+    $submit = true;//isset($_POST['form_submit']) ? $_POST['form_submit'] : $_GET['form_submit'];
+    return true;//
     if ($submit != 'ok') return false;
     if ($check_token && !Security::checkToken()) {
         if ($return_type == 'alert') {
@@ -1057,4 +1058,20 @@ function compress_code($content)
         }
     }
     return $stripStr;
+}
+/**
+ * 通知邮件/通知消息 内容转换函数
+ *
+ * @param string $message 内容模板
+ * @param array $param 内容参数数组
+ * @return string 通知内容
+ */
+function sldReplaceText($message, $param)
+{
+    if (!is_array($param)) return false;
+    $param['mail_send_time'] = date('Y-m-d H:i');
+    foreach ($param as $k => $v) {
+        $message = str_replace('{$' . $k . '}', $v, $message);
+    }
+    return $message;
 }

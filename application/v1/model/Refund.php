@@ -56,20 +56,24 @@ class Refund extends Model
             $refund_array['goods_image'] = $goods['goods_image'];
         }
         $refund_array['refund_sn'] = $this->getRefundsn($refund_array['vid']);
-        $refund_id = $this->table('refund_return')->insert($refund_array);
-        // 发送商家提醒
-        $param = array();
-        if (intval($refund_array['refund_type']) == 1) {    // 退款
-            $param['code'] = 'refund';
-        } else {    // 退货
-            $param['code'] = 'return';
+        if(count(db::name("refund_return")->where(['order_sn'=>$order['order_sn']])->find())=='0') {
+            $refund_id = db::name('refund_return')->insert($refund_array);
+            // 发送商家提醒
+            $param = array();
+            if (intval($refund_array['refund_type']) == 1) {    // 退款
+                $param['code'] = 'refund';
+            } else {    // 退货
+                $param['code'] = 'return';
+            }
+            $param['vid'] = $order['vid'];
+            $type = $refund_array['order_lock'] == 2 ? '售前' : '售后';
+            $param['param'] = array(
+                'type' => $type,
+                'refund_sn' => $refund_array['refund_sn']
+            );
+        }else{
+            $refund_id=false;
         }
-        $param['vid'] = $order['vid'];
-        $type = $refund_array['order_lock'] == 2 ? '售前' : '售后';
-        $param['param'] = array(
-            'type' => $type,
-            'refund_sn' => $refund_array['refund_sn']
-        );
         //QueueClient::push('sendStoreMsg', $param);
         return $refund_id;
     }
@@ -86,8 +90,8 @@ class Refund extends Model
             $condition = array();
             $condition['order_id'] = $order_id;
             $data = array();
-            $data['lock_state'] = array('exp','lock_state+1');
-            $result = $this->table('order')->where($condition)->update($data);
+            $data['lock_state'] = array('inc','lock_state+1');
+            $result = db::name('order')->where($condition)->update($data);
             return $result;
         }
         return false;
@@ -278,9 +282,9 @@ class Refund extends Model
      * @param
      * @return array
      */
-    public function getRefundList($condition = array(), $page = '') {
+    public function getRefundList($condition = array(), $page = '',$limit="") {
         $condition['refund_type'] = '1';//类型:1为退款,2为退货
-        $result = $this->getRefundReturnList($condition, $page);
+        $result = $this->getRefundReturnList($condition, $page,'*',$limit);
         return $result;
     }
 
@@ -471,19 +475,19 @@ class Refund extends Model
      * @return array
      */
     public function getRefundStateArray($type = 'all') {
-        Language::read('refund');
+        //Language::read('refund');
         $state_array = array(
             '1' => '待审核',
             '2' => '同意退款',
             '3' => '不同意'
         );//卖家处理状态:1为待审核,2为同意,3为不同意
-        Template::output('state_array', $state_array);
+        $data['state_arrya'] = $state_array;
         $admin_array = array(
             '1' => '处理中',
             '2' => '待处理',
             '3' => '已完成'
         );//确认状态:1为买家或卖家处理中,2为待平台管理员处理,3为退款退货已完成
-        Template::output('admin_array', $admin_array);
+        $data['admin_array'] = $state_array;
 
         $state_data = array(
             'seller' => $state_array,
