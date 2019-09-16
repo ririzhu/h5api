@@ -260,4 +260,16 @@ class Area extends Model
         }
         return $result;
     }
+
+    /**
+     * add by zhengyifan 2019-06-16
+     * 获取地址
+     * @param array $condition
+     * @param string $fields
+     * @param $order
+     * @return array
+     */
+    public function getWorldAreaList($condition, $fields = '*',$order = 'area_id desc') {
+        return DB::name("world_area")->where($condition)->field($fields)->order($order)->select();
+    }
 }

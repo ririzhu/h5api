@@ -25,11 +25,12 @@ class Fenxiao extends Model {
     /**
      * 查询分销明细
      * @param $param
+     * @param $field
      * @return array|\PDOStatement|string|\think\Collection
      */
-    public function getCommissionInfo($param)
+    public function getCommissionInfo($param,$field = '*')
     {
-        return DB::name('fenxiao_log')->where($param)->select();
+        return DB::name('fenxiao_log')->field($field)->where($param)->select();
     }
 
     /**
