@@ -554,7 +554,7 @@ class Goods extends  Base
         }
         if (!isset($data_attr['sign']) || $data_attr['sign'] === true) {
             // 字段
-            $fields = "gid,goods_commonid,goods_name,goods_jingle,gc_id,vid,store_name,goods_price,goods_marketprice,goods_storage,goods_image,goods_freight,goods_salenum,color_id,evaluation_good_star,evaluation_count,is_free";
+            $fields = "gid,goods_label,goods_commonid,goods_name,goods_jingle,gc_id,vid,store_name,goods_price,goods_marketprice,goods_storage,goods_image,goods_freight,goods_salenum,color_id,evaluation_good_star,evaluation_count,is_free";
             //虚拟销量
             if(Config('virtual_sale')){
                 $fields .=',(goods_salenum+virtual_sale) as goods_salenum';
