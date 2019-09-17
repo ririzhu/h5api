@@ -280,19 +280,19 @@ class Favorites extends Model
      */
     public function getFavoritesCount($condition,$type) {
         if ($type == 'goods') {
-            $list = DB::name('favorites')
+            $count = DB::name('favorites')
                 ->alias('f')
                 ->join('bbc_goods g','g.gid = f.fav_id')
                 ->where($condition)
                 ->count();
-            return $list;
+            return $count;
         }else if ($type == 'store') {
-            $list = DB::name('favorites')
+            $count = DB::name('favorites')
                 ->alias('f')
                 ->join('bbc_vendor v','v.vid = f.fav_id')
                 ->where($condition)
                 ->count();
-            return $list;
+            return $count;
         }
     }
 }

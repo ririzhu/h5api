@@ -7,6 +7,7 @@ use app\v1\model\Fenxiao;
 use app\v1\model\Points;
 use app\v1\model\Predeposit;
 use app\v1\model\Goods;
+use app\v1\model\Red;
 use app\v1\model\User;
 use think\db;
 
@@ -56,6 +57,14 @@ class Usercenter extends Base {
         $brower_history = new BrowserHistory();
         $history_count = $brower_history->getGoodsBrowseHistoryCount(array('member_id'=>$member_id));
         $member_info['history_count'] = $history_count;
+
+        //获取优惠券数
+        $red = new Red();
+        $red_condition[] = ['reduser_use','eq',0];
+        $red_condition[] = ['redinfo_end','gt',TIMESTAMP];
+        $red_condition[] = ['reduser_uid','eq',$member_id];
+        $red_count = $red->getRedUserCount($red_condition);
+        $member_info['red_count'] = $red_count;
 
 		$data['code'] = 200;
 		$data['message'] = '请求成功';
@@ -168,7 +177,7 @@ class Usercenter extends Base {
      * 账户余额变动详情
      * @return false|string
      */
-    public function memberPdLog()
+    public function memberBalance()
     {
         if(!input("member_id")){
             $data['code'] = 10001;
@@ -181,14 +190,17 @@ class Usercenter extends Base {
             'lg_member_id' =>$member_id,
         ];
         $pd_log = $predeposit->getPdLogList($param);
+        foreach ($pd_log as $key => $val){
+            $pd_log[$key]['lg_add_time'] = date('Y-m-d',$val['lg_add_time']);
+        }
         $data['code'] = 200;
         $data['message'] = '请求成功';
-        $data['pd_log'] = $pd_log;
+        $data['list'] = $pd_log;
         return json_encode($data,true);
     }
 
     /**
-     * 我的收益
+     * 我的收益(应该要改)
      * @return false|string
      */
     public function memberIncome()
