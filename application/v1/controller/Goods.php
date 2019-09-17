@@ -505,12 +505,24 @@ class Goods extends  Base
         $parentId = input("parent_id",0);
         $gc = new GoodsClass();
         $list = $gc->getGoodsClassListByParentId($parentId);
+        $a = 0;
         foreach($list as $k=>$v){
-            $list[$k]['children'] = $gc->getGoodsClassListByParentId($list[$k]['gc_id']);
-            foreach($list[$k]['children'] as $m=>$n){
-                $list[$k]['children'][$m]['children'] = $gc->getGoodsClassListByParentId($list[$k]['children'][$m]['gc_id']);
+            $list[$k]['children'] = $childrens = $gc->getGoodsClassListByParentId($list[$k]['gc_id']);
+            $c = 0;
+            foreach($childrens as $kk=>$vv){
+                $list[$k]['children'][$a][$c]=$vv;
+                if($c==2){
+                    $a++;$c=0;
+                }
+                $c++;
             }
+
+            //foreach($list[$k]['children'] as $m=>$n){
+                //$list[$k]['children'][$m]['children'][$c] = $gc->getGoodsClassListByParentId($list[$k]['children'][$m]['gc_id']);
+
+            //}
         }
+        print_r($list);die;
         return json_encode($list);
     }
     /**

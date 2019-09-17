@@ -23,7 +23,7 @@ class Cart extends Base
         }
         if(!input('member_id')){
             $data['error_code'] = 10015;
-            $data['message'] = '缺少必要参数';
+            $data['message'] = '缺少参数';
             return json_encode($data,true);
         }
         $data['error_code'] = 200;
@@ -485,7 +485,7 @@ class Cart extends Base
                 $data['message'] = "修改失败";
             }
         }
-        exit(json_encode($data));
+        return(json_encode($data,true));
     }
 
     /**
