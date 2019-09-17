@@ -496,8 +496,8 @@ class Store extends Model
      * @return array
      */
     public function getStoreInfo($condition) {
-        $store_info = $this->table('dian')->where($condition)->find();
-        $member_model = Model('member');
+        $store_info = db::name('dian')->where($condition)->find();
+        $member_model = new User();
         if(!empty($store_info)) {
             if(!empty($store_info['store_presales'])){
                 $store_info['store_presales'] = unserialize($store_info['store_presales']);

@@ -12,7 +12,6 @@ class red extends \app\v1\controller\Base
 
         $model_red = new redModel();
         $member_info = $buy_list['member'];
-
         $goods_list = array();
         foreach ($buy_list['store_cart_list'] as $k=>$v){
             $goods_list[$k] = $v;

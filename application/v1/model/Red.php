@@ -50,6 +50,24 @@ class Red extends Model
             ->page($page)->order($order)->limit($limit)->select();
         return $red_list;
     }
+    /**
+     * 读取用户的单个优惠券
+     * @param array $condition 查询条件
+     * @param int $page 分页数
+     * @param string $order 排序
+     * @param string $field 所需字段
+     * @return array 团购列表
+     *
+     */
+    public function getUserRedById($condition, $order = 'bbc_red.id desc', $field = 'bbc_red.*,bbc_red_info.redinfo_money,bbc_red_info.redinfo_start,bbc_red_info.redinfo_end,bbc_red_info.redinfo_type,bbc_red_info.redinfo_ids,bbc_red_info.redinfo_self,bbc_red_info.redinfo_store,bbc_red_info.redinfo_full,bbc_red_info.redinfo_create,bbc_red_info.redinfo_together', $limit = 0) {
+        $field.=',min(redinfo_money) min_money,
+        max(redinfo_money) max_money,
+        min(bbc_red_info.redinfo_start) as min_date,
+        max(bbc_red_info.redinfo_end) as max_date';
+        $condition.=" and red_delete = 0";
+        $red_list = DB::name('red_info')->join('bbc_red','bbc_red.id=bbc_red_info.red_id')->join('bbc_red_user','bbc_red.id=bbc_red_user.red_id')->field($field)->where($condition)->order($order)->limit($limit)->find();
+        return $red_list;
+    }
 
     /**
      * 增加red
@@ -237,8 +255,7 @@ class Red extends Model
 
         //优惠券用户、优惠券数据
         $red_user_list = DB::table('bbc_red_user')->join("bbc_red",'bbc_red_user.red_id=bbc_red.id')->
-        field('bbc_red_user.*,bbc_red.red_title,bbc_red.red_type,red_status')->where($condition)->page($page)->order($order)->select();
-
+        field('bbc_red_user.id as rid,bbc_red_user.*,bbc_red.red_title,bbc_red.red_type,red_status')->where($condition)->page($page)->order($order)->select();
         //用户数据
         $member_ids = low_array_column($red_user_list,'reduser_uid');
         $where['member_id'] = array('in',arrayToString($member_ids));
@@ -249,6 +266,7 @@ class Red extends Model
                 $all_list[$k] = DB::table('bbc_red_info')->where(" red_id = ".$v['red_id'])->force("id")->find();
                 $all_list[$k]['red_type']=$red_user_list[$k]['red_type'];
                 $all_list[$k]['red_status']=$red_user_list[$k]['red_status'];
+                $all_list[$k]['red_id']=$red_user_list[$k]['bbc_red_user.id'];
             }
             return $all_list;
         }

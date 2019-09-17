@@ -819,7 +819,6 @@ class Goods extends Model
 
 
         $result['order_goods_info'] = $order_goods_info;
-
         if(isset($order_goods_info['rec_id'])){
             $order_goods_info = intval($order_goods_info['rec_id'] > 0);
             $types            = ['bs' => $goods_info['course_type'], 'txt' => lang('立即购买')];

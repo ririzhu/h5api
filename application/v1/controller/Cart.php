@@ -374,7 +374,7 @@ class Cart extends Base
                 $goods_id_array[] = $goods['gid'];
             }
             $key = 0;
-            $cart_list[$key]['bl_goods_list'] = $model_goods->getGoodsOnlineList(array('gid'=>array(in,$goods_id_array)));
+            $cart_list[$key]['bl_goods_list'] = $model_goods->getGoodsOnlineList(array('gid'=>array("in",arrayToString($goods_id_array))));
 
             //如果其中有商品下架，删除
             if (count($cart_list[$key]['bl_goods_list']) != count($goods_id_array)) {

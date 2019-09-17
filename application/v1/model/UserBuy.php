@@ -2,7 +2,9 @@
 namespace app\v1\model;
 use think\addons\red\red;
 use think\addons\red\red1;
+use think\Config;
 use think\db;
+use think\Exception;
 use think\Model;
 include(dirname(__FILE__)."/../../../addons/red/model/red.php");
 require(dirname(__FILE__)."/../../../addons/red/control/mall/member_red.php");
@@ -1481,7 +1483,6 @@ class UserBuy extends Model {
                 $goods_info = $model_cart->getGoodsOnlineInfo($gid,intval($quantity));
 
 
-
                 if(empty($goods_info)) {
                     return array('error' => '商品不存在');
                 }
@@ -1501,6 +1502,7 @@ class UserBuy extends Model {
                 // 获取最终价格
                 $goodsActivity = new GoodsActivity();
                 $goods_info = $goodsActivity->rebuild_goods_data($goods_info,$extends_data['from'],['grade'=>1]);
+
                 // 不进行拼团购买
                 if(!(isset($_REQUEST['pin']) && Config('sld_pintuan') && Config('pin_isuse'))) {
                     if (isset($goods_info['promotion_type']) && $goods_info['promotion_type'] == 'pin_tuan') {
@@ -1519,8 +1521,11 @@ class UserBuy extends Model {
                         $goods_info['show_price'] = $goods_info['goods_price'];
                     }
                 }
-
-                $goods_info['goods_spec'] = current(unserialize($goods_info['goods_spec']));
+                try {
+                    $goods_info['goods_spec'] = current(unserialize($goods_info['goods_spec']));
+                }catch(Exception $e){
+                    $goods_info['goods_spec'] = null;
+                }
 
                 //转成多维数组，方便纺一使用购物车方法与模板
                 $store_cart_list = array();
@@ -1629,16 +1634,22 @@ class UserBuy extends Model {
                 $result['available_predeposit'] = $buyer_info['available_predeposit'];
             }
         }
-
+//print(Config("setting_config"));die;
         //积分抵扣
-        if ($GLOBALS['setting_config']['points_max_use']!=0) {
+        //if ($GLOBALS['setting_config']['points_max_use']==true) {echo 1;die;
             if(!$buyer_info){
                 $buyer_info = $userModel->infoMember(array('member_id' => $member_id));
             }
             $result['member_points'] = $buyer_info['member_points'];
-            $result['points_max_use'] = $GLOBALS['setting_config']['points_max_use'];
+            $total =0;
+            foreach($store_goods_total as $k=>$v){
+                $total +=$v;
+            }
+            //echo $total;die;
+            $result['total'] = $total;
+            $result['points_max_use'] = $result['member_points']>$total?$total:$result['member_points'];
             $result['points_purpose_rebate'] = $GLOBALS['setting_config']['points_purpose_rebate'];
-        }
+        //}
 
         return $result;
     }
