@@ -28,7 +28,7 @@ class Sms extends Model
      * @return int
      */
     public function addSms($log_array) {
-        $log_id = $this->table('bbc_sms_log')->insert($log_array);
+        $log_id = DB::name('sms_log')->insert($log_array);
         return $log_id;
     }
 
@@ -42,14 +42,14 @@ class Sms extends Model
     public function send($mobile,$content,$tpl_id) {
         $mobile_host_type=Config('mobile_host_type');
         //TODO
-        if($mobile_host_type==1)
+        /*if($mobile_host_type==1)
         {
             return $this->mysend_smsbao($mobile,$content,$tpl_id);
         }
         if($mobile_host_type==2)
-        {
+        {*/
             return $this->mysend_yunpian($mobile,$content,$tpl_id);
-        }
+        //}
     }
     /*
     您于{$send_time}绑定手机号，验证码是：{$verify_code}。【{$site_name}】
@@ -125,7 +125,8 @@ class Sms extends Model
         $url = "https://sms.yunpian.com/v1/sms/send.json";
         curl_setopt($ch,CURLOPT_URL,$url);
         $code = $content;
-        $paramArr = array('apikey'=>'a77aec4378aec8c1caec0a4b73a4adc4','mobile'=>$mobile,'text'=>$code);
+        //$paramArr = array('apikey'=>'a77aec4378aec8c1caec0a4b73a4adc4','mobile'=>$mobile,'text'=>$code);
+        $paramArr = array('apikey'=>'0acb46c3756b6154d65cf177083e320e','mobile'=>$mobile,'text'=>$code);
         $param = '';
         foreach($paramArr as $key => $value){
             $param .= $key .="=" . $value ."&";

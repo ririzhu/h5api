@@ -2,6 +2,7 @@
 namespace app\v1\controller;
 use app\v1\model\Sms as Smslog;
 use app\v1\model\User;
+use \Yunpian\Sdk\YunpianClient;
 class Sms extends Base
 {
     /**
@@ -28,7 +29,7 @@ class Sms extends Base
             $model_member = new User();
             $member = $model_member->getMemberInfo(array('member_mobile'=> $mobile));
             $captcha = rand(100000, 999999);
-            $log_msg = str_replace('#code#',$captcha,Config('mobile_memo'));
+            $log_msg = str_replace('#code#',$captcha,"【海云舟】感谢您选择海云舟，您的注册验证码是#code#。海云舟，您的培训服务交易平台。");
             $log_msg = str_replace('#add#',Config('site_name'),$log_msg);
             switch ($type) {
                 case '1':
@@ -83,8 +84,16 @@ class Sms extends Base
             }
             if($state == 'true'){
                 $sms = new Smslog();
-                $result = $sms->send($mobile,$log_msg,Config('mobile_tplid'));
-                if($result){
+                //$result = $sms->send($mobile,$log_msg,Config('mobile_tplid'));
+                $clnt = YunpianClient::create("0acb46c3756b6154d65cf177083e320e");
+
+                $param = [YunpianClient::MOBILE => $mobile,YunpianClient::TEXT => $log_msg];
+                $r = $clnt->sms()->single_send($param);
+//var_dump($r);
+                if($r->isSucc()){
+                    //$r->data()
+                }
+                if($r->isSucc()){
                     $log_array['log_phone'] = $mobile;
                     $log_array['log_captcha'] = $captcha;
                     $log_array['log_ip'] = getIp();
@@ -96,6 +105,7 @@ class Sms extends Base
                     $data['message'] = '短信验证码发送成功。';
                     return json_encode($data,true);
                 } else {
+                    print_r($r);die;
                     $data['error_code'] = 10014;
                     $data['message'] = '短信验证码发送失败。';
                     return json_encode($data,true);

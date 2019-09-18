@@ -114,6 +114,7 @@ class Cart extends Base
             //得到优惠套装状态,并取得组合套装商品列表
             $cart_list = $model_cart->getBundlingCartList($cart_list);
             //购物车商品以店铺ID分组显示,并计算商品小计,店铺小计与总价由JS计算得出
+            $new_store_cart_list = array();
             $store_cart_list[] = array();
             foreach ($cart_list as $cart) {
                 //团购商品的话 超出限购数量会按照原价去购买
@@ -129,10 +130,18 @@ class Cart extends Base
                 }
                 $store_cart_list[$cart['vid']][] = $cart;
             }
+            $a=0;
+            foreach($store_cart_list as $k=>$v){
+                if(!empty($v)) {
+                    $new_store_cart_list[$a] = $v;
+                    $a++;
+                }
+            }
             //店铺信息
             $vendorModel = new VendorInfo();
             $store_list = $vendorModel->getStoreMemberIDList(array_keys($store_cart_list));
             $data['store_list'] = $store_list;
+            $data['store_cart_list']=$new_store_cart_list;
             //取得店铺级活动 - 可用的满即送活动
             $mansong_rule_list = $model_cart->getMansongRuleList(array_keys($store_cart_list));
             $data['mansong_rule_list'] = $mansong_rule_list;

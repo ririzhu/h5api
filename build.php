@@ -28,6 +28,13 @@ return [
         'model'      => ['User', 'UserType','Sms','UserToken','UserCart','UserOrder','Goods','StoreInfo','VendorInfo','Favorable','FavorableQuota','FavorableRule','GoodsActivity','ActivityCache','Tuan','CacheTime','Pxianshigoods','TodayBuy','TodayBuyDetail','SuiteGoods','Cache',"MBuy","Stats",'UserBuy','Store','Address','Invoice','FirstOrder','Payment','Predeposit','Red','StoreGoods','Grade','EvaluateStore','EvaluateGoods','VendorLabel','Seller','MyGoods','BrowserHistory','SnsGoods','Area','VendorGlmb','GoodsClass','Favorites','Cache','VendorNavigation','Seo','Dian','Transport','Points','Refund','Trade','Search','Citysite','Types','GoodsClassNav','Brand','Attribute','GoodsAttrIndex','Message','Refund','Order','SendMemberMessage','MemberMsgSetting','Document','UploadFile','VendorJoinIn','VendorCategory'],
         'view'       => ['index/index'],
     ],
+    'admin'     => [
+        '__file__'   => ['common.php'],
+        '__dir__'    => ['behavior', 'controller', 'model', 'view'],
+        'controller' => ['Index', 'Base', 'Admin','Api'],
+        'model'      => ['Admin','Api'],
+        'view'       => ['index/index','admin/index','admin/apilist'],
+    ],
 
     // 其他更多的模块定义
 ];

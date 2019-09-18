@@ -338,5 +338,10 @@ class Index extends Base
         $data['html'] = str_replace("&nbsp;","",$data['html']);
         return json_encode($data,true);
     }
-
+    /**
+     * 热搜
+     */
+    public function hotSearch(){
+        return json_encode(db::name("hot_search")->where("status =1 and starttime<=".TIMESTAMP." and endtime>=".TIMESTAMP)->order("sort,searchtimes","desc")->limit(6)->select());
+    }
 }
