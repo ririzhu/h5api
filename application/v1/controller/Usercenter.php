@@ -9,6 +9,7 @@ use app\v1\model\Predeposit;
 use app\v1\model\Goods;
 use app\v1\model\Red;
 use app\v1\model\User;
+use app\v1\model\Sms;
 use think\db;
 
 /**
@@ -174,10 +175,39 @@ class Usercenter extends Base {
     }
 
     /**
-     * 账户余额变动详情
+     * 账户余额
      * @return false|string
      */
     public function memberBalance()
+    {
+        if(!input('member_id')){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $member_id = input('member_id');
+        $member = new User();
+        $condition = [
+            'member_id' =>$member_id,
+        ];
+        $member_info = $member->getMemberInfo($condition,'available_predeposit');
+        if (empty($member_info)){
+            $data['code'] = 10002;
+            $data['message'] = "用户不存在";
+            return json_encode($data,true);
+        }
+
+        $data['code'] = 200;
+        $data['message'] = '请求成功';
+        $data['available_predeposit'] = $member_info['available_predeposit'];
+        return json_encode($data,true);
+    }
+
+    /**
+     * 零钱明细
+     * @return false|string
+     */
+    public function memberBalanceDetails()
     {
         if(!input("member_id")){
             $data['code'] = 10001;
@@ -185,11 +215,13 @@ class Usercenter extends Base {
             return json_encode($data,true);
         }
         $member_id = input("member_id");
+
         $predeposit = new Predeposit();
-        $param = [
+        $condition = [
             'lg_member_id' =>$member_id,
         ];
-        $pd_log = $predeposit->getPdLogList($param);
+        $field = 'lg_id,lg_type,lg_av_amount,lg_freeze_amount,lg_add_time,lg_desc';
+        $pd_log = $predeposit->getPdLogList($condition,$field,'lg_add_time desc');
         foreach ($pd_log as $key => $val){
             $pd_log[$key]['lg_add_time'] = date('Y-m-d',$val['lg_add_time']);
         }
@@ -287,20 +319,41 @@ class Usercenter extends Base {
      */
     public function memberPoints()
     {
-        if(!input("member_id")){
+        if(!input('member_id') || !input('points_type')){
             $data['code'] = 10001;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }
         $member_id = input("member_id");
-        $points = new Points();
-        $param = [
-            'pl_memberid' =>$member_id,
+        $points_type = input('points_type');
+
+        $member = new User();
+        $member_condition = [
+            'member_id' =>$member_id,
         ];
-        $points_list = $points->getPointList($param,'*','pl_addtime desc');
+        $member_info = $member->getMemberInfo($member_condition,'member_points');
+        if (empty($member_info)){
+            $data['code'] = 10002;
+            $data['message'] = "用户不存在";
+            return json_encode($data,true);
+        }
+
+        $points = new Points();
+        $points_condition[] = ['pl_memberid','eq',$member_id];
+        if ($points_type == 1){
+            $points_condition[] = ['pl_points','gt',0];
+        }elseif ($points_type == 2){
+            $points_condition[] = ['pl_points','lt',0];
+        }
+        $points_field = 'pl_id,pl_points,pl_addtime,pl_desc';
+        $points_list = $points->getPointList($points_condition,$points_field,'pl_addtime desc');
+        foreach ($points_list as $key => $val){
+            $points_list[$key]['pl_addtime'] = date('Y-m-d H:i:s',$val['pl_addtime']);
+        }
 
         $data['code'] = 200;
         $data['message'] = '请求成功';
+        $data['points'] = $member_info['member_points'];
         $data['points_list'] = $points_list;
         return json_encode($data,true);
     }
@@ -355,6 +408,226 @@ class Usercenter extends Base {
         $field = 'area_id,name';
         $area_list = $area->getWorldAreaList($condition,$field);
         return json_encode($area_list,true);
+    }
+
+    /**
+     * 编辑用户资料
+     * @return false|string
+     */
+    public function updateInfo()
+    {
+        if(!input("member_id")){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $member = new User();
+
+        $param = [
+            $member_array['member_avatar']	= input('member_avatar'),
+            $member_array['member_name']	= input('member_name'),
+            $member_array['member_birthday']	= input('birthday'),
+            $member_array['member_sex']			= input('member_sex'),
+            $member_array['member_areaid']		= input('area_id'),
+            $member_array['member_cityid']		= input('city_id'),
+            $member_array['member_provinceid']	= input('province_id'),
+            $member_array['member_countryid']	= input('country_id'),
+            $member_array['member_areainfo']	= input('area_info'),
+        ];
+        $update = $member->updateMember($param,input('member_id'));
+
+        if ($update){
+            $data['code'] = 200;
+            $data['message'] = '编辑成功';
+            return json_encode($data,true);
+        }else{
+            $data['code'] = 10002;
+            $data['message'] = '编辑失败，请重试';
+            return json_encode($data,true);
+        }
+    }
+
+    /**
+     * 修改密码
+     * @return false|string
+     */
+    public function updatePassword()
+    {
+        if(!input("member_id")
+            //|| !input("mobile")
+            || !input("snscode")
+            || !input("password")
+            || !input("new_password")
+            || !input("new_confirm_password")
+        ){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+
+        if (trim(input('password')) == trim(input('new_password'))){
+            $data['code'] = 10002;
+            $data['message'] = lang("密码不能与原密码重复");
+            return json_encode($data,true);
+        }
+
+        if (trim(input('new_password')) != trim(input('new_confirm_password'))){
+            $data['code'] = 10003;
+            $data['message'] = lang("两次新密码不一致");
+            return json_encode($data,true);
+        }
+
+        $member = new User();
+
+        $member_condition = [
+            'member_id' => input('member_id'),
+            'member_mobile' => input('mobile'),
+            'member_passwd' => md5(trim(input('password'))),
+        ];
+        $member_info = $member->getMemberInfo($member_condition,'member_id');
+        if (empty($member_info)){
+            $data['code'] = 10005;
+            $data['message'] = "绑定的手机号或原始密码错误";
+            return json_encode($data,true);
+        }
+
+//        $countryCode = input("country_code")?86:input("country_code");
+//        $phone = $countryCode.input("mobile");
+        $phone = input('mobile');
+        $captcha = input('snscode');
+        $condition = array();
+        $condition['log_phone'] = $phone;
+        $condition['log_captcha'] = $captcha;
+        $condition['log_type'] = 2;
+        $model_sms_log = new Sms();
+        $sms_log = $model_sms_log->getSmsInfo($condition);
+        if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效
+            $data['code'] = 10004;
+            $data['message'] = '动态码错误或已过期，重新输入';
+            return json_encode($data,true);
+        }
+
+        $param = [
+            'member_passwd'=>md5(trim(input('new_password')))
+        ];
+        $update = $member->updateMember($param,input('member_id'));
+        
+        if ($update){
+            $data['code'] = 200;
+            $data['message'] = '密码修改成功';
+            return json_encode($data,true);
+        }else{
+            $data['code'] = 10006;
+            $data['message'] = '密码修改失败，请重试';
+            return json_encode($data,true);
+        }
+    }
+
+    /**
+     * 修改手机号
+     * @return false|string
+     */
+    public function updatePhone_1()
+    {
+        if (!input('member_id')
+            //|| !input("mobile")
+            || !input("snscode")
+        ){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+
+        $member = new User();
+
+        $member_condition = [
+            'member_id' => input('member_id'),
+            'member_mobile' => input('mobile'),
+        ];
+        $member_info = $member->getMemberInfo($member_condition,'member_id');
+        if (empty($member_info)){
+            $data['code'] = 10002;
+            $data['message'] = "绑定的手机号错误";
+            return json_encode($data,true);
+        }
+
+//        $countryCode = input("country_code")?86:input("country_code");
+//        $phone = $countryCode.input("mobile");
+        /*$phone = input('mobile');
+        $captcha = input('snscode');
+        $condition = array();
+        $condition['log_phone'] = $phone;
+        $condition['log_captcha'] = $captcha;
+        $condition['log_type'] = 2;
+        $model_sms_log = new Sms();
+        $sms_log = $model_sms_log->getSmsInfo($condition);
+        if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效
+            $data['code'] = 10003;
+            $data['message'] = '动态码错误或已过期，重新输入';
+            return json_encode($data,true);
+        }*/
+
+        $data['code'] = 200;
+        $data['message'] = '验证通过';
+        return json_encode($data,true);
+    }
+
+    /**
+     * 修改手机号
+     * @return false|string
+     */
+    public function updatePhone_2()
+    {
+        if (!input('member_id')
+            || !input("mobile")
+            || !input("snscode")
+        ){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+
+//        $countryCode = input("country_code")?86:input("country_code");
+//        $phone = $countryCode.input("mobile");
+        $phone = input('mobile');
+        $captcha = input('snscode');
+        $condition = array();
+        $condition['log_phone'] = $phone;
+        $condition['log_captcha'] = $captcha;
+        $condition['log_type'] = 2;
+        $model_sms_log = new Sms();
+        $sms_log = $model_sms_log->getSmsInfo($condition);
+        if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效
+            $data['code'] = 10002;
+            $data['message'] = '动态码错误或已过期，重新输入';
+            return json_encode($data,true);
+        }
+
+        $member = new User();
+
+        $member_condition[] = ['member_id','neq',input('member_id')];
+        $member_condition[] = ['member_mobile','eq',input('mobile')];
+        $member_info = $member->getMemberInfo($member_condition,'member_id');
+        if ($member_info){
+            $data['code'] = 10003;
+            $data['message'] = "该手机号已被注册";
+            return json_encode($data,true);
+        }
+
+        $param = [
+            'member_mobile' => input('mobile')
+        ];
+        $update = $member->updateMember($param,input('member_id'));
+
+        if ($update){
+            $data['code'] = 200;
+            $data['message'] = '修改成功';
+            return json_encode($data,true);
+        }else{
+            $data['code'] = 10004;
+            $data['message'] = '修改失败，请重试';
+            return json_encode($data,true);
+        }
     }
 
 

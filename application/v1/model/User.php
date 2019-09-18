@@ -236,7 +236,7 @@ class User extends Model
         //得到条件语句
         $condition_str	= " member_id='{$member_id}' ";
         $update		= Db::update('member',$param,$condition_str);*/
-        $update = DB::name('member')->where('member_id',$member_id)->update($param);
+        $update = DB::name('member')->where(['member_id' => $member_id])->update($param);
         return $update;
     }
     /**
