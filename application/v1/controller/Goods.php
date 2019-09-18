@@ -507,12 +507,13 @@ class Goods extends  Base
         $list = $gc->getGoodsClassListByParentId($parentId);
         $a = 0;
         foreach($list as $k=>$v){
-            $list[$k]['children'] = $childrens = $gc->getGoodsClassListByParentId($list[$k]['gc_id']);
+            $childrens = $gc->getGoodsClassListByParentId($list[$k]['gc_id']);
             $c = 0;
+
             foreach($childrens as $kk=>$vv){
                 $list[$k]['children'][$a][$c]=$vv;
                 if($c==2){
-                    $a++;$c=0;
+                    $a++;$c=-1;
                 }
                 $c++;
             }
@@ -522,7 +523,6 @@ class Goods extends  Base
 
             //}
         }
-        print_r($list);die;
         return json_encode($list);
     }
     /**
