@@ -1048,5 +1048,21 @@ class Red extends Model
         Template::showpage('buy_red.load','null_layout');
     }
 
+    /**
+     * add by zhengyifan 2019-09-17
+     * 获取优惠券数量
+     * @param $condition
+     * @return float|string
+     */
+    public function getRedUserCount($condition)
+    {
+        $red_user_count = DB::name('red_user')->alias('ru')
+            ->join("red r",'r.id = ru.red_id')
+            ->field('ru.*')
+            ->where($condition)
+            ->count();
+        return $red_user_count;
+    }
+
 
 }
