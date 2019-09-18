@@ -202,7 +202,7 @@ class Message extends Model
         return true;
     }
     private function getCondition($condition_array){
-        $condition_sql = '';
+        $condition_sql = ' 1=1 ';
         //站内信编号
         if(isset($condition_array['message_id']) && $condition_array['message_id'] != ''){
             $condition_sql	.= " and bbc_message.message_id = '{$condition_array['message_id']}'";
@@ -276,5 +276,18 @@ class Message extends Model
             }
         }
         return $condition_sql;
+    }
+
+    /**
+     * 消息列表
+     * @param   array $param    条件数组
+     */
+    public function messageList($condition,$field='*',$page='') {
+        //得到条件语句
+        $condition_str = $this->getCondition($condition);
+
+        $param  = array();
+        $message_list       = Db::name('message')->field($field)->where($condition_str)->order('message_id DESC')->page($page,10)->select();
+        return $message_list;
     }
 }

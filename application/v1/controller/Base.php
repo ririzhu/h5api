@@ -311,4 +311,30 @@ class Base extends Controller
         }
 
     }
+/**
+ * 获得几天前，几小时前，几月前
+ * @param int $time 时间戳
+ * @param array $unit 时间单位
+ * @return bool|string
+ */
+function date_before($time, $unit = null) {
+    $time = intval($time);
+    $unit = is_null($unit) ? array("年", "月", "星期", "天", "小时", "分钟", "秒") : $unit;
+    switch (true) {
+        case $time < (time() - 31536000) :
+            return floor((time() - $time) / 31536000) . $unit[0] . '前';
+        case $time < (time() - 2592000) :
+            return floor((time() - $time) / 2592000) . $unit[1] . '前';
+        case $time < (time() - 604800) :
+            return floor((time() - $time) / 604800) . $unit[2] . '前';
+        case $time < (time() - 86400) :
+            return floor((time() - $time) / 86400) . $unit[3] . '前';
+        case $time < (time() - 3600) :
+            return floor((time() - $time) / 3600) . $unit[4] . '前';
+        case $time < (time() - 60) :
+            return floor((time() - $time) / 60) . $unit[5] . '前';
+        default :
+            return '刚刚';
+    }
+}
 }
