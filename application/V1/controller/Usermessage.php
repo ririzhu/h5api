@@ -100,7 +100,7 @@ class Usermessage extends  Base
         $message['message_time_str'] = $this->date_before($message['message_time']);
         $data['code']=200;
         $data['message']='请求成功';
-        $data['messageInfo']=$message;
+        $data['mesInfo']=$message;
         return json_encode($data,true);
     }
 }
