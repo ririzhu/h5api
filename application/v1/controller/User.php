@@ -373,6 +373,7 @@ class User extends Base
         $param['city_id'] = input("city_id");
         $param['area_info'] = input("area_info");
         $param['address'] = input("address");
+        $param['tag'] = input("tag");
         $param['mob_phone'] = input("mob_phone");
         //编辑地址
         if(input("address_id")){
