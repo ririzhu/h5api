@@ -287,7 +287,48 @@ class Message extends Model
         $condition_str = $this->getCondition($condition);
 
         $param  = array();
-        $message_list       = Db::name('message')->field($field)->where($condition_str)->order('message_id DESC')->page($page,10)->select();
+        $message_list       = Db::name('message')->field($field)->where($condition_str)->order('message_id DESC')->page($page,20)->select();
         return $message_list;
+    }
+    /**
+     * 单条消息
+     */
+    public function getOne($condition) {
+        //得到条件语句
+        $condition_str = $this->getCondition($condition);
+        return Db::name('message')->where($condition_str)->find();
+    }
+    /**
+     * 消息状态更新
+     */
+    public function updateMessage($condition,$update){
+        $where = $this->getCondition($condition);
+        return Db::name('message')->where($where)->update($update);
+    }
+    /**
+     * 保存消息
+     *
+     * @param   array $param    条件数组
+     */
+    public function messageSave($param) {
+        if($param['member_id'] == '') {
+            return false;
+        }
+        $array  = array();
+        $array['message_parent_id'] = !empty($param['message_parent_id'])?$param['message_parent_id']:'0';
+        $array['from_member_id']    = !empty($param['from_member_id']) ? $param['from_member_id'] : '0' ;
+        $array['from_member_name']  = !empty($param['from_member_name']) ? $param['from_member_name'] : '' ;
+        $array['to_member_id']      = $param['member_id'];
+        $array['to_member_name']    = !empty($param['to_member_name'])?$param['to_member_name']:'';
+        $array['message_body']      = trim($param['msg_content']);
+        $array['message_time']      = time();
+        $array['message_update_time']= time();
+        $array['message_type']      = !empty($param['message_type'])?$param['message_type']:'0';
+        $array['message_ismore']    = !empty($param['message_ismore'])?$param['message_ismore']:'0';
+        $array['read_member_id']    = !empty($param['read_member_id'])?$param['read_member_id']:'';
+        $array['del_member_id'] = !empty($param['del_member_id'])?$param['del_member_id']:'';
+        $array['system_type']   = !empty($param['system_type'])?$param['system_type']:0;
+        $array['link']  = !empty($param['system_type'])?$param['link']:0;
+        return $this->name('message')->insert($array);
     }
 }
