@@ -337,4 +337,99 @@ class User extends Base
 
         return json_encode($return_arr);
     }
+    /**
+     * 我的收货地址列表
+     */
+    public function myAddressList($memberId = null){
+        if($memberId == null) {
+            if (!input("member_id") || $memberId = null) {
+                $data['error_code'] = 10016;
+                $data['message'] = lang("缺少参数");
+                return json_encode($data, true);
+            }
+            $memberId = input("member_id");
+            $data['error_code'] = 200;
+            $data['message'] = lang("成功");
+        }else{
+            $data['error_code'] = 200;
+            $data['message'] = lang("保存成功");
+        }
+        $data['data'] = DB::name("address")->where("member_id=$memberId")->order("is_default","desc")->select();
+
+        return json_encode($data,true);
+    }
+    /**
+     * 新增，修改收货地址
+     */
+    public function updateAddress(){
+        if(!input("member_id") || !input("true_name") || !input("area_id") || !input("city_id") || !input("area_info") || !input("mob_phone") || !input("address")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $param['member_id'] = input("member_id");
+        $param['true_name'] = input("true_name");
+        $param['area_id'] = input("area_id");
+        $param['city_id'] = input("city_id");
+        $param['area_info'] = input("area_info");
+        $param['address'] = input("address");
+        $param['mob_phone'] = input("mob_phone");
+        //编辑地址
+        if(input("address_id")){
+            $address_id = input("address_id");
+            $res = db::name("address")->where("member_id=".$param["member_id"] ." and address_id=$address_id")->update($param);
+            if($res){
+                $data['error_code'] = 200;
+                $data['message'] = lang("保存成功");
+            }
+            else{
+                $data['error_code']=10200;
+                $data['message'] = lang("保存失败");
+            }
+            return json_encode($data,true);
+        }
+        $count = db::name("address")->where("member_id=".$param['member_id'])->count();
+        if($count == 0){
+            $param['is_default'] = 1;
+        }
+        else {
+            $param['is_default'] = input("is_default");
+            if($param['is_default'] == 1){
+                db::name("address")->where("member_id=".$param["member_id"])->update(array("is_default"=>0));
+            }
+        }
+        //print_r($param);
+        $res = db::name("address")->insert($param);
+        if($res==true){
+            return $this->myAddressList(input("member_id"));
+        }else{
+            $data['error_code']=10200;
+            $data['message'] = lang("保存失败");
+            return json_encode($data,true);
+        }
+
+    }
+    /**
+     * 删除地址
+     */
+    public function delAddress(){
+        if(!input("member_id") || !input("address_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }else{
+            $param['address_id']=input("address_id");
+            $param['member_id'] = input("member_id");
+            $res = db::name("address")->delete($param);
+            if($res){
+                $data['error_code'] = 200;
+                $data['message'] = lang("删除成功");
+            }
+            else{
+                $data['error_code'] = 10201;
+                $data['message'] = lang("删除失败");
+            }
+            return json_encode($data,true);
+        }
+    }
 }

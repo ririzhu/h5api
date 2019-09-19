@@ -46,7 +46,7 @@ class Capply extends Base
             $param['store_name'] = $_POST['company_name'];//店铺名称
             $param['store_class_ids'] = serialize($store_class_ids);//经营类目ids
             $param['store_class_names'] = serialize($store_class_names);//经营类目名称列表
-            //$param['joinin_year'] = intval($_POST['joinin_year']);
+            $param['joinin_year'] = 9999;//intval($_POST['joinin_year']);
             $param['joinin_state'] = STORE_JOIN_STATE_NEW;
             $param['paying_amount'] = floatval(0) * 1;
 

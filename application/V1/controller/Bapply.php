@@ -193,7 +193,7 @@ class Bapply extends Base
             $param['store_class_ids'] = serialize($store_class_ids);
             $param['store_class_names'] = serialize($store_class_names);
             $param['sg_name'] = $_POST['sg_name'];
-            $param['joinin_year'] = 1;//intval($_POST['joinin_year']);
+            $param['joinin_year'] = 9999;//intval($_POST['joinin_year']);
             $param['joinin_state'] = STORE_JOIN_STATE_NEW;
             $param['store_class_commis_rates'] = implode(',', $store_class_commis_rates);
 //        $param['sg_id'] = $_POST['sg_id'];
