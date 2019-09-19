@@ -2897,15 +2897,18 @@ class Goods extends Model
      * 获取商品信息
      * @param $condition
      * @param string $field
-     * @param string $group
      * @param string $order
-     * @param int $limit
      * @param int $page
-     * @param bool $lock
+     * @param int $limit
      * @return array
      */
-    public function getGoods($condition, $field = '*', $group = '',$order = '', $limit = 10, $page = 0, $lock = false) {
-        return DB::name('goods')->where($condition)->group($group)->order($order)->limit($limit)->page($page)->lock($lock)->column($field,'gid');
+    public function getGoods($condition, $field = '*', $order = '', $page = 0, $limit = 100) {
+        return DB::name('goods')
+            ->where($condition)
+            ->order($order)
+            ->page($page)
+            ->limit($limit)
+            ->column($field,'gid');
     }
 
 

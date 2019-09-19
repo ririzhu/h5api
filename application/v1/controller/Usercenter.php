@@ -4,6 +4,7 @@ use app\v1\model\Area;
 use app\v1\model\BrowserHistory;
 use app\v1\model\Favorites;
 use app\v1\model\Fenxiao;
+use app\v1\model\LangSites;
 use app\v1\model\Points;
 use app\v1\model\Predeposit;
 use app\v1\model\Goods;
@@ -27,7 +28,8 @@ class Usercenter extends Base {
      * 个人中心
      * @return false|string
      */
-	public function index(){
+	public function index()
+    {
         if(!input("member_id")){
             $data['code'] = 10001;
             $data['message'] = lang("缺少参数");
@@ -73,7 +75,8 @@ class Usercenter extends Base {
         echo json_encode($data,true);
 	}
 
-	private function formatDate($time){
+	private function formatDate($time)
+    {
 		$handle_date = @date('Y-m-d',$time);//需要格式化的时间
 		$reference_date = @date('Y-m-d',time());//参照时间
 		$handle_date_time = strtotime($handle_date);//需要格式化的时间戳
@@ -96,7 +99,8 @@ class Usercenter extends Base {
      * 用户个人信息
      * @return false|string
      */
-	public function memberInfo(){
+	public function memberInfo()
+    {
         if(!input("member_id")){
             $data['code'] = 10001;
             $data['message'] = lang("缺少参数");
@@ -124,7 +128,8 @@ class Usercenter extends Base {
      * 用户足迹
      * @return false|string
      */
-    public function memberBrowserHistory(){
+    public function memberBrowserHistory()
+    {
         if(!input("member_id")){
             $data['code'] = 10001;
             $data['message'] = lang("缺少参数");
@@ -135,7 +140,7 @@ class Usercenter extends Base {
         $param = [
             'member_id' =>$member_id,
         ];
-	    $member_history = $history->getGoodsBrowseHistory($param,'*',1,10,'browsetime desc');
+	    $member_history = $history->getGoodsBrowseHistory($param,'*','browsetime desc');
         $browser_list_new = [];
         $browser_list_new_date = [];
 	    if ($member_history){
@@ -149,7 +154,7 @@ class Usercenter extends Base {
             foreach ($member_history as $k=>$v){
                 if ($goods_list[$v['gid']]){
                     $tmp = $goods_list[$v['gid']];
-                    $tmp["browsetime"] = $v['browsetime'];
+//                    $tmp["browsetime"] = $v['browsetime'];
                     if (date('Y-m-d',$v['browsetime']) == date('Y-m-d',time())){
                         $tmp['browsetime_day'] = lang('今天');
                     } elseif (date('Y-m-d',$v['browsetime']) == date('Y-m-d',(time()-86400))){
@@ -157,12 +162,12 @@ class Usercenter extends Base {
                     } else {
                         $tmp['browsetime_day'] = date('Y/m/d',$v['browsetime']);
                     }
-                    $tmp['browsetime_text'] = $tmp['browsetime_day'].date('H:i',$v['browsetime']);
+//                    $tmp['browsetime_text'] = $tmp['browsetime_day'].date('H:i',$v['browsetime']);
                     $browser_list_new[] = $tmp;
                 }
             }
 
-            //将浏览记录按照时间重新组数组
+            //重组数组
             foreach ($browser_list_new as $kk=>$vv){
                 $browser_list_new_date[$vv['browsetime_day']][] = $vv;
             }
@@ -170,8 +175,37 @@ class Usercenter extends Base {
         $data['code'] = 200;
         $data['message'] = '请求成功';
 //        $data['browser_list'] = $browser_list_new;
-        $data['browser_list_new_date'] = $browser_list_new_date;
+        $data['browser_list'] = $browser_list_new_date;
         return json_encode($data,true);
+    }
+
+    /**
+     * 删除足迹
+     * @return false|string
+     */
+    public function memberBrowserHistoryDelete()
+    {
+        if(!input('member_id') || !input('gid')){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+
+        $history = new BrowserHistory();
+        $condition = [
+            'gid' => input('gid'),
+            'member_id' => input('member_id'),
+        ];
+        $del = $history->delGoodsbrowseHistory($condition);
+        if ($del){
+            $data['code'] = 200;
+            $data['message'] = '删除成功';
+            return json_encode($data,true);
+        }else{
+            $data['code'] = 10002;
+            $data['message'] = '删除失败，请检查是否存在该记录';
+            return json_encode($data,true);
+        }
     }
 
     /**
@@ -397,6 +431,20 @@ class Usercenter extends Base {
     }
 
     /**
+     * 语言设置
+     * @return false|string
+     */
+    public function langList()
+    {
+        $lang = new LangSites();
+
+        $condition['state'] = 1;
+        $field = 'id,lang,lang_name_ch,lang_name';
+        $lang_list = $lang->getlist($condition,$field);
+        return json_encode($lang_list,true);
+    }
+
+    /**
      * 地区设置
      * @return false|string
      */
@@ -498,7 +546,7 @@ class Usercenter extends Base {
         $condition = array();
         $condition['log_phone'] = $phone;
         $condition['log_captcha'] = $captcha;
-        $condition['log_type'] = 2;
+        $condition['log_type'] = 3;
         $model_sms_log = new Sms();
         $sms_log = $model_sms_log->getSmsInfo($condition);
         if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效
@@ -553,7 +601,7 @@ class Usercenter extends Base {
 
 //        $countryCode = input("country_code")?86:input("country_code");
 //        $phone = $countryCode.input("mobile");
-        /*$phone = input('mobile');
+        $phone = input('mobile');
         $captcha = input('snscode');
         $condition = array();
         $condition['log_phone'] = $phone;
@@ -565,7 +613,7 @@ class Usercenter extends Base {
             $data['code'] = 10003;
             $data['message'] = '动态码错误或已过期，重新输入';
             return json_encode($data,true);
-        }*/
+        }
 
         $data['code'] = 200;
         $data['message'] = '验证通过';
