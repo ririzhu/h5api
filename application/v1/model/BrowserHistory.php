@@ -547,11 +547,26 @@ class BrowserHistory extends Model
      * @param string $order
      * @param int $page
      * @param int $limit
-     * @param string $group
      * @return array|\PDOStatement|string|\think\Collection
      */
-    public function getGoodsBrowseHistory($condition, $field = '*', $page = 0, $limit = 10, $order = '', $group = '') {
-        return DB::name('goods_browsehistory')->field($field)->where($condition)->page($page)->limit($limit)->order($order)->group($group)->select();
+    public function getGoodsBrowseHistory($condition, $field = '*', $order = '', $page = 0, $limit = 100) {
+        return DB::name('goods_browsehistory')
+            ->field($field)
+            ->where($condition)
+            ->page($page)
+            ->limit($limit)
+            ->order($order)
+            ->select();
+    }
+
+    /**
+     * add by zhengyifan 2019-09-19
+     * 删除足迹
+     * @param $condition
+     * @return int
+     */
+    public function delGoodsbrowseHistory($condition){
+        return DB::name('goods_browsehistory')->where($condition)->delete();
     }
 
     /**
