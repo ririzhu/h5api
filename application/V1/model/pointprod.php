@@ -309,4 +309,37 @@ class pointprod extends Model
 
     	return $return['jmys_SUM'] ? $return['jmys_SUM'] : 0 ;
     }
+
+
+    /*
+    **获取列表
+     */
+    public function getlist($field=' * ',$where='',$order='',$limit=''){
+    	$now=time();
+    	$sql="select ";
+    	$sql.=$field;
+    	$sql.=" from bbc_points_goods ";
+    	$sql.=" where pgoods_show = 1 and pgoods_state = 0 and (pgoods_islimittime = 0 or (pgoods_islimittime = 1 and pgoods_starttime < ".$now." and pgoods_endtime > ".$now.")) ";
+    	$sql.=$where;
+    	$sql.=$order;
+    	$sql.=$limit;
+    	return Db::query($sql);
+    }
+    /*
+    **获取礼品详情
+     */
+    public function getOne($where){
+    	return Db::name('points_goods')->field('*')->where($where)->find();
+    }
+    /*
+    **获取礼品类别
+     */
+    public function getPointClass(){
+    	$sql="select ";
+    	$sql.=" gc_id,gc_name,gc_sld_pc_picture ";
+    	$sql.=" from bbc_goods_class ";
+    	$sql.=" where is_points = 1 and gc_show = 1 ";
+    	return Db::query($sql);
+    }
+
 }
