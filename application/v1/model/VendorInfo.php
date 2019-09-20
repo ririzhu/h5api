@@ -304,19 +304,21 @@ class VendorInfo extends Model
      */
     public function getStoreSearchList($store_array) {
         $store_array_new = array();
+        //print_r($store_array);die;
         if(!empty($store_array)){
-            $model = Model();
             $no_cache_store = array();
             foreach ($store_array as $value) {
-                //$store_search_info = rcache($value['vid'],'store_search_info');
+                $base = new Base();
+                $store_search_info = $base->rcache($value['vid'],'store_search_info');
                 //print_r($store_array);exit();
-                //if($store_search_info !== FALSE) {
-                //	$store_array_new[$value['vid']] = $store_search_info;
-                //} else {
-                //	$no_cache_store[$value['vid']] = $value;
-                //}
+                if($store_search_info !== FALSE) {
+                	$store_array_new[$value['vid']] = $store_search_info;
+                } else {
+                	$no_cache_store[$value['vid']] = $value;
+                }
                 $no_cache_store[$value['vid']] = $value;
             }
+            //print_r($no_cache_store);die;
             if(!empty($no_cache_store)) {
                 //获取店铺商品数
                 $no_cache_store = $this->getStoreInfoBasic($no_cache_store);
@@ -326,7 +328,7 @@ class VendorInfo extends Model
                 $no_cache_store = $this->getGoodsListBySales($no_cache_store);
                 //写入缓存
                 foreach ($no_cache_store as $value) {
-                    wcache($value['vid'],$value,'store_search_info');
+                    $base->wcache($value['vid'],$value,'store_search_info');
                 }
                 $store_array_new = array_merge($store_array_new,$no_cache_store);
             }
@@ -344,9 +346,10 @@ class VendorInfo extends Model
         if (!empty($list) && is_array($list)){
             foreach ($list as $key=>$value) {
                 if(!empty($value)) {
-                    $value['store_logo'] = getStoreLogo($value['store_logo']);
+                    //$value['store_logo'] = getStoreLogo($value['store_logo']);
+                    $value['store_logo'] = getStoreLogo($value['store_label']);
                     //店铺评价
-                    $model_evaluate_store = Model('evaluate_store');
+                    $model_evaluate_store = new EvaluateStore();
                     $store_evaluate_info = $model_evaluate_store->getEvaluateStoreInfoByStoreID($value['vid'], $value['sc_id']);
                     $value = array_merge($value, $store_evaluate_info);
                     if(!empty($value['store_presales'])) $value['store_presales'] = unserialize($value['store_presales']);
@@ -384,10 +387,11 @@ class VendorInfo extends Model
      */
     public function getGoodsCountByStoreArray($store_array) {
         $store_array_new = array();
-        $model = Model();
+        //$model = Model();
         $no_cache_store = '';
         foreach ($store_array as $value) {
-            $goods_count = rcache($value['vid'],'store_goods_count');
+            $base = new Base();
+            $goods_count = $base->rcache($value['vid'],'store_goods_count');
             if(!empty($goods_count)&&$goods_count !== FALSE) {
                 //有缓存的直接赋值
                 $value['goods_count'] = $goods_count;
@@ -404,11 +408,11 @@ class VendorInfo extends Model
             $condition = array();
             $condition['goods_state'] = '1';
             $condition['vid'] = array('in',$no_cache_store);
-            $goods_count_array = $model->table('goods')->field('vid,count(*) as goods_count')->where($condition)->group('vid')->select();
+            $goods_count_array = db::name('goods')->field('vid,count(*) as goods_count')->where($condition)->group('vid')->select();
             if (!empty($goods_count_array)){
                 foreach ($goods_count_array as $value){
                     $store_array_new[$value['vid']]['goods_count'] = $value['goods_count'];
-                    wcache($value['vid'],$value['goods_count'],'store_goods_count');
+                    $base->wcache($value['vid'],$value['goods_count'],'store_goods_count');
                 }
             }
         }
@@ -416,8 +420,8 @@ class VendorInfo extends Model
     }
     //获取近期销量
     private function getGoodsCountJq($store_array) {
-        $model = Model();
-        $order_count_array = $model->table('order')->field('vid,count(*) as order_count')->where(array('vid'=>array('in',implode(',',array_keys($store_array))),'add_time'=>array('gt',TIMESTAMP-3600*24*90)))->group('vid')->select();
+        //$model = Model();
+        $order_count_array = DB::name('order')->field('vid,count(*) as order_count')->where(array('vid'=>array('in',implode(',',array_keys($store_array))),'add_time'=>array('gt',TIMESTAMP-3600*24*90)))->group('vid')->select();
         foreach ((array)$order_count_array as $value) {
             $store_array[$value['vid']]['num_sales_jq'] = $value['order_count'];
         }
@@ -425,12 +429,12 @@ class VendorInfo extends Model
     }
     //获取店铺8个销量最高商品
     private function getGoodsListBySales($store_array) {
-        $model = Model();
+        //$model = Model();
         $field = 'gid,vid,goods_name,goods_image,goods_price,goods_salenum';
         //虚拟销量
-        if(C('virtual_sale')){
+        if(Config('virtual_sale')){
             $field .= ',goods_salenum+virtual_sale as goods_salenum';
-            $order = 'goods_salenum+virtual_sale desc';
+            $order = 'goods_salenum desc';
         }else{
             $order = 'goods_salenum desc';
         }
@@ -438,7 +442,7 @@ class VendorInfo extends Model
             if ($value['sld_is_supplier'] == 1) {
                 $field .= ',goods_type';
             }
-            $search_list_goods = $model->table('goods')->field($field)->where(array('vid'=>$value['vid'],'goods_state'=>1))->order($order)->limit(4)->select();
+            $search_list_goods = db::name('goods')->field($field)->where(array('vid'=>$value['vid'],'goods_state'=>1))->order($order)->limit(4)->select();
 
             // 获取最终价格
             $search_list_goods = Model('goods_activity')->rebuild_goods_data($search_list_goods,'pc');

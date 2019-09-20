@@ -20,7 +20,7 @@ header("Access-Control-Allow-Headers:DNT,X-Mx-ReqToken,Keep-Alive,User-Agent,X-R
 define('APP_ID','mall');
 define('ADDON_PATH','Addons');
 define("language",'en');
-
+define("dev","dev");//开发环境还是生产环境dev 开发 online生产
 
 // 支持事先使用静态方法设置Request对象和Config对象
 

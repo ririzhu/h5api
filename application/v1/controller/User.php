@@ -433,4 +433,28 @@ class User extends Base
             return json_encode($data,true);
         }
     }
+    /**
+     * 编辑地址
+     */
+    public function editAddress(){
+        if(!input("member_id") || !input("address_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }else{
+            $param['address_id']=input("address_id");
+            $param['member_id'] = input("member_id");
+            $res = db::name("address")->where($param)->find();
+            if(count($res)>0){
+                $data['error_code'] = 200;
+                $data['data'] = $res;
+                $data['message'] = lang("操作成功");
+            }
+            else{
+                $data['error_code'] = 10201;
+                $data['message'] = lang("操作失败");
+            }
+            return json_encode($data,true);
+        }
+    }
 }

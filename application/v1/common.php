@@ -1075,3 +1075,17 @@ function sldReplaceText($message, $param)
     }
     return $message;
 }
+/**
+ * 取得店铺标志
+ *
+ * @param string $店铺标志
+ * @return string
+ */
+function getStoreLogo($store_logo)
+{
+    if (empty($store_logo)) {
+        return UPLOAD_SITE_URL . DS . ATTACH_COMMON . DS . $GLOBALS['setting_config']['default_store_logo'];
+    } else {
+        return UPLOAD_SITE_URL . DS . ATTACH_STORE . DS . $store_logo;
+    }
+}

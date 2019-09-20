@@ -3,6 +3,7 @@ namespace app\v1\controller;
 
 use app\v1\model\Predeposit;
 include("../extend/pay/alipay/AopSdk.php");
+include("../extend/pay/allinpay/Allinpay.php");
 class Payment extends Base
 {
     public function index(){
@@ -25,7 +26,7 @@ class Payment extends Base
 
         $valid = !preg_match('/^\d{18}$/',$pay_sn) || !preg_match('/^[a-z]{1,20}$/',$payment_code) || in_array($payment_code,array('offline','predeposit'));
         if($valid || !input("member_id")){
-            land('参数错误');
+            lang('参数错误');
         }
 
         $model_payment = new \app\v1\model\Payment();
@@ -209,7 +210,10 @@ class Payment extends Base
                 }
 
                 break;
-
+            case 'allinpay-alipay':
+                    $allinpay = new \allinpay();
+                    $allinpay->pay();
+                break;
             default:
                 $run_branch = false;
                 break;

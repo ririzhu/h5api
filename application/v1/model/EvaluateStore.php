@@ -65,7 +65,7 @@ class EvaluateStore extends Model
                     }
                 }
             }
-            $base->wmemcache($vid, $info, $prefix);
+            //$base->wmemcache($vid, $info, $prefix);
         }
         return $info;
     }
