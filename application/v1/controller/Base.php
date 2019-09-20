@@ -14,6 +14,10 @@ class Base extends Controller
      */
     public  function __construct() {
         global $setting_config;
+        if(!$this->checkouth()){
+            json($data['msg']="missing token" )->code(201)->send();exit;
+            exit;
+        };
     }
     /**
      * get setting
@@ -344,12 +348,13 @@ function date_before($time, $unit = null) {
      $headertoken = request()->header('Authorization');
      if(!isset($headertoken)){
          return false;
+         exit;
          }
         else if($token->checkToken($headertoken)){
             return true;
         }else{
-            echo 2222;
             return false;
+            exit;
         };
     }
 }
