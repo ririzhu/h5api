@@ -1,10 +1,12 @@
 <?php
 namespace app\v1\controller;
+use app\admin\model\Token;
 use Exception;
 use think\facade\Cache;
 use think\Controller;
 use think\Lang;
 use think\Request;
+use Firebase\JWT\JWT;
 class Base extends Controller
 {
     /**
@@ -337,4 +339,17 @@ function date_before($time, $unit = null) {
             return '刚刚';
     }
 }
+    public function checkouth(){
+     $token =new Token();
+     $headertoken = request()->header('Authorization');
+     if(!isset($headertoken)){
+         return false;
+         }
+        else if($token->checkToken($headertoken)){
+            return true;
+        }else{
+            echo 2222;
+            return false;
+        };
+    }
 }

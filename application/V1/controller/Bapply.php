@@ -55,9 +55,7 @@ class Bapply extends Base
         }
     }
 
-    public function index() {
-        $this->step0();
-    }
+
 
     public function step0() {
         $model_document = new Document();
@@ -66,12 +64,7 @@ class Bapply extends Base
         return json_encode($data,true);
     }
 
-    public function step1() {
-        Template::output('step', '1');
-        Template::output('sub_step', 'step1');
-        Template::showpage('bapply');
-        exit;
-    }
+
 
     public function apply() {
         if(!empty($_POST)) {
@@ -345,7 +338,7 @@ class Bapply extends Base
         }
     }
 
-    public function check_seller_name_exist() {
+    private function check_seller_name_exist() {
         $condition = array();
         $condition['seller_name'] = $_GET['seller_name'];
 
@@ -520,7 +513,7 @@ class Bapply extends Base
      * @param
      * @return
      */
-    public function checkname() {
+    private function checkname() {
         if(!$this->checknameinner()) {
             echo 'false';
         } else {
@@ -533,7 +526,7 @@ class Bapply extends Base
      * @param
      * @return
      */
-    public function checknameinner() {
+    private function checknameinner() {
         /**
          * 实例化卖家模型
          */

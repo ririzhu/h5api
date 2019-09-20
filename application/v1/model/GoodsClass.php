@@ -103,7 +103,7 @@ class GoodsClass extends Model
      * @return array   返回二位数组
      */
     public function getGoodsClassList($condition, $field = '*') {
-        $result = DB::name('goods_class')->field($field)->where($condition)->order('gc_parent_id asc,gc_sort asc,gc_id asc')->limit(10000)->select();
+        $result = DB::name('goods_class')->field($field)->where($condition)->where("is_points=0")->order('gc_parent_id asc,gc_sort asc,gc_id asc')->limit(10000)->select();
         return $result;
     }
 

@@ -7,7 +7,10 @@ include("../extend/pay/allinpay/Allinpay.php");
 class Payment extends Base
 {
     public function index(){
-
+        $access=parent::checkouth();
+        if(!$access){
+        json($data['msg']="missing token" )->code(201)->send();exit;
+        }
         //购买商品和预存款充值分流
         if ($_POST['order_type'] == 'product_buy') {
             $this->_product_buy();

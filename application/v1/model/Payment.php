@@ -108,7 +108,7 @@ class Payment extends Model
         $condition['pay_sn'] = $pay_sn;
         $condition['order_state'] = ORDER_STATE_NEW;
         $order_list = $model_order->getOrderList($condition,1,'bbc_order.order_id,bbc_order.order_sn,bbc_order.order_amount,bbc_order.pd_amount,bbc_order.pd_points,bbc_order.order_state,bbc_order.refund_state,bbc_order.payment_code','',10);
-        if (empty($order_list)) {
+        if (empty($order_list)) {echo 2;
             return array('error' => '该订单不存在');
         }
 

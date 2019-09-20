@@ -473,7 +473,7 @@ class Goods extends  Base
         $hasImg = input("has_img");
         switch ($type) {
             case '1':
-                $condition .= " and geval_scores in (5,4)";
+                $condition .= " and geval_scores  <=5 and geval_scores >=3.5";
                 //Template::output('type', '1');
                 break;
             case '2':

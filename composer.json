@@ -23,7 +23,8 @@
         "okcoder/think-addons": "^1.0",
         "topthink/think-queue": "2.0.3",
         "predis/predis": "^1.1",
-        "yunpian/yunpian-php-sdk" : "~1.0"
+        "yunpian/yunpian-php-sdk" : "~1.0",
+        "firebase/php-jwt": "^5.0"
     },
     "autoload": {
         "psr-4": {
