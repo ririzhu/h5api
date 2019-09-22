@@ -2,6 +2,19 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="/static/js/bootstrap-datetimepicker.min.js">
+    </script>
+    <script src="/static/js/locales/bootstrap-datetimepicker.zh-CN.js">
+    </script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -13,6 +26,8 @@
     <!--Global Styles(used by all pages)-->
     <link href="http://cdn.bootstrapmb.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="/static/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-datetimepicker.css" rel="stylesheet" media="screen">
+    <link href="/static/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
     <link href="/static/plugins/fontawesome/css/all.min.css" rel="stylesheet">
     <link href="/static/plugins/typicons/src/typicons.min.css" rel="stylesheet">
     <link href="/static/plugins/themify-icons/themify-icons.min.css" rel="stylesheet">
@@ -395,31 +410,129 @@
                     </div>
                 </div>
             </div>
+            <form>
+                {if condition="isset($groupinfo.id)"}<input type="hidden" class="form-control" id="id" value="{$groupinfo.id}" placeholder="">{/if}
+                <div class="form-group">
+                    <label for="exampleFormControlInput1" class="font-weight-600">name</label>
+                    <input type="email" class="form-control" id="name" placeholder=""{if condition="isset($groupinfo)"}value={$groupinfo.groupname}{/if}>
+                </div>
+                <div class="form-group">
+                    {volist name="projectlist" id="vv"}
+                    <label for="exampleFormControlInput1" class="font-weight-600">项目：{$vv.project}</label>
+                    <br/>
+                        {volist name="list" id="vo"}
+                        <label class="checkbox-inline">
+                            <input type="checkbox" id="inlineCheckbox1" value="{$vo.id}"> {$vo.modulename}权限
+                        </label>
+                        {/volist}
+                    {/volist}
+                </div>
+
+
+                <button type="button" class="btn btn-success" onclick="javascript:save()">保存</button>
+            </form>
             <!--/.Content Header (Page header)-->
 
-        <footer class="footer-content">
-            <div class="footer-text d-flex align-items-center justify-content-between">
-                <div class="copy">© 2018 Bdtask Responsive Bootstrap 4 Dashboard Template</div>
-                <div class="credit">Designed by: <a href="http://www.bootstrapmb.com/">Bdtask</a></div>
-            </div>
-        </footer><!--/.footer content-->
-        <div class="overlay"></div>
-    </div><!--/.wrapper-->
-</div>
-<!--Global script(used by all pages)-->
-<script src="/static/plugins/jQuery/jquery-3.4.1.min.js"></script>
-<script src="/static/js/popper.min.js"></script>
-<script src="http://cdn.bootstrapmb.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-<script src="/static/plugins/metisMenu/metisMenu.min.js"></script>
-<script src="/static/plugins/perfect-scrollbar/dist/perfect-scrollbar.min.js"></script>
-<!-- Third Party Scripts(used by this page)-->
-<script src="/static/plugins/chartJs/Chart.min.js"></script>
-<script src="/static/plugins/sparkline/sparkline.min.js"></script>
-<script src="/static/plugins/datatables/dataTables.min.js"></script>
-<script src="/static/plugins/datatables/dataTables.bootstrap4.min.js"></script>
-<!--Page Active Scripts(used by this page)-->
-<script src="/static/js/pages/dashboard.js"></script>
-<!--Page Scripts(used by all page)-->
-<script src="/static/js/sidebar.js"></script>
+            <footer class="footer-content">
+                <div class="footer-text d-flex align-items-center justify-content-between">
+                    <div class="copy">© 2018 Bdtask Responsive Bootstrap 4 Dashboard Template</div>
+                    <div class="credit">Designed by: <a href="http://www.bootstrapmb.com/">Bdtask</a></div>
+                </div>
+            </footer><!--/.footer content-->
+            <div class="overlay"></div>
+        </div><!--/.wrapper-->
+    </div>
+    <!--Global script(used by all pages)-->
+    <!--<script src="/static/plugins/jQuery/jquery-3.4.1.min.js"></script>-->
+    <script src="/static/js/popper.min.js"></script>
+    <script src="http://cdn.bootstrapmb.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    <script src="/static/plugins/metisMenu/metisMenu.min.js"></script>
+    <script src="/static/plugins/perfect-scrollbar/dist/perfect-scrollbar.min.js"></script>
+    <!-- Third Party Scripts(used by this page)-->
+    <script src="/static/plugins/chartJs/Chart.min.js"></script>
+    <script src="/static/plugins/sparkline/sparkline.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.bootstrap4.min.js"></script>
+    <!--Page Active Scripts(used by this page)-->
+    <script src="/static/js/pages/dashboard.js"></script>
+    <!--Page Scripts(used by all page)-->
+    <script src="/static/js/sidebar.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(function() {
+                $('.form_datetime').datetimepicker({
+                    //language:  'fr',
+                    weekStart: 1,
+                    todayBtn:  1,
+                    autoclose: 1,
+                    todayHighlight: 1,
+                    startView: 2,
+                    forceParse: 0,
+                    showMeridian: 1
+                });
+                $('.form_date').datetimepicker({
+                    language:  'fr',
+                    weekStart: 1,
+                    todayBtn:  1,
+                    autoclose: 1,
+                    todayHighlight: 1,
+                    startView: 2,
+                    minView: 2,
+                    forceParse: 0
+                });
+                $('.form_time').datetimepicker({
+                    language:  'fr',
+                    weekStart: 1,
+                    todayBtn:  1,
+                    autoclose: 1,
+                    todayHighlight: 1,
+                    startView: 1,
+                    minView: 0,
+                    maxView: 1,
+                    forceParse: 0
+                });})})
+        $('.form_date').datetimepicker({
+            language:  'zh-CN',
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            minView: 2,
+            forceParse: 0
+        });
+    </script>
+    <script>
+        $(function() {
+
+        });
+        function save(){
+            $id = "";
+            if($("#id")){
+                $id=$("#id").val();
+            }
+            var id_array=new Array();
+
+            $('input:checkbox:checked').each(function() {
+                id_array.push($(this).val());
+
+            });
+            var idstr=id_array.join(',');
+            $.ajax({
+                url:"/admin/admin/savegroup/",
+
+                data:{"id":$id,"name":$("#name").val(),"allowlist":idstr},
+                method:"POST",
+                success:function(result){
+                    if(result == 1){
+                        alert("更新成功");
+                        window.location="/admin/admin/grouplist"
+                    }else{
+                        alert("更新失败");
+                    }
+
+                }})
+        }
+    </script>
 </body>
 </html>

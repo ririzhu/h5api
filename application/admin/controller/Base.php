@@ -11,6 +11,7 @@ class Base extends Controller
 {
     public function __construct(App $app = null)
     {
+        parent::__construct();
         $request = new Request();
         $allow = array("index","login","logout");
         //echo in_array(request()->action(),$allow);die;
@@ -18,16 +19,40 @@ class Base extends Controller
             $this->error('请先登录！',"/admin/index/index");
         }*/
     }
+    public function getAllcontroller(){
+        //if(empty($module)) return null;
+        $module_path = '../application/v1/controller/';  //控制器路径
+        //if(!is_dir($module_path)) return null;
+        $module_path .= '/*.php';
+        $ary_files = glob($module_path);
+        //$files = array();
+        foreach ($ary_files as $file) {
+            if (is_dir($file)) {
+                continue;
+            }else {
+                $filesname = basename($file, '.php');
+                if(count(db::name("api_module")->where("modulename='$filesname'")->select())==0){
+                    $data['modulename']=$filesname;
+                    $data['project']="horizou H5";
+                    db::name("api_module")->insert($data);
+                }
+            }
+        }
+
+    }
     public function getclasses()
     {
         $a = $this->GetAllaction();
         foreach($a as $k=>$v){
             if(count(db::name("api")->where("name='".addslashes($a[$k]['name'])."'")->select())==0){
                 $data['name'] = addslashes($v['name']);
+                $modulename=explode("/",$data['name'])[0];
+                $data['moduleid']=(db::name("api_module")->field("id")->where("modulename='$modulename'")->find())['id'];
                 $data['status'] = 1;
+                $data['version'] = 'v1';
+                $data['project'] = "horizou H5";
                 try {
                     $res=db::name("api")->insert($data);
-                    print_r($res);
                 }catch(Exception $e){
                     echo $e->getMessage();
                 }
@@ -48,7 +73,7 @@ class Base extends Controller
                 $all_action = $this->getAction($module, $controller_name);
                 foreach ($all_action as $action) {
                     $data[$i] = array(
-                        'name' => "/v1/".$controller . "/" . $action,
+                        'name' => $controller . "/" . $action,
                         'status' => 1
                     );
                     $i++;
@@ -94,10 +119,11 @@ class Base extends Controller
         //print_r($functions);
         return $customer_functions;
     }
-    public function createToken(){
+    public function createToken($id){
         $token=new Token();
-        echo $str = $token->signToken(1,16000000000); //生成一个不会重复的字符串
+        return $str = $token->signToken($id,16000000000); //生成一个不会重复的字符串
     }
+
     public  function checkToken(){
         $token = new Token();
         $tokens = request()->header('Authorization');
@@ -106,5 +132,8 @@ class Base extends Controller
         }else{
             return false;
         };
+    }
+    public function addmember(){
+
     }
 }
