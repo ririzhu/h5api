@@ -279,6 +279,12 @@ class Usercenter extends Base {
         $member_id = input("member_id");
         
         $member = new User();
+
+        $condition = [
+            'member_id' =>$member_id,
+        ];
+        $member_info = $member->getMemberInfo($condition,'available_predeposit');
+
         $member_condition = [
             'inviter_id' => $member_id,
             'inviter2_id' => $member_id,
@@ -471,18 +477,36 @@ class Usercenter extends Base {
         }
         $member = new User();
 
-        $param = [
-            $member_array['member_avatar']	= input('member_avatar'),
-            $member_array['member_name']	= input('member_name'),
-            $member_array['member_birthday']	= input('birthday'),
-            $member_array['member_sex']			= input('member_sex'),
-            $member_array['member_areaid']		= input('area_id'),
-            $member_array['member_cityid']		= input('city_id'),
-            $member_array['member_provinceid']	= input('province_id'),
-            $member_array['member_countryid']	= input('country_id'),
-            $member_array['member_areainfo']	= input('area_info'),
-        ];
-        $update = $member->updateMember($param,input('member_id'));
+        $member_array = [];
+        if (input('member_avatar')){
+            $member_array['member_avatar']	= input('member_avatar');
+        }
+        if (input('member_name')) {
+            $member_array['member_name'] = input('member_name');
+        }
+        if (input('member_birthday')) {
+            $member_array['member_birthday'] = input('birthday');
+        }
+        if (input('member_sex')) {
+            $member_array['member_sex'] = input('member_sex');
+        }
+        if (input('member_areaid')) {
+            $member_array['member_areaid'] = input('area_id');
+        }
+        if (input('member_cityid')) {
+            $member_array['member_cityid'] = input('city_id');
+        }
+        if (input('member_provinceid')) {
+            $member_array['member_provinceid'] = input('province_id');
+        }
+        if (input('member_countryid')) {
+            $member_array['member_countryid'] = input('country_id');
+        }
+        if (input('member_areainfo')) {
+            $member_array['member_areainfo'] = input('area_info');
+        }
+
+        $update = $member->updateMember($member_array,input('member_id'));
 
         if ($update){
             $data['code'] = 200;
