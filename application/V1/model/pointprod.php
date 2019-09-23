@@ -341,5 +341,75 @@ class pointprod extends Model
     	$sql.=" where is_points = 1 and gc_show = 1 ";
     	return Db::query($sql);
     }
-
+    /*
+    **获取收获地址
+     */
+    public function getAddInfo($where){
+    	return Db::name('address')->field('*')->where($where)->find();
+    }
+    /*
+    **获取会员信息
+     */
+    public function getMemberInfo($where){
+    	return Db::name('member')->field('*')->where($where)->find();
+    }
+    /*
+    **生成订单,返回自增id
+     */
+    public function insertOrder($data){
+    	return Db::name('points_order')->insertGetId($data);
+    }
+    /*
+    **插入兑换订单地址表
+     */
+    public function insertOrderAddress($data){
+    	return Db::name('points_orderaddress')->insert($data);
+    }
+    /*
+    **插入兑换订单商品表
+     */
+    public function insertOrderGoods($data){
+    	return Db::name('points_ordergoods')->insert($data);
+    }
+    /*
+    **升级会员数据
+     */
+    public function updateMember($id,$data){
+    	return Db::name('member')->where(['member_id'=>$id])->update($data);
+    }
+    /*
+    **升级积分商品数据
+     */
+    public function updatePointGoodsById($id,$data){
+    	return Db::name('points_goods')->where(['pgid'=>$id])->update($data);
+    }
+    /*
+    **浏览自增
+    *setDec(‘score’,5);setInc(‘score’,5);
+     */
+    public function setNumInc($id){
+    	return Db::name('points_goods')->where(['pgid'=>$id])->setInc('pgoods_view');
+    }
+    /*
+    **积分日志
+     */
+    public function insertPointsLog($data){
+    	return Db::name('points_log')->insert($data);
+    }
+    /*
+    **插入系统消息
+     */
+    public function insertMessage($data){
+    	return Db::name('message')->insert($data);
+    }
+    /*
+    **获取个人积分兑换商品数列表
+     */
+    public function getOrderGoodsList($id,$pgid){
+    	$sql=" select b.point_goodsid,b.point_goodsnum ";
+    	$sql.=" from bbc_points_order a ";
+    	$sql.=" left join bbc_points_ordergoods b on a.point_orderid = b.point_orderid ";
+    	$sql.=" where a.point_buyerid = ".$id." and b.point_goodsid = ".$pgid;
+    	return Db::query($sql);
+    }
 }
