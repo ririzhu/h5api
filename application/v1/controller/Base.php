@@ -398,7 +398,7 @@ function date_before($time, $unit = null) {
 }
     public function checkouth(){
      $token =new Token();
-     $headertoken = request()->header('Authorization');
+     $headertoken = cookie("name");
      if(!isset($headertoken)){
          return false;
          exit;

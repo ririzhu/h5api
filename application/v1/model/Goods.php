@@ -51,10 +51,14 @@ class Goods extends Model
      * @param boolean $lock 是否锁定
      * @return array 二维数组
      */
-    public function getGoodsList($condition, $field = '*', $group = '',$order = '', $limit = 0, $page = 0, $lock = false, $count = 100) {
+    public function getGoodsList($condition, $field = '*', $group = '',$order = '', $limit = 100, $page = 0, $lock = false, $count = 100) {
         //$condition = $this->_getRecursiveClass($condition);
-        $result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
-       //echo DB::table("bbc_goods")->getLastSql();
+        //$result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
+        $result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page)->lock($lock)->select();
+        foreach($result as $k=>$v){
+            $result[$k]['goods_image']="http://www.horizou.cn/data/upload/mall/store/goods/".$result[$k]['goods_image'];
+        }
+       //echo DB::table("bbc_goods")->getLastSql();die;
         return $result;
     }
 
@@ -86,7 +90,7 @@ class Goods extends Model
      * @param number $page
      * @return array
      */
-    public function getGoodsListByCommonidDistinct($condition, $field = '*', $order = null, $page = 0) {
+    public function getGoodsListByCommonidDistinct($condition, $field = '*', $order = null, $page = 0,$limit=0) {
         if(!$order){
             $order = 'gid asc';
         }
@@ -102,7 +106,7 @@ class Goods extends Model
         $count = $this->getGoodsOnlineCount($condition,"distinct goods_commonid");
         $goods_list = array();
         if ($count != 0) {
-            $goods_list = $this->getGoodsOnlineList($condition, $field, $page, $order, 0, 'jmys_distinct', false, $count);
+            $goods_list = $this->getGoodsOnlineList($condition, $field, $page, $order, $limit, 'jmys_distinct', false, $count);
         }
         return $goods_list;
     }
