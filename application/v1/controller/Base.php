@@ -23,7 +23,7 @@ class Base extends Controller
             exit;
         };
         //获取头部token，查询有无权限
-        $headertoken = str_replace("Bearer ","",request()->header('Authorization'));
+        $headertoken = str_replace("Bearer ","",cookie('name'));
         $user = db::name("api_user")->where("token='$headertoken'")->find();
         if(count($user)>0){
             if($user['name']=="Horizou"){
@@ -68,7 +68,7 @@ class Base extends Controller
                 }
             }
         }else{
-            json($data['msg']="wrong token" )->code(201)->send();exit;
+            json($data['msg']="wrong token1111" )->code(201)->send();exit;
             exit;
         }
     }
@@ -398,7 +398,7 @@ function date_before($time, $unit = null) {
 }
     public function checkouth(){
      $token =new Token();
-     $headertoken = cookie("name");
+     $headertoken = cookie('name');
      if(!isset($headertoken)){
          return false;
          exit;
