@@ -2,6 +2,7 @@
 namespace app\v1\model;
 
 use app\v1\controller\Base;
+use think\Db;
 use think\Model;
 
 class ActivityCache extends Model
@@ -257,6 +258,11 @@ class ActivityCache extends Model
             $cache_time['xianshi'] = $cache_time_model->getNewCacheTime('xianshi');
 
             $xianshi_gid = Base::rkcache('xianshi_gid',true);
+            $xianshi_gid['data'] =Db::name("p_xianshi_goods p")->join("bbc_goods g","p.gid=g.gid")->select();
+            foreach($xianshi_gid['data'] as $k=>$v){
+                $new_xianshi_gid['data'][]=$v;
+            }
+            $xianshi_gid['data'] = $new_xianshi_gid;
             $xianshi_key_gid = array();
 
             // 校验 获取文件时间 是否与 服务器最新时间一样
@@ -431,8 +437,8 @@ class ActivityCache extends Model
         $gid = $goods_info['gid'];
         $keys_gid = array_keys($activity_g);
         if (in_array($gid, $keys_gid)) {
-            $promotion_type = $activity_g[$gid]['promotion_type'];
-            if (!in_array($promotion_type, $allow_activity_type)) {
+            $promotion_type = $activity_g[$gid]['goods_promotion_type'];
+            if (!in_array($promotion_type, $allow_activity_type) && $promotion_type!=2) {
                 $promotion_type = 'other';
             }
             switch ($promotion_type) {
@@ -448,13 +454,14 @@ class ActivityCache extends Model
 
                     break;
 
-                case 'xianshi'://限时购
+                case '2'://限时购
 
                     //时间
                     if($activity_g[$gid]['end_time'] <time()){
                         $show_price = $goods_info['goods_price'];
                     }else{
-                        $show_price = $activity_g[$gid]['promotion_price'];
+                        //$show_price = $activity_g[$gid]['promotion_price'];
+                        $show_price = $activity_g[$gid]['xianshi_price'];
                     }
                     break;
 

@@ -33,12 +33,14 @@ class Index extends Base
      **/
     public function picCode()
     {
+        ob_start();//不加这个是不行的(貌似不加可以)
         if (!input("id")) {
             $id = microtime(true);
         } else {
             $id = input("id");
         }
         $captcha = new Captcha();
+        ob_end_clean();
         return $captcha->entry($id);
     }
 
@@ -128,6 +130,7 @@ class Index extends Base
             $goods_list = unserialize((DB::name("tpl_data")->where("sld_tpl_type=2 and sld_is_vaild=1 and sld_tpl_code ='goods_floor2'")->field("sld_tpl_data")->find())['sld_tpl_data']);
             $goods_list = $goods_list['goods'];
             $model_goods = new \app\v1\model\Goods();
+            $data['peixun_tag_name'] = "培训专场";
             $lession = array();
             foreach($goods_list as $k=>$v){
                 $gid = $goods_list[$k]['goods_id'];
@@ -139,7 +142,7 @@ class Index extends Base
                 $goods_list[$k]['gid'] = $gid;
             }
             $ga = new GoodsActivity();
-            $goods_list = $ga->rebuild_goods_data($goods_list,'web');
+            //$goods_list = $ga->rebuild_goods_data($goods_list,'web');
             foreach ($goods_list as $k=>$v){
                // if($goods_list[$v]) {
                     $lession[$k]['goods_name'] = $v['goods_name'];
@@ -167,8 +170,30 @@ class Index extends Base
             }
             //$data['teachers'] = $teachers;
             //培训
+            //$trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
+            $peixunClassList = db::name("goods_class_tag")->where(array("type_id"=>1))->select();
+            $goods_list = array();
+            foreach ($peixunClassList as $k=>$v){
+                $list = db::name("goods")->where("gc_id=".$v['gc_id']." and goods_state=1")->select();
+                foreach($list as $kk=>$vv){
+                    $goods_list[$kk]['goods_name'] = $vv['goods_name'];
+                    $goods_list[$kk]['gid'] = $vv['gid'];
+                    $goods_list[$kk]['del_price'] = $vv['goods_price'];
+                    if(isset($goods_list[$kk]['show_price']))
+                        $goods_list[$kk]['show_price'] = $vv['show_price'];
+                    else
+                        $goods_list[$kk]['show_price'] = $vv['goods_price'];
+                    if(isset($goods_list[$kk]['goods_promotion_type']) && $goods_list[$k]['goods_promotion_type']==2){
+                        $goods_list[$kk]['tag'][0]="限时优惠";
+                    }
+                    $goods_list[$kk]['goods_image'] = $vv['goods_image'];
+                }
+            }
+            //print_r($goods_list);die;
+            $ga = new GoodsActivity();
+            $goods_list = $ga->rebuild_goods_data($goods_list, 'pc');
             $trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
-            $data['peixun'] = $trade_list;
+            $data['peixun'] = $goods_list;
             $redis->set("homepage",$data,120);
             $data=array();
             $data['data'] = $redis->get("homepage");

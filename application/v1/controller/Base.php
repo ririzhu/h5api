@@ -18,58 +18,69 @@ class Base extends Controller
         //$request = new Request();
         $controller=request()->controller();
         $action=request()->action();
-        if(!$this->checkouth()){
-            json($data['msg']="missing token" )->code(201)->send();exit;
-            exit;
-        };
-        //获取头部token，查询有无权限
-        $headertoken = str_replace("Bearer ","",request()->header('Authorization'));
-        $user = db::name("api_user")->where("token='$headertoken'")->find();
-        if(count($user)>0){
-            if($user['name']=="Horizou"){
+        if($controller!="index" && $action!="piccode") {
+            if (!$this->checkouth()) {
+                json($data['msg'] = "missing token")->code(201)->send();
+                exit;
+                exit;
+            };
+            //获取头部token，查询有无权限
+            $headertoken = str_replace("Bearer ", "", request()->header('Authorization'));
+            $user = db::name("api_user")->where("token='$headertoken'")->find();
+            if (count($user) > 0) {
+                if ($user['name'] == "Horizou") {
 
-            }else{
-                //查询会员状态
-                if($user['endtime']<=TIMESTAMP && $user['endtime']!=""){
-                    json($data['msg']="expired token" )->code(201)->send();exit;
-                }else if($user['status']==0){
-                    json($data['msg']="not normal status token" )->code(201)->send();exit;
-                }else{
-                    //查询组别状态
-                    $groupinfo = db::name("api_group")->where("id=".$user['groupid'])->find();
-                    if($groupinfo['status']==0){
-                        json($data['msg']="not normal group status" )->code(201)->send();exit;
-                    }else{
-                        //查询你的访问的接口是否在allowlist中
-                        if($groupinfo['allowlist']!=""){
-                            $modulelist = db::name("api_module")->field("modulename,id")->where("id in (".$groupinfo['allowlist'].") and modulename='$controller'")->find();
-                            if(count($modulelist)>0){
-                                $apiid = $modulelist['id'];
-                                $apistatus = (db::name("api")->field("status")->where("id=$apiid and name='$controller/$action'")->find())['status'];
-                                if($apistatus==0){
-                                    json($data['msg']="this api server is off" )->code(201)->send();exit;
+                } else {
+                    //查询会员状态
+                    if ($user['endtime'] <= TIMESTAMP && $user['endtime'] != "") {
+                        json($data['msg'] = "expired token")->code(201)->send();
+                        exit;
+                    } else if ($user['status'] == 0) {
+                        json($data['msg'] = "not normal status token")->code(201)->send();
+                        exit;
+                    } else {
+                        //查询组别状态
+                        $groupinfo = db::name("api_group")->where("id=" . $user['groupid'])->find();
+                        if ($groupinfo['status'] == 0) {
+                            json($data['msg'] = "not normal group status")->code(201)->send();
+                            exit;
+                        } else {
+                            //查询你的访问的接口是否在allowlist中
+                            if ($groupinfo['allowlist'] != "") {
+                                $modulelist = db::name("api_module")->field("modulename,id")->where("id in (" . $groupinfo['allowlist'] . ") and modulename='$controller'")->find();
+                                if (count($modulelist) > 0) {
+                                    $apiid = $modulelist['id'];
+                                    $apistatus = (db::name("api")->field("status")->where("id=$apiid and name='$controller/$action'")->find())['status'];
+                                    if ($apistatus == 0) {
+                                        json($data['msg'] = "this api server is off")->code(201)->send();
+                                        exit;
+                                    }
+                                } else {
+                                    json($data['msg'] = "your token has not enough Right to visit this api")->code(201)->send();
+                                    exit;
                                 }
-                            }else{
-                                json($data['msg']="your token has not enough Right to visit this api" )->code(201)->send();exit;
-                            }
-                        }else{
-                            $modulelist = db::name("api_module")->field("modulename,id")->where("modulename='$controller'")->find();
-                            if(count($modulelist)>0){
-                                $apiid = $modulelist['id'];
-                                $apistatus = (db::name("api")->field("status")->where("id=$apiid and name='$controller/$action'")->find())['status'];
-                                if($apistatus==0){
-                                    json($data['msg']="this api server is off" )->code(201)->send();exit;
+                            } else {
+                                $modulelist = db::name("api_module")->field("modulename,id")->where("modulename='$controller'")->find();
+                                if (count($modulelist) > 0) {
+                                    $apiid = $modulelist['id'];
+                                    $apistatus = (db::name("api")->field("status")->where("id=$apiid and name='$controller/$action'")->find())['status'];
+                                    if ($apistatus == 0) {
+                                        json($data['msg'] = "this api server is off")->code(201)->send();
+                                        exit;
+                                    }
+                                } else {
+                                    json($data['msg'] = "your token has not enough Right to visit this api")->code(201)->send();
+                                    exit;
                                 }
-                            }else{
-                                json($data['msg']="your token has not enough Right to visit this api" )->code(201)->send();exit;
                             }
                         }
                     }
                 }
+            } else {
+                json($data['msg'] = "wrong token1111")->code(201)->send();
+                exit;
+                exit;
             }
-        }else{
-            json($data['msg']="wrong token1111" )->code(201)->send();exit;
-            exit;
         }
     }
     /**

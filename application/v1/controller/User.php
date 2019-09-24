@@ -149,7 +149,7 @@ class User extends Base
         } else if (!input("code")) {
             $data['error_code'] = 10004;
             $data['message'] = "缺少code参数";
-            return json_encode($data, true);
+            //return json_encode($data, true);
         } else if (!input("snscode")) {
             $data['error_code'] = 10005;
             $data['message'] = "缺少短信验证码参数";
@@ -170,7 +170,7 @@ class User extends Base
                 $data['message'] = '动态码错误或已过期，重新输入';
                 return json_encode($data,true);
             }
-            $userData["member_mobile"] = trim(input("member_mobile"));
+            $userData["member_mobile"] = trim(input("mobile"));
             if($userModel->checkMobile($userData["member_mobile"])>0){
                 $data['error_code'] = 10008;
                 $data['message'] = "当前手机号已被注册";
@@ -179,9 +179,9 @@ class User extends Base
             $userData["inviteCode"] = input("inviteCode");
             if ($userModel->insertMemberWithMobile($userData)) {
                 $member = $userModel->getMemberInfo(array('member_mobile'=> $phone));//检查手机号是否已被注册
-                $this->createSession($member);
+                //$this->createSession($member);
                 $data['error_code'] = 200;
-                $data['message'] = '登录成功';
+                $data['message'] = '注册成功';
                 return json_encode($data,true);
             };
         }

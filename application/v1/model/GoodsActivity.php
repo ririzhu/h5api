@@ -23,7 +23,7 @@ class GoodsActivity extends Model
         $activity_cache=new ActivityCache();
         $activity_g=$activity_cache->Activity_Gid(array('xianshi', 'p_mbuy', 'pin_tuan', 'pin_ladder_tuan','tuan','sld_presale'));
         $keys=array_keys($activity_g);
-        if (isset($goods_data['gid']) && $goods_data['gid']) {
+        if (isset($goods_data['gid'])) {
             // 单个商品
             $goods_item = $goods_data;
             $goods_item_id = $goods_data['gid'];
@@ -48,7 +48,7 @@ class GoodsActivity extends Model
                     }
 
                     // 重构 限时折扣 详情页 数据
-                    if($activity_g[$goods_item_id]['promotion_type'] == 'xianshi' && !empty($activity_g[$goods_item_id]['start_time']) && !empty($activity_g[$goods_item_id]['end_time']) ){
+                    if($activity_g[$goods_item_id]['promotion_type'] == '2' && !empty($activity_g[$goods_item_id]['start_time']) && !empty($activity_g[$goods_item_id]['end_time']) ){die;
                         $goods_item['promotion_start_time']=date('H:i',$activity_g[$goods_item_id]['start_time']);
 
                         // 获取限时折扣 购买下限 (根据商品ID 获取 所在限时折扣活动 的购买下限限制)
@@ -140,20 +140,18 @@ class GoodsActivity extends Model
             foreach ($goods_data as $key => $value) {
                 $goods_item = $value;
                 $goods_item_id = $value['gid'];
-
                 //活动标识
                 if(in_array($goods_item_id,$keys)){
-                    if(empty($activity_g[$goods_item_id]['end_time']) && $activity_g[$goods_item_id]['promotion_type']=='p_mbuy'){
+                    if(empty($activity_g[$goods_item_id]['end_time']) && isset($activity_g[$goods_item_id]['promotion_type']) &&$activity_g[$goods_item_id]['promotion_type']=='p_mbuy'){
                         $goods_item['promotion_type']='p_mbuy';
                         $goods_item['promotion_price']=$activity_g[$goods_item_id]['promotion_price'];
                         $goods_item['show_price']=$activity_cache->goods_Price_End($activity_g,$goods_item,$from);
 
                     }else if(!empty($activity_g[$goods_item_id]['end_time']) && $activity_g[$goods_item_id]['end_time']>time()){
-                        $goods_item['promotion_type']=$activity_g[$goods_item_id]['promotion_type'];
-                        $goods_item['promotion_price']=$activity_g[$goods_item_id]['promotion_price'];
-
+                        $goods_item['promotion_type']=$activity_g[$goods_item_id]['goods_promotion_type'];
+                        $goods_item['promotion_price']=$activity_g[$goods_item_id]['goods_promotion_price'];
+                        if($goods_item_id==1209)
                         $goods_item['show_price']=$activity_cache->goods_Price_End($activity_g,$goods_item,$from);
-
                         if ($activity_g[$goods_item_id]['start_time']) {
                             $goods_item['start_time']=$activity_g[$goods_item_id]['start_time'];
                             $goods_item['promotion_start_time']=date('Y年m月d日 H:i',$activity_g[$goods_item_id]['start_time']);
@@ -168,12 +166,17 @@ class GoodsActivity extends Model
 
                 switch ($from) {
                     case 'pc':
-                        $goods_item['show_price'] = sldPriceFormat($goods_item['goods_price']);
+                        if(isset( $goods_item['show_price'])){
+                            $goods_item['show_price'] = $goods_item['show_price']*1;
+                        }
+                        else {
+                            $goods_item['show_price'] = $goods_item['goods_price'] * 1;
+                        }
                         break;
 
                     default:
                         if(isset( $goods_item['show_price'])){
-                            $goods_item['show_price'] = $goods_item['goods_price']*1;
+                            $goods_item['show_price'] = $goods_item['show_price']*1;
                         }
                         else {
                             $goods_item['show_price'] = $goods_item['goods_price'] * 1;
