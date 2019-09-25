@@ -99,6 +99,9 @@ class Pointshop extends  Base
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
 		}
+
+		$allpoint=input('allpoint');
+		$goodsnum=input('goodsnum');
 		
 		//礼品信息
 		$where=" pgid = ".input('pgid');
@@ -113,6 +116,11 @@ class Pointshop extends  Base
 		$order_array=[];
 		$orderaddress_array=[];
 		$ordergoods_array=[];
+
+		//判定数据是否一致
+		if($pgInfo['pgoods_points']*$goodsnum!=$allpoint){
+			$allpoint=$pgInfo['pgoods_points']*$goodsnum;
+		}
 
 		if($pgInfo['pgoods_islimit']==1){
 			$order_goods=$pointprod->getOrderGoodsList($memberInfo['member_id'],$pgInfo['pgid']);
@@ -135,7 +143,7 @@ class Pointshop extends  Base
 			return json_encode($data,true);
 		}
 		
-		if(!empty($memberInfo['member_points'])&&$memberInfo['member_points']>=input('allpoint')){
+		if(!empty($memberInfo['member_points'])&&$memberInfo['member_points']>=$allpoint){
 			$now=TIMESTAMP;
 			$sn=$pointorder->point_snOrder();
 			$order_array['point_ordersn']=$sn;//生成订单号
@@ -144,7 +152,7 @@ class Pointshop extends  Base
 			$order_array['point_outsn']=$sn;//订单编号，外部
 			$order_array['point_addtime']=$now;//兑换订单生成时间
 			$order_array['point_paymenttime']=$now;//支付(付款)时间
-			$order_array['point_allpoint']=trim(input('allpoint'));//兑换总积分
+			$order_array['point_allpoint']=trim($allpoint);//兑换总积分
 			$order_array['point_orderstate']=20;//订单状态：20确认付款;
 
 			$orderaddress_array['point_truename']=$addInfo['true_name'];//收货人姓名
@@ -156,12 +164,12 @@ class Pointshop extends  Base
 			$ordergoods_array['point_goodsid']=$pgInfo['pgid'];//	礼品id
 			$ordergoods_array['point_goodsname']=$pgInfo['pgoods_name'];//	礼品名称
 			$ordergoods_array['point_goodspoints']=$pgInfo['pgoods_points'];//	礼品兑换积分
-			$ordergoods_array['point_goodsnum']=trim(input('goodsnum'));//	礼品数量
+			$ordergoods_array['point_goodsnum']=trim($goodsnum);//	礼品数量
 			$ordergoods_array['point_goodsimage']=$pgInfo['pgoods_image'];//礼品图片
 
 			$dateTime=date("Y-m-d H:i:s",$now);
 			$messagge_array['to_member_id']=$memberInfo['member_id'];
-			$messagge_array['message_body']="你的账户于".$dateTime."账户积分有变化，描述：兑换礼品，积分变化：-".input('allpoint');
+			$messagge_array['message_body']="你的账户于".$dateTime."账户积分有变化，描述：兑换礼品，积分变化：-".$allpoint;
 			$messagge_array['message_time']=$now;
 			$messagge_array['message_update_time']=$now;
 			$messagge_array['message_type']=1;
@@ -175,7 +183,7 @@ class Pointshop extends  Base
 
 		    $points_log['pl_memberid']=$memberInfo['member_id'];
 		    $points_log['pl_membername']=$memberInfo['member_name'];
-		    $points_log['pl_points']="-".input('allpoint');
+		    $points_log['pl_points']="-".$allpoint;
 		    $points_log['pl_addtime']=$now;
 		    $points_log['pl_desc']="兑换礼品信息".$sn."消耗积分";
 		    $points_log['pl_stage']="pointorder";
@@ -187,10 +195,10 @@ class Pointshop extends  Base
 			    $orderaddress_res=$pointprod->insertOrderAddress($orderaddress_array);
 			    $ordergoods_array['point_orderid']=$order_res;
 			    $ordergoods_res=$pointprod->insertOrderGoods($ordergoods_array);
-			    $member['member_points']=$memberInfo['member_points']-input('allpoint');
+			    $member['member_points']=$memberInfo['member_points']-$allpoint;
 			    $member_res=$pointprod->updateMember($memberInfo['member_id'],$member);
-			    $point_goods['pgoods_storage']=$pgInfo['pgoods_storage']-input('goodsnum');
-			    $point_goods['pgoods_salenum']=$pgInfo['pgoods_salenum']+input('goodsnum');
+			    $point_goods['pgoods_storage']=$pgInfo['pgoods_storage']-$goodsnum;
+			    $point_goods['pgoods_salenum']=$pgInfo['pgoods_salenum']+$goodsnum;
 			    $member_res=$pointprod->updatePointGoodsById($pgInfo['pgid'],$point_goods);
 			    $message_res=$pointprod->insertMessage($messagge_array);
 			    $message_res2=$pointprod->insertMessage($messagge_array2);
