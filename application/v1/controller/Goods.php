@@ -529,9 +529,28 @@ class Goods extends  Base
         return json_encode($data,true);
     }
     /**
+     * 获取分类列表
+     */
+    function categoryListByCid(){
+        $parentId = input("parent_id",0);
+        $gc = new GoodsClass();
+        $list = $gc->getGoodsClassListByParentId($parentId);
+        $newlist = array();
+        foreach ($list as $k=>$v){
+            $newlist[$k]['name'] = $v['gc_name'];
+            $newlist[$k]['gc_id'] = $v['gc_id'];
+        }
+        $data['error_code'] = 200;
+        $data['list']=$newlist;
+        return json_encode($data,true);
+    }
+    /**
      * 获取分类商品列表
      */
     public function goodslist() {
+        if(input("gc_id")){
+
+        }
         $page = input("page",0);
         $this->_model_search = new Search();
         $memberId = input("member_id");
@@ -887,7 +906,7 @@ class Goods extends  Base
         $viewed_goods = $goods->getViewedGoodsList();
         $data['viewed_goods'] = $viewed_goods;
         //$data['goods_list'] = $goods_list;
-        return json_encode($data);
+        return json_encode($data,true);
         //$data['goodslist');
 
     }
