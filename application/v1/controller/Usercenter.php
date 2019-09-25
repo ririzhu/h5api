@@ -190,10 +190,11 @@ class Usercenter extends Base {
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }
+        $gid = explode(',',input('gid'));
 
         $history = new BrowserHistory();
         $condition = [
-            'gid' => input('gid'),
+            'gid' => $gid,
             'member_id' => input('member_id'),
         ];
         $del = $history->delGoodsbrowseHistory($condition);
@@ -233,7 +234,7 @@ class Usercenter extends Base {
 
         $data['code'] = 200;
         $data['message'] = '请求成功';
-        $data['available_predeposit'] = $member_info['available_predeposit'];
+        $data['available_predeposit'] = floatval($member_info['available_predeposit']);
         return json_encode($data,true);
     }
 
@@ -255,7 +256,7 @@ class Usercenter extends Base {
             'lg_member_id' =>$member_id,
         ];
         $field = 'lg_id,lg_type,lg_av_amount,lg_freeze_amount,lg_add_time,lg_desc';
-        $pd_log = $predeposit->getPdLogList($condition,$field,'lg_add_time desc');
+        $pd_log = $predeposit->getPdLog($condition,$field,'lg_add_time desc');
         foreach ($pd_log as $key => $val){
             $pd_log[$key]['lg_add_time'] = date('Y-m-d',$val['lg_add_time']);
         }
@@ -294,7 +295,7 @@ class Usercenter extends Base {
         $team = $member->getChildMember($member_condition,$member_field);
         $count = count($team);
 
-        $fenxiao = new Fenxiao();
+        /*$fenxiao = new Fenxiao();
         $fenxiao_condition = [
             'reciver_member_id' =>$member_id,
         ];
@@ -342,13 +343,28 @@ class Usercenter extends Base {
 
         foreach ($list as $key => $val){
             $list[$key]['add_time'] = date('m-d H:i:s',$val['add_time']);
+        }*/
+        $predeposit = new Predeposit();
+        $arr = ['cash_pay','cash_rebate','order_pay'];
+        $condition = [
+            'lg_member_id' =>$member_id,
+            'lg_type' => $arr,
+        ];
+        $field = 'lg_id,lg_type,lg_av_amount,lg_freeze_amount,lg_add_time,lg_desc';
+        $pd_log = $predeposit->getPdLog($condition,$field,'lg_add_time desc');
+        $total_income = 0;
+        foreach ($pd_log as $key => $val){
+            if ($val['lg_type'] == 'order_pay'){
+                $total_income += $val['lg_av_amount'];
+            }
+            $pd_log[$key]['lg_add_time'] = date('m-d H:i',$val['lg_add_time']);
         }
 
         $data['code'] = 200;
         $data['message'] = '请求成功';
-        $data['list'] = $list;
+        $data['list'] = $pd_log;
         $data['count'] = $count;
-        $data['account'] = $account;
+        $data['available_predeposit'] = floatval($member_info['available_predeposit']);
         $data['total_income'] = $total_income;
         return json_encode($data,true);
     }

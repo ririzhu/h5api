@@ -419,4 +419,16 @@ class Predeposit extends Model
     public function delPdCashAccount($condition = array()) {
         return $this->table('pd_cash_account')->where($condition)->delete();
     }
+
+    /**
+     * add by zhengyifan 2019-09-25
+     * 获取预存款变更日志
+     * @param $condition
+     * @param string $fields
+     * @param string $order
+     * @return array
+     */
+    public function getPdLog($condition, $fields = '*', $order = '') {
+        return DB::name('pd_log')->where($condition)->field($fields)->order($order)->select();
+    }
 }
