@@ -1089,3 +1089,24 @@ function getStoreLogo($store_logo)
         return UPLOAD_SITE_URL . DS . ATTACH_STORE . DS . $store_logo;
     }
 }
+/**
+ * 得到数组变量的GBK编码
+ *
+ * @param array $key 数组
+ * @return array 数组类型的返回结果
+ */
+function getGBK($key){
+    /**
+     * 转码
+     */
+    if (strtoupper(CHARSET) == 'GBK' && !empty($key)){
+        if (is_array($key)){
+            $result = var_export($key, true);//变为字符串
+            $result = iconv('UTF-8','GBK',$result);
+            eval("\$result = $result;");//转换回数组
+        }else {
+            $result = iconv('UTF-8','GBK',$key);
+        }
+    }
+    return $result;
+}

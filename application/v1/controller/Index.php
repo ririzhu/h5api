@@ -314,6 +314,7 @@ class Index extends Base
             $data['error_code'] = 10016;
             $data['message'] = lang("缺少参数");
         }
+        $memberId = input('member_id');
         $page = input("page",0);
         $model_red = new Red();
         $conditionstr = " 1=1";
@@ -337,7 +338,7 @@ class Index extends Base
             $conditionstr .= " and redinfo_end >".TIMESTAMP;
         }
         $condition['reduser_uid'] = input("member_id");
-
+        $conditionstr .= " and reduser_uid =$memberId";
         $red_list = $model_red->getRedUserList($conditionstr,$page,"","list");
         $red_list = $model_red->getUseInfo($red_list);
         $data['error_code'] = 200;

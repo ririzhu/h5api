@@ -505,17 +505,17 @@ class Goods extends  Base
         $parentId = input("parent_id",0);
         $gc = new GoodsClass();
         $list = $gc->getGoodsClassListByParentId($parentId);
+        $childrenList = array();
         $a = 0;
         foreach($list as $k=>$v){
             $childrens = $gc->getGoodsClassListByParentId($list[$k]['gc_id']);
             $c = 0;
 
             foreach($childrens as $kk=>$vv){
-                $list[$k]['children'][$a][$c]=$vv;
+                $childrenList[$k][$a][$kk % 3 ]=$vv;
                 if($c==2){
-                    $a++;$c=-1;
+                    $a++;
                 }
-                $c++;
             }
 
             //foreach($list[$k]['children'] as $m=>$n){
@@ -523,7 +523,10 @@ class Goods extends  Base
 
             //}
         }
-        return json_encode($list);
+        $data['error_code'] = 200;
+        $data['list']=$list;
+        $data['children'] = $childrenList;
+        return json_encode($data,true);
     }
     /**
      * 获取分类商品列表

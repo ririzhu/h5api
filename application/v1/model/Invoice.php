@@ -54,7 +54,7 @@ class Invoice extends Model
      * @return unknown
      */
     public function addInv($data) {
-        return $this->insert($data);
+        return db::name("invoice")->insertGetId($data);
     }
 
     public $invoice_content_list = array(

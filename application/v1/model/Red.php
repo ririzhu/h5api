@@ -16,7 +16,7 @@ class Red extends Model
         2 => '注册优惠券',
         3 => '活动优惠券', //未使用
         4 => '推荐优惠券',
-        5 => '进店优惠券', //未使用
+        5 => '进店优惠券',
         6 => '领券中心优惠券' //未使用
     );
 
@@ -260,13 +260,14 @@ class Red extends Model
         $member_ids = low_array_column($red_user_list,'reduser_uid');
         $where['member_id'] = array('in',arrayToString($member_ids));
         $member_list = DB::table('bbc_member')->field('member_id,member_name,member_truename,wx_nickname')->where($where)->force("member_id")->select();//column("member_id,member_id,member_name,member_truename,wx_nickname","member_id");
+        //print_r($red_user_list);die;
         $all_list = array();
         if($to=="list"){
             foreach($red_user_list as $k=>$v){
                 $all_list[$k] = DB::table('bbc_red_info')->where(" red_id = ".$v['red_id'])->force("id")->find();
                 $all_list[$k]['red_type']=$red_user_list[$k]['red_type'];
                 $all_list[$k]['red_status']=$red_user_list[$k]['red_status'];
-                $all_list[$k]['red_id']=$red_user_list[$k]['bbc_red_user.id'];
+                $all_list[$k]['red_id']=$red_user_list[$k]['rid'];
             }
             return $all_list;
         }

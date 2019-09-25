@@ -5,6 +5,7 @@ use app\v1\model\BrowserHistory;
 use app\v1\model\Dian;
 use app\v1\model\FirstOrder;
 use app\v1\model\Grade;
+use app\v1\model\Invoice;
 use app\v1\model\Payment;
 use app\v1\model\Red;
 use app\v1\model\StoreInfo;
@@ -726,35 +727,37 @@ class Buy extends Base
      */
     public function loadinvoice() {
         $model_buy = new UserBuy();
-
+        $returns['error_code'] = 200;
+        $memberId = input("member_id");
         $condition = array();
-        if ($model_buy->buyDecrypt($_GET['vat_hash'], $_SESSION['member_id']) == 'allow_vat') {
+        $vat_hash = input("vat_hash");
+        if ($model_buy->buyDecrypt($vat_hash, $memberId) == 'allow_vat') {
         } else {
             $returns['vat_deny']=true;
             $condition['inv_state'] = 1;
         }
-        $condition['member_id'] = $_SESSION['member_id'];
-
-        $model_inv = Model('invoice');
+        $condition['member_id'] = $memberId;
+        $delid = input("del_id",0);
+        $model_inv = new Invoice();
         //如果传入ID，先删除再查询
-        if (intval($_GET['del_id']) > 0) {
-            $model_inv->delInv(array('inv_id'=>intval($_GET['del_id']),'member_id'=>$_SESSION['member_id']));
+        if (intval($delid) > 0) {
+            $model_inv->delInv(array('inv_id'=>intval($_GET['del_id']),'member_id'=>$memberId));
         }
         $list = $model_inv->getInvList($condition,10);
         if (!empty($list)) {
             foreach ($list as $key => $value) {
                 if ($value['inv_state'] == 1) {
-                    $list[$key]['content'] = Language::get('普通发票').' '.$value['inv_title'].' '.$value['inv_content'].' '.$value['inv_code'];
+                    $list[$key]['content'] = lang('普通发票').' '.$value['inv_title'].' '.$value['inv_content'].' '.$value['inv_code'];
                 } else {
-                    $list[$key]['content'] = Language::get('增值税发票').' '.$value['inv_company'].' '.$value['inv_code'].' '.$value['inv_reg_addr'];
+                    $list[$key]['content'] = lang('增值税发票').' '.$value['inv_company'].' '.$value['inv_code'].' '.$value['inv_reg_addr'];
                 }
             }
         }
-
-        $invoice_content_list = Model('invoice')->invoice_content_list;
+        $ic = new Invoice();
+        $invoice_content_list = $ic->invoice_content_list;
 
         foreach ($invoice_content_list as &$v){
-            $v = Language::get($v);
+            $v = lang($v);
         }
 //        dd($invoice_content_list);die;
 
@@ -768,44 +771,52 @@ class Buy extends Base
      *
      */
     public function addinvoice(){
-        $model_inv = Model('invoice');
+        $model_inv = new Invoice();
+        if(!input("member_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
         if (chksubmit()){
             //如果是增值税发票验证表单信息
             if ($_POST['invoice_type'] == 2) {
                 if (empty($_POST['inv_company']) || empty($_POST['inv_code']) || empty($_POST['inv_reg_addr'])) {
-                    exit(json_encode(array('state'=>false,'msg'=>Language::get('保存失败','UTF-8'))));
+                    exit(json_encode(array('state'=>false,'msg'=>lang('保存失败','UTF-8'))));
                 }
             }
             $data = array();
             if ($_POST['invoice_type'] == 1) {
                 $data['inv_state'] = 1;
-                $data['inv_title'] = $_POST['inv_title_select'] == 'person' ? Language::get('个人') : $_POST['inv_title'];
-                $data['inv_content'] = $_POST['inv_content'];
-                $data['inv_code'] = $_POST['inv_title_shuihao'];//纳税人识别号（单位也需要要税号）
+                $data['inv_title'] = input('inv_title');
+                $data['inv_content'] = input('inv_content');
+                $data['inv_reg_phone'] = input('inv_reg_phone',"");
             } else {
                 $data['inv_state'] = 2;
-                $data['inv_company'] = $_POST['inv_company'];
-                $data['inv_code'] = $_POST['inv_code'];
-                $data['inv_reg_addr'] = $_POST['inv_reg_addr'];
-                $data['inv_reg_phone'] = $_POST['inv_reg_phone'];
-                $data['inv_reg_bname'] = $_POST['inv_reg_bname'];
-                $data['inv_reg_baccount'] = $_POST['inv_reg_baccount'];
-                $data['inv_rec_name'] = $_POST['inv_rec_name'];
-                $data['inv_rec_mobphone'] = $_POST['inv_rec_mobphone'];
-                $data['inv_rec_province'] = $_POST['area_info'];
-                $data['inv_goto_addr'] = $_POST['inv_goto_addr'];
+                $data['inv_company'] = input('inv_company',"");
+                $data['inv_code'] = input('inv_code',"");
+                $data['inv_reg_addr'] = input('inv_reg_addr',"");
+                $data['inv_reg_phone'] = input('inv_reg_phone',"");
+                $data['inv_reg_bname'] = input('inv_reg_bname',"");
+                $data['inv_reg_baccount'] = input('inv_reg_baccount',"");
+                $data['inv_rec_name'] = input('inv_rec_name',"");
+                $data['inv_rec_mobphone'] = input('inv_rec_mobphone',"");
+                $data['inv_rec_province'] = input('area_info',"");
+                $data['inv_goto_addr'] = input('inv_goto_addr',"");
             }
-            $data['member_id'] = $_SESSION['member_id'];
+            $data['member_id'] = input("member_id");
             //转码
-            $data = strtoupper(CHARSET) == 'GBK' ? Language::getGBK($data) : $data;
+            $data = strtoupper(CHARSET) == 'GBK' ? getGBK($data) : $data;
             $insert_id = $model_inv->addInv($data);
             if ($insert_id) {
-                exit(json_encode(array('state'=>'success','id'=>$insert_id)));
+                $data['error_code'] = 200;
+                $data['id'] = $insert_id;
+                exit(json_encode($data,true));
             } else {
-                exit(json_encode(array('state'=>'fail','msg'=>Language::get('保存失败','UTF-8'))));
+                $data['error_code'] = 10001;
+                exit(json_encode($data,true));
             }
         } else {
-            Template::showpage('buy_address.add','null_layout');
+            //Template::showpage('buy_address.add','null_layout');
         }
     }
 

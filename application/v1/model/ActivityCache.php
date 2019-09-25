@@ -259,6 +259,7 @@ class ActivityCache extends Model
 
             $xianshi_gid = Base::rkcache('xianshi_gid',true);
             $xianshi_gid['data'] =Db::name("p_xianshi_goods p")->join("bbc_goods g","p.gid=g.gid")->select();
+            $new_xianshi_gid = array();
             foreach($xianshi_gid['data'] as $k=>$v){
                 $new_xianshi_gid['data'][]=$v;
             }

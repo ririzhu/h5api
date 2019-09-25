@@ -10,6 +10,7 @@
 namespace app\v1\controller;
 
 use app\v1\model\Points;
+use app\v1\model\Red;
 use think\Config;
 use think\Request;
 use app\v1\model\User as Users;
@@ -457,4 +458,5 @@ class User extends Base
             return json_encode($data,true);
         }
     }
+
 }
