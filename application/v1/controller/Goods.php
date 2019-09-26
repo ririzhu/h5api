@@ -538,7 +538,7 @@ class Goods extends  Base
         $list = $gc->getGoodsClassListByParentId($parentId);
         $newlist = array();
         $c = 0;
-        $a = 0;
+        $a = 10;
         foreach ($list as $k=>$v){
             $newlist["".str_replace("/","",$name)."$a"][$c]['name'] = $v['gc_name'];
             $newlist["".str_replace("/","",$name)."$a"][$c]['gc_id'] = $v['gc_id'];
@@ -549,6 +549,7 @@ class Goods extends  Base
             }
 
         }
+        print_r($newlist);die;
         $data['error_code'] = 200;
         $data['list']=$newlist;
         return json_encode($data,true);
