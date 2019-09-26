@@ -549,7 +549,6 @@ class Goods extends  Base
             }
 
         }
-        print_r($newlist);die;
         $data['error_code'] = 200;
         $data['list']=$newlist;
         return json_encode($data,true);
