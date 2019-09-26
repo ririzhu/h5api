@@ -534,11 +534,20 @@ class Goods extends  Base
     function categoryListByCid(){
         $parentId = input("parent_id",0);
         $gc = new GoodsClass();
+        $name = (db::name("goods_class")->where("gc_id=$parentId")->find())['gc_name'];
         $list = $gc->getGoodsClassListByParentId($parentId);
         $newlist = array();
+        $c = 0;
+        $a = 0;
         foreach ($list as $k=>$v){
-            $newlist[$k]['name'] = $v['gc_name'];
-            $newlist[$k]['gc_id'] = $v['gc_id'];
+            $newlist["".str_replace("/","",$name)."$a"][$c]['name'] = $v['gc_name'];
+            $newlist["".str_replace("/","",$name)."$a"][$c]['gc_id'] = $v['gc_id'];
+            if($c==2){
+                $c=0;$a++;
+            }else{
+                $c++;
+            }
+
         }
         $data['error_code'] = 200;
         $data['list']=$newlist;
