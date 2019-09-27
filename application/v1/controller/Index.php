@@ -112,93 +112,162 @@ class Index extends Base
         else{
             $store_id = 0;
         }
-        if($redis->has("homepage")){
-            $data['data']=$redis->get("homepage");
-        }else{
-        //获取轮播图数据
-            $result = DB::name("tpl_data")->where("sld_shop_id=$store_id and sld_tpl_type = 6")->field("sld_tpl_data")->find();
-            $serializeData = $result['sld_tpl_data'];
-            $imagelist = unserialize($serializeData)['pic_list'];
-            $result = array();
-            foreach($imagelist as $k=>$v){
-                $result[$k]['pic'] = DB::name("fixture_album_pic")->field("sld_pic_name,sld_pic_width,sld_pic_height")->where("id=".$v['pic_id'])->find();
-            }
-            $data['album'] = $result;
-            //获取通知
-            $data['annoucelist'] = DB::name("article")->where("acid=1")->order("article_sort",'desc')->select();
-            //热门课程
-            $goods_list = unserialize((DB::name("tpl_data")->where("sld_tpl_type=2 and sld_is_vaild=1 and sld_tpl_code ='goods_floor2'")->field("sld_tpl_data")->find())['sld_tpl_data']);
-            $goods_list = $goods_list['goods'];
-            $model_goods = new \app\v1\model\Goods();
-            $data['peixun_tag_name'] = "培训专场";
-            $lession = array();
-            foreach($goods_list as $k=>$v){
-                $gid = $goods_list[$k]['goods_id'];
-                unset($goods_list[$k]);
-                $a =$model_goods->getGoodsList("gid = $gid", "*","","",1,0,1,1);
-                if(!empty($a)) {
-                    $goods_list[$k] = $a[0];
+        if(!input("page")) {
+            if ($redis->has("homepage")) {
+                $data['data'] = $redis->get("homepage");
+            } else {
+                //获取轮播图数据
+                $result = DB::name("tpl_data")->where("sld_shop_id=$store_id and sld_tpl_type = 6")->field("sld_tpl_data")->find();
+                $serializeData = $result['sld_tpl_data'];
+                $imagelist = unserialize($serializeData)['pic_list'];
+                $result = array();
+                foreach ($imagelist as $k => $v) {
+                    $result[$k]['pic'] = DB::name("fixture_album_pic")->field("sld_pic_name,sld_pic_width,sld_pic_height")->where("id=" . $v['pic_id'])->find();
                 }
-                $goods_list[$k]['gid'] = $gid;
-            }
-            $ga = new GoodsActivity();
-            //$goods_list = $ga->rebuild_goods_data($goods_list,'web');
-            foreach ($goods_list as $k=>$v){
-               // if($goods_list[$v]) {
+                $data['album'] = $result;
+                //获取通知
+                $data['annoucelist'] = DB::name("article")->where("acid=1")->order("article_sort", 'desc')->select();
+                //热门课程
+                $goods_list = unserialize((DB::name("tpl_data")->where("sld_tpl_type=2 and sld_is_vaild=1 and sld_tpl_code ='goods_floor2'")->field("sld_tpl_data")->find())['sld_tpl_data']);
+                $goods_list = $goods_list['goods'];
+                $model_goods = new \app\v1\model\Goods();
+                $data['peixun_tag_name'] = "培训专场";
+                $lession = array();
+                foreach ($goods_list as $k => $v) {
+                    $gid = $goods_list[$k]['goods_id'];
+                    unset($goods_list[$k]);
+                    $a = $model_goods->getGoodsList("gid = $gid", "*", "", "", 1, 0, 1, 1);
+                    if (!empty($a)) {
+                        $goods_list[$k] = $a[0];
+                    }
+                    $goods_list[$k]['gid'] = $gid;
+                }
+                $ga = new GoodsActivity();
+                //$goods_list = $ga->rebuild_goods_data($goods_list,'web');
+                foreach ($goods_list as $k => $v) {
+                    // if($goods_list[$v]) {
                     $lession[$k]['goods_name'] = $v['goods_name'];
                     $lession[$k]['gid'] = $v['gid'];
                     $lession[$k]['goods_price'] = $v['goods_price'];
                     $lession[$k]['goods_image'] = $v['goods_image'];
-               //}
-             }
-            $data['hot_lession'] = $lession;
-                //教师列表
-            $field = '*';
-            $teachers = DB::name('member')->alias('m')->field($field)->join('teacher_extend e','m.member_id=e.member_id')->limit(9)->select();
-
-            //行业
-            $trade_list = DB::name('teacher_trade')->field("trade_id,trade_name")->select();
-            foreach ($trade_list as $val){
-                $arr1[] = $val['trade_id'];
-                $arr2[] = $val['trade_name'];
-            }
-            foreach ($teachers as &$val) {
-                $arr= explode(',',$val['trades']);
-                $res = str_replace($arr1,$arr2,$arr);
-                $res = implode(',',$res);
-                $val['trades'] = $res;
-            }
-            //$data['teachers'] = $teachers;
-            //培训
-            //$trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
-            $peixunClassList = db::name("goods_class_tag")->where(array("type_id"=>1))->select();
-            $goods_list = array();
-            foreach ($peixunClassList as $k=>$v){
-                $list = db::name("goods")->where("gc_id=".$v['gc_id']." and goods_state=1")->select();
-                foreach($list as $kk=>$vv){
-                    $goods_list[$kk]['goods_name'] = $vv['goods_name'];
-                    $goods_list[$kk]['gid'] = $vv['gid'];
-                    $goods_list[$kk]['del_price'] = $vv['goods_price'];
-                    if(isset($goods_list[$kk]['show_price']))
-                        $goods_list[$kk]['show_price'] = $vv['show_price'];
-                    else
-                        $goods_list[$kk]['show_price'] = $vv['goods_price'];
-                    if(isset($goods_list[$kk]['goods_promotion_type']) && $goods_list[$k]['goods_promotion_type']==2){
-                        $goods_list[$kk]['tag'][0]="限时优惠";
-                    }
-                    $goods_list[$kk]['goods_image'] = $vv['goods_image'];
+                    //}
                 }
+                $data['hot_lession'] = $lession;
+                //教师列表
+                $field = '*';
+                $teachers = DB::name('member')->alias('m')->field($field)->join('teacher_extend e', 'm.member_id=e.member_id')->limit(9)->select();
+
+                //行业
+                $trade_list = DB::name('teacher_trade')->field("trade_id,trade_name")->select();
+                foreach ($trade_list as $val) {
+                    $arr1[] = $val['trade_id'];
+                    $arr2[] = $val['trade_name'];
+                }
+                foreach ($teachers as &$val) {
+                    $arr = explode(',', $val['trades']);
+                    $res = str_replace($arr1, $arr2, $arr);
+                    $res = implode(',', $res);
+                    $val['trades'] = $res;
+                }
+                //$data['teachers'] = $teachers;
+                //培训
+                //$trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
+                if($redis->has("peixun")){
+                    $goods_list = $redis->get("peixun");
+                }else {
+                    $peixunClassList = db::name("goods_class_tag")->where(array("type_id" => 1))->select();
+                    $goods_list = array();
+                    foreach ($peixunClassList as $k => $v) {
+                        $list = db::name("goods")->where("gc_id=" . $v['gc_id'] . " and goods_state=1")->select();
+                        foreach ($list as $kk => $vv) {
+                            $goods_list[$kk]['goods_name'] = $vv['goods_name'];
+                            $goods_list[$kk]['gid'] = $vv['gid'];
+                            $goods_list[$kk]['del_price'] = $vv['goods_price'];
+                            if (isset($goods_list[$kk]['show_price']))
+                                $goods_list[$kk]['show_price'] = $vv['show_price'];
+                            else
+                                $goods_list[$kk]['show_price'] = $vv['goods_price'];
+                            if (isset($goods_list[$kk]['goods_promotion_type']) && $goods_list[$k]['goods_promotion_type'] == 2) {
+                                $goods_list[$kk]['tag'][0] = "限时优惠";
+                            }
+                            $goods_list[$kk]['goods_image'] = $vv['goods_image'];
+                        }
+                    }
+
+                    //print_r($goods_list);die;
+                    $ga = new GoodsActivity();
+                    $goods_list = $ga->rebuild_goods_data($goods_list, 'pc');
+                    $redis->set("peixun",$goods_list,30);
+                }
+                $data['count'] = count($goods_list);
+                $a = 0;
+                $new_goods_list = array();
+                foreach($goods_list as $k=>$v){
+                    $new_goods_list[$a]=$v;
+                    $a++;
+                    if($a==8){
+                        break;
+                    }
+                }
+                $trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
+                $data['peixun'] = $new_goods_list;
+                $redis->set("homepage", $data, 120);
+                $data = array();
+                $data['data'] = $redis->get("homepage");
             }
-            //print_r($goods_list);die;
-            $ga = new GoodsActivity();
-            $goods_list = $ga->rebuild_goods_data($goods_list, 'pc');
-            $trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
-            $data['peixun'] = $goods_list;
-            $redis->set("homepage",$data,120);
-            $data=array();
-            $data['data'] = $redis->get("homepage");
+            return json_encode($data, true);
+        }else{
+            $page = input("page");
+            if ($redis->has("homepage_$page")) {
+                $data['data'] = $redis->get("homepage_$page");
+            }else{
+                if($redis->has("peixun")){
+                    $goods_list = $redis->get("peixun");
+                }else {
+                    $peixunClassList = db::name("goods_class_tag")->where(array("type_id" => 1))->select();
+                    $goods_list = array();
+                    foreach ($peixunClassList as $k => $v) {
+                        $list = db::name("goods")->where("gc_id=" . $v['gc_id'] . " and goods_state=1")->select();
+                        foreach ($list as $kk => $vv) {
+                            $goods_list[$kk]['goods_name'] = $vv['goods_name'];
+                            $goods_list[$kk]['gid'] = $vv['gid'];
+                            $goods_list[$kk]['del_price'] = $vv['goods_price'];
+                            if (isset($goods_list[$kk]['show_price']))
+                                $goods_list[$kk]['show_price'] = $vv['show_price'];
+                            else
+                                $goods_list[$kk]['show_price'] = $vv['goods_price'];
+                            if (isset($goods_list[$kk]['goods_promotion_type']) && $goods_list[$k]['goods_promotion_type'] == 2) {
+                                $goods_list[$kk]['tag'][0] = "限时优惠";
+                            }
+                            $goods_list[$kk]['goods_image'] = $vv['goods_image'];
+                        }
+                    }
+
+                    //print_r($goods_list);die;
+                    $ga = new GoodsActivity();
+                    $goods_list = $ga->rebuild_goods_data($goods_list, 'pc');
+                    $redis->set("peixun",$goods_list);
+                }
+                $a = $page * 8;
+                $c=0;
+                $new_goods_list = array();
+                foreach($goods_list as $k=>$v){
+                    if(isset($goods_list[$a])) {
+                        $new_goods_list[$c] = $v;
+                        $a++;
+                        $c++;
+                        if ($a == $page * 8 + 8) {
+                            break;
+                        }
+                    }
+                }
+                $redis->set("homepage_$page", $new_goods_list, 120);
+                $data = array();
+
+                $data['data'] = $redis->get("homepage_$page");
+            }
+            return json_encode($data, true);
         }
-        return json_encode($data,true);
     }
     function messageCount(){
         if(!input("member_id")){

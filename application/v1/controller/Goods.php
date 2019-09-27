@@ -21,6 +21,7 @@ use app\v1\model\VendorGlmb;
 use app\v1\model\VendorInfo;
 use app\v1\model\VendorLabel;
 use app\v1\model\VendorNavigation;
+use think\cache\driver\Redis;
 use think\console\command\make\Model;
 use think\db;
 class Goods extends  Base
@@ -994,5 +995,24 @@ class Goods extends  Base
             $data = array();
         }
         return $data;
+    }
+    /**
+     * 搜索框搜索
+     */
+    public function searchAjax(){
+        if(!input("keyword")){
+            return json_encode(array("error_code"=>10016,"message"=>lang("缺少参数")),true);
+        }
+        $redis = new Redis();
+        if($redis->has("search_".input("keyword"))){
+            return json_encode(array("error_code" => 200,"data"=>$redis->get("search_".input("keyword"))),true);
+        }else{
+            $keyword = input("keyword");
+            $list = db::name("goods")->where("goods_name like '%$keyword%' and status=1")->limit(5)->order("goods_id")->select();
+            $data['error_code'] = 200;
+            $data['data']=$list;
+            $redis->set("search_$keyword",$list,30);
+            return json_encode($data,true);
+        }
     }
 }
