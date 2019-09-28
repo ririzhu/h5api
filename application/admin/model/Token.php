@@ -23,7 +23,7 @@ class Token extends  Model
             "aud" => request()->ip(), //面向的用户
             "iat" => time(), //签发时间
             "nbf" => time() + 3, //在什么时候jwt开始生效
-            "exp" => time() +  60 * $exp_minute, //token 过期时间
+            "exp" => $exp_minute, //token 过期时间
             'user_id' => $user_id,
         ];
         $jwt = JWt::encode($token, $this->key);
@@ -35,7 +35,11 @@ class Token extends  Model
         $token=str_replace("Bearer ","",$token);
         try {
             $decoded = JWT::decode($token, $this->key, array('HS256'));
+            if($decoded!=-1)
             return $this->object2array($decoded);
+            else{
+                return -1;
+            }
         } catch (\Firebase\JWT\SignatureInvalidException $e) {
             return false;
         }

@@ -18,14 +18,22 @@ class Base extends Controller
         //$request = new Request();
         $controller=request()->controller();
         $action=request()->action();
+        $expired=-1;
         if($controller!="index" && $action!="piccode") {
-            if (!$this->checkouth()) {
+            $headertoken = str_replace("Bearer ", "", request()->header('Authorization'));
+
+            if($this->checkouth()=="-1"){
+                $token =new Token();
+                $expired = time() +  600 * 60;
+                $headertoken = $token->signToken(1, $expired);
+                $user = db::name("api_user")->where("id=1")->update(array("token"=>$headertoken));
+            }
+            else if ($this->checkouth()!=true) {
                 json($data['msg'] = "missing token")->code(201)->send();
                 exit;
                 exit;
             };
             //获取头部token，查询有无权限
-            $headertoken = str_replace("Bearer ", "", request()->header('Authorization'));
             $user = db::name("api_user")->where("token='$headertoken'")->find();
             if (count($user) > 0) {
                 if ($user['name'] == "Horizou") {
@@ -81,6 +89,21 @@ class Base extends Controller
                 exit;
                 exit;
             }
+            if($expired=-1) {
+                response()->header([
+                    'Authorization' => $headertoken,
+                    'Cache-control' => 'no-cache,must-revalidate',
+                    'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                ])->send();
+            }else{
+                response()->header([
+                    'Authorization' => $headertoken,
+                    'Expired_time'  => $expired,
+                    'Cache-control' => 'no-cache,must-revalidate',
+                    'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+                ])->send();
+            }
+
         }
     }
     /**
@@ -414,8 +437,10 @@ function date_before($time, $unit = null) {
          return false;
          exit;
          }
-        else if($token->checkToken($headertoken)){
+        else if($token->checkToken($headertoken)!=true){
             return true;
+        }else if($token->checkToken($headertoken)==-1){
+            return -1;
         }else{
             return false;
             exit;

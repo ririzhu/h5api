@@ -1008,7 +1008,7 @@ class Goods extends  Base
             return json_encode(array("error_code" => 200,"data"=>$redis->get("search_".input("keyword"))),true);
         }else{
             $keyword = input("keyword");
-            $list = db::name("goods")->where("goods_name like '%$keyword%' and status=1")->limit(5)->order("goods_id")->select();
+            $list = db::name("goods")->where("goods_name like '%$keyword%' and goods_state=1")->field("gid,goods_name")->limit(5)->order("gid","desc")->select();
             $data['error_code'] = 200;
             $data['data']=$list;
             $redis->set("search_$keyword",$list,30);

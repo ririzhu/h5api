@@ -2,6 +2,8 @@
 namespace app\v1\controller;
 use app\v1\model\Sms as Smslog;
 use app\v1\model\User;
+use think\cache\driver\Redis;
+use think\Request;
 use \Yunpian\Sdk\YunpianClient;
 class Sms extends Base
 {
@@ -18,9 +20,27 @@ class Sms extends Base
         $condition['log_ip'] = getIp();
         $condition['log_type'] = $type;
         $sms_log = $sms->getSmsInfo($condition);
-        if(!empty($sms_log) && ($sms_log['add_time'] > TIMESTAMP-600)) {//同一IP十分钟内只能发一条短信
+        $redis = new Redis();
+        if(!Request()->header('Cache-name')){
+            return false;
+        }else if( !Request()->header('basestr')){
+            return false;
+        }else{
+            $basestr = Request()->header("basestr");
+            $name = Request()->header("Cache-name");
+            $redisvalue = $redis->get($name);
+            if($redisvalue!=$basestr){
+                $data['error_code']=10016;
+                $data['message']="请求header参数错误";
+                return json_encode($data,true);
+            }else{
+                $redis->clear($name);
+            }
+        }
+        //$redis->set($type."_".$msectime,$signstr."_".$str,600*60);
+        if(!empty($sms_log) && ($sms_log['add_time'] > TIMESTAMP-60)) {//同一IP十分钟内只能发一条短信
             $data['error_code'] = 10008;
-            $data['message'] = '同一IP地址十分钟内，请勿多次获取动态码！';
+            $data['message'] = '同一IP地址一分钟内，请勿多次获取动态码！';
             return json_encode($data,true);
             //  $state = Language::get('同一IP地址十分钟内，请勿多次获取动态码！');
         } else {
