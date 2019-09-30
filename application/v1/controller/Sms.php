@@ -21,20 +21,20 @@ class Sms extends Base
         $condition['log_type'] = $type;
         $sms_log = $sms->getSmsInfo($condition);
         $redis = new Redis();
-        if(!Request()->header('Cache-name')){
-            return false;
-        }else if( !Request()->header('basestr')){
-            return false;
+        if(!input('Cache-name')){
+            return json_encode(array("error_code"=>2));
+        }else if( !input('basestr')){
+            return json_encode(array("error_code"=>1));
         }else{
-            $basestr = Request()->header("basestr");
-            $name = Request()->header("Cache-name");
+            $basestr = input("basestr");
+            $name = input("Cache-name");
             $redisvalue = $redis->get($name);
-            if($redisvalue!=$basestr){
+            if($redisvalue!=$basestr."_".input("str")){
                 $data['error_code']=10016;
                 $data['message']="请求header参数错误";
                 return json_encode($data,true);
             }else{
-                $redis->clear($name);
+                //$redis->clear($name);
             }
         }
         //$redis->set($type."_".$msectime,$signstr."_".$str,600*60);

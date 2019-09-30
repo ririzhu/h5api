@@ -371,7 +371,7 @@ class UserCart extends Model
      */
     public function listCart($type, $condition = array()) {
         if ($type == 'db') {
-            $cart_list = DB::table("bbc_cart")->where($condition)->order('cart_id desc')->select();
+            $cart_list = DB::table("bbc_cart")->where($condition)->order('vid,cart_id desc')->select();
         }
         // $cart_list = is_array($cart_list) ? $cart_list : array();
         //顺便设置购物车商品数和总金额
@@ -1248,7 +1248,7 @@ class UserCart extends Model
      * @param array $rule_info 满即送单条规则信息
      * @return string
      */
-    private function _parseMansongRuleDesc($rule_info) {
+    function _parseMansongRuleDesc($rule_info) {
         if (empty($rule_info) || !is_array($rule_info)) return;
         $discount_desc = !empty($rule_info['discount']) ? '减'.$rule_info['discount'] : '';
         $goods_desc = (!empty($rule_info['mansong_goods_name']) && !empty($rule_info['goods_storage'])) ?

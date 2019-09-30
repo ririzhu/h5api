@@ -56,7 +56,7 @@ class Goods extends Model
         //$result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
         $result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page)->lock($lock)->select();
         foreach($result as $k=>$v){
-            $result[$k]['goods_image']="http://www.horizou.cn/data/upload/mall/store/goods/".$result[$k]['goods_image'];
+            $result[$k]['goods_image']="http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$result[$k]['goods_image'];
         }
        //echo DB::table("bbc_goods")->getLastSql();die;
         return $result;

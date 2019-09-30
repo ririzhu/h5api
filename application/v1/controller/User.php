@@ -479,7 +479,16 @@ class User extends Base
             $str .= $constr{mt_rand(0,35)};    //生成php随机数
         }
         $signstr = $key.base64_encode($time.$str);
-        response()->header([
+        $data['error_code'] = 200;
+        $data['basestr'] = $signstr;
+        $data['str'] = $time.$str;
+        $data['expired_time'] = $expired;
+        $data['Cache-name'] = $type."_".$msectime;
+        $redis =new Redis();
+        $redis->set($type."_".$msectime,$signstr."_".$data['str'],600*60);
+        return json_encode($data,true);
+
+        /*response()->header([
             'basestr' => $signstr,
             'str'=>$time.$str,
             'Expired_time'  => $expired,
@@ -492,16 +501,7 @@ class User extends Base
         if(!input("type")){
             $data['error_code'] = 10016;
             $data['message'] = lang("缺少参数");
-        }
-        $ip = request()->ip();
-        $header = request()->server();
-        if($header['HTTP_HOST'] !='xcx.com' && $header['HTTP_HOST'] !='192.268.2.252'){
-                $data['error_code']=201;
-                $data['message']="您的HTTP_HOST不在允许列表中";
-                return json_encode($data,true);
-        }else{
-
-        }
+        }*/
     }
 
 }

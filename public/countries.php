@@ -1,5 +1,5 @@
 <?php
-return "[{\"cn\":\"阿富汗\",\"en\":\"Afghanistan\",\"phone_code\":\"+93\"},
+echo "[{\"cn\":\"阿富汗\",\"en\":\"Afghanistan\",\"phone_code\":\"+93\"},
 {\"cn\":\"阿尔巴尼亚\",\"en\":\"Albania\",\"phone_code\":\"+355\"},
 {\"cn\":\"阿尔及利亚\",\"en\":\"Algeria\",\"phone_code\":\"+213\"},
 {\"cn\":\"美属萨摩亚\",\"en\":\"American Samoa\",\"phone_code\":\"+684\"},

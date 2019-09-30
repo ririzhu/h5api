@@ -1,5 +1,6 @@
 <?php
 namespace app\v1\controller;
+use app\v1\model\Favorable;
 use app\v1\model\GoodsActivity;
 use app\v1\model\Pbundling;
 use app\v1\model\Stats;
@@ -15,8 +16,14 @@ class Cart extends Base
      * 购物车首页
      */
     public function index() {
+        header('Content-Type:application/json');
         $model_cart	= new UserCart();
-        if(!\request()->isPost()){
+        if(!input("member_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        /*if(!\request()->isPost()){
             $data['error_code'] = 10001;
             $data['message'] = '使用了非法提交方式';
             return json_encode($data,true);
@@ -25,7 +32,7 @@ class Cart extends Base
             $data['error_code'] = 10015;
             $data['message'] = '缺少参数';
             return json_encode($data,true);
-        }
+        }*/
         $data['error_code'] = 200;
         $member_id = input("member_id");
         $cart_show_type = input("st") ? 1 : 0;
@@ -46,7 +53,7 @@ class Cart extends Base
 
         //取出购物车信息
         $cart_list	= $model_cart->listCart('db',array('buyer_id'=>$member_id,'sld_is_supplier'=>$cart_show_type));
-        $data['cart_list'] = $cart_list;
+        //$data['cart_list'] = $cart_list;
 
 
         if ($cart_show_type) {
@@ -88,7 +95,7 @@ class Cart extends Base
             $store_cart_list = array();
             foreach ($cart_list as $cart) {
                 $cart['goods_total'] = sldPriceFormat($cart['goods_price'] * $cart['goods_num']);
-                $store_cart_list[$cart['vid']][] = $cart;
+                $store_cart_list[$cart['vid']][] = array_to_object($cart);
             }
 
             //店铺信息
@@ -133,23 +140,23 @@ class Cart extends Base
             $a=0;
             foreach($store_cart_list as $k=>$v){
                 if(!empty($v)) {
-                    $new_store_cart_list[$a] = $v;
+                    $new_store_cart_list[] = array_to_object($v);
                     $a++;
                 }
             }
             //店铺信息
             $vendorModel = new VendorInfo();
-            $store_list = $vendorModel->getStoreMemberIDList(array_keys($store_cart_list));
-            $data['store_list'] = $store_list;
-            $data['store_cart_list']=$new_store_cart_list;
+            //$store_list = $vendorModel->getStoreMemberIDList(array_keys($store_cart_list));
+            //$data['store_list'] = $store_list;
+            $data['store_cart_list']=($new_store_cart_list);
             //取得店铺级活动 - 可用的满即送活动
             $mansong_rule_list = $model_cart->getMansongRuleList(array_keys($store_cart_list));
-            $data['mansong_rule_list'] = $mansong_rule_list;
+            $data['mansong_rule_list'] = array_to_object($mansong_rule_list);
             //取得哪些店铺有满免运费活动
             $free_freight_list = $model_cart->getFreeFreightActiveList(array_keys($store_cart_list));
             $data['free_freight_list'] = $free_freight_list;
         }
-        return json_encode($data,true);
+        return json_encode($data);
     }
 
 
@@ -721,5 +728,49 @@ class Cart extends Base
         }
     }
 
+    /**
+     * 根据blid查询套装详情
+     */
+    public function bllistByid(){
+        //优惠套装商品
+        $model_goods = new Goods();
+        $model_cart =   new UserCart();
+        $model_bl = new Pbundling();
+        $bl_goods_list = $model_bl->getBundlingGoodsList(array('bl_id'=>input('bl_id')));
+        $goods_id_array = array();
+        foreach ($bl_goods_list as $goods) {
+            $goods_id_array[] = $goods['gid'];
+        }
+
+        $cart_list = $model_goods->getGoodsOnlineList(" gid in(".arrayToString($goods_id_array).")");
+        $new_bl_list = array();
+        foreach($cart_list as $k=>$v){
+            $new_bl_list[] = array_to_object($v);
+        }
+        return json_encode(($new_bl_list),true);
+        //print_r($cart_list);
+        //如果其中有商品下架，删除
+        /*if (count($cart_list[$key]['bl_goods_list']) != count($goods_id_array)) {
+            $data['error_code'] = 10020;
+            $data['message'] = lang("该优惠套装已经无效，建议您购买单个商品");
+            $data['subtotal'] = 0;
+            $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId));
+            exit(json_encode($return,true));
+        }*/
+
+        //如果有商品库存不足，更新购买数量到目前最大库存
+        /*foreach ($cart_list[$key]['bl_goods_list'] as $goods_info) {
+            if ($quantitys > $goods_info['goods_storage']) {
+                $data['error_code'] = 10019;
+                $data['message'] = lang("该优惠套装部分商品库存不足，<br/>建议您降低购买数量或购买库存足够的单个商品");
+                $data['goods_num'] = $goods_info['goods_storage'];
+                $data['goods_price'] = $cart_info['goods_price'];
+                $data['subtotal'] = $cart_info['goods_price'] * $quantitys;
+                $model_cart->editCart(array('goods_num'=>$goods_info['goods_storage']),array('cart_id'=>$cart_id,'buyer_id'=>$memberId));
+                exit(json_encode($return));
+                break;
+            }
+        }*/
+    }
 
 }

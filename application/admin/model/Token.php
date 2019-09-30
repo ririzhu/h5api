@@ -35,7 +35,7 @@ class Token extends  Model
         $token=str_replace("Bearer ","",$token);
         try {
             $decoded = JWT::decode($token, $this->key, array('HS256'));
-            if($decoded!=-1)
+            if($decoded!="-1")
             return $this->object2array($decoded);
             else{
                 return -1;

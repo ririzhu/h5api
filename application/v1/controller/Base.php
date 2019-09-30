@@ -18,12 +18,11 @@ class Base extends Controller
         //$request = new Request();
         $controller=request()->controller();
         $action=request()->action();
-        $expired=-1;
-        if($controller!="index" && $action!="piccode") {
+        /*if($controller!="index" && $action!="piccode") {
             $headertoken = str_replace("Bearer ", "", request()->header('Authorization'));
 
-            if($this->checkouth()=="-1"){
-                $token =new Token();
+            $token =new Token();
+            if($this->checkouth()==="-1"){
                 $expired = time() +  600 * 60;
                 $headertoken = $token->signToken(1, $expired);
                 $user = db::name("api_user")->where("id=1")->update(array("token"=>$headertoken));
@@ -31,14 +30,22 @@ class Base extends Controller
             else if ($this->checkouth()!=true) {
                 json($data['msg'] = "missing token")->code(201)->send();
                 exit;
-                exit;
-            };
+            }else {
+                $time = ($token->checkToken(request()->header('Authorization')))['exp'];
+                $expired = $time;
+
+            }
+            response()->header([
+                'Authorization' => $headertoken,
+                'Expired_time'  => $expired,
+            ])->send();
             //获取头部token，查询有无权限
             $user = db::name("api_user")->where("token='$headertoken'")->find();
             if (count($user) > 0) {
                 if ($user['name'] == "Horizou") {
 
                 } else {
+                    echo 1;
                     //查询会员状态
                     if ($user['endtime'] <= TIMESTAMP && $user['endtime'] != "") {
                         json($data['msg'] = "expired token")->code(201)->send();
@@ -84,27 +91,14 @@ class Base extends Controller
                         }
                     }
                 }
-            } else {
+             } else {
                 json($data['msg'] = "wrong token1111")->code(201)->send();
                 exit;
                 exit;
             }
-            if($expired=-1) {
-                response()->header([
-                    'Authorization' => $headertoken,
-                    'Cache-control' => 'no-cache,must-revalidate',
-                    'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-                ])->send();
-            }else{
-                response()->header([
-                    'Authorization' => $headertoken,
-                    'Expired_time'  => $expired,
-                    'Cache-control' => 'no-cache,must-revalidate',
-                    'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
-                ])->send();
-            }
 
-        }
+
+        }*/
     }
     /**
      * get setting
@@ -437,11 +431,14 @@ function date_before($time, $unit = null) {
          return false;
          exit;
          }
-        else if($token->checkToken($headertoken)!=true){
+        else /*if($token->checkToken($headertoken)!=true){
             return true;
-        }else if($token->checkToken($headertoken)==-1){
+        }else */if($token->checkToken($headertoken)=="-1"){
             return -1;
         }else{
+            if($token->checkToken($headertoken)){
+            return $token->checkToken($headertoken);
+        }
             return false;
             exit;
         };

@@ -123,6 +123,7 @@ class Index extends Base
                 $result = array();
                 foreach ($imagelist as $k => $v) {
                     $result[$k]['pic'] = DB::name("fixture_album_pic")->field("sld_pic_name,sld_pic_width,sld_pic_height")->where("id=" . $v['pic_id'])->find();
+                    $result[$k]['pic']['sld_pic_name']="http://192.168.2.252:9999/data/upload/fixture/".$result[$k]['pic']['sld_pic_name'];
                 }
                 $data['album'] = $result;
                 //获取通知
