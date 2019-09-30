@@ -135,6 +135,9 @@ class Cart extends Base
                     $cart['goods_total'] = sldPriceFormat($cart['goods_price'] * $cart['goods_num']);
 
                 }
+                $cart['button1']="http://192.168.2.252:9999/data/upload/mall/store/1/this_20190930145714.png";
+                $cart['button2']="http://192.168.2.252:9999/data/upload/mall/store/1/this_circle_20190930145309.png";
+
                 $store_cart_list[$cart['vid']][] = $cart;
             }
             $a=0;
