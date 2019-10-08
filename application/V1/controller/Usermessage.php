@@ -27,10 +27,10 @@ class Usermessage extends  Base
         $condition=array();
         //$condition['to_member_id']=$this->member_info['member_id'];
         $condition['to_member_id']=input("member_id");
-        $condition['message_type']=1;
-        $condition['from_member_id']=0;
+        //$condition['message_type']=1;
+        //$condition['from_member_id']=0;
 
-        $field=" message_id,to_member_id,message_body,message_time,read_member_id,system_type";
+        $field=" message_id,to_member_id,message_title,message_body,message_time,read_member_id,system_type,message_type,from_member_id";
         //$message_array  = $model_message->listMessage($condition);
         $message_array  = $model_message->messageList($condition,$field,$page);
         if(!empty($message_array)){
@@ -46,7 +46,7 @@ class Usermessage extends  Base
                 }else{
                     $message_array[$key]['is_read']=1;
                 }
-                switch ($value['system_type']) {
+/*                switch ($value['system_type']) {
                 	case '1':
                 		$message_array[$key]['message_title']='发货提醒';
                 		break;
@@ -62,7 +62,7 @@ class Usermessage extends  Base
                 	default:
                 		$message_array[$key]['message_title']='系统信息';
                 		break;
-                }
+                }*/
             }
 			$data['code'] = 200;
 			$data['message'] = '请求成功';
