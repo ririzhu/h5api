@@ -46,7 +46,7 @@ class Message extends Model
         $param['table']		= 'message';
         $param['where']		= $condition_str;
         $param['field']		= ' count(message_id) as countnum ';
-        $message_list		= Db:: name("message")->where("1=1 $condition_str")->field(" count(message_id) as countnum ")->select();
+        $message_list		= Db:: name("message")->where(" 1=1 and $condition_str")->field(" count(message_id) as countnum ")->select();
         return $message_list[0]['countnum'];
     }
     /**

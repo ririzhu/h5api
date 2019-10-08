@@ -11,6 +11,7 @@ namespace app\v1\controller;
 
 use app\v1\model\Points;
 use app\v1\model\Red;
+use think\cache\driver\Redis;
 use think\Config;
 use think\Request;
 use app\v1\model\User as Users;
@@ -332,6 +333,8 @@ class User extends Base
         //计算连续签到天数
         $return_arr['checkin_counts'] = $points_model->checkinDays($checkin_stage,array('pl_memberid'=>$this->member_info['member_id'],'pl_membername'=>$this->member_info['member_name'],'pl_points'=>Config('points_checkin')));
         $return_arr['log_list'] = $log_list;
+        $return_arr['add_points'] = Config("points_checkin");
+        $return_arr['total_points'] = (DB::name("member")->field("member_points")->where("member_id=$memberId")->find())['member_points'];
         if (isset($log_list) && !empty($log_list)) {
             $return_arr['list'] = $log_list;
         }
@@ -457,6 +460,48 @@ class User extends Base
             }
             return json_encode($data,true);
         }
+    }
+
+    /**
+     * 滑动ajax
+     */
+    public function huadong(){
+        $key = "horizouh5apipa5huoziroh";
+        $time = time();
+        $expired = time() +60;
+        $constr = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        $str="";
+        list($msec, $sec) = explode(' ', microtime());
+        $msectime = (float)sprintf('%.0f', (floatval($msec) + floatval($sec)) * 1000);
+        $type = input("type");
+        for($i=0;$i<32;$i++)
+        {
+            $str .= $constr{mt_rand(0,35)};    //生成php随机数
+        }
+        $signstr = $key.base64_encode($time.$str);
+        $data['error_code'] = 200;
+        $data['basestr'] = $signstr;
+        $data['str'] = $time.$str;
+        $data['expired_time'] = $expired;
+        $data['Cache-name'] = $type."_".$msectime;
+        $redis =new Redis();
+        $redis->set($type."_".$msectime,$signstr."_".$data['str'],600*60);
+        return json_encode($data,true);
+
+        /*response()->header([
+            'basestr' => $signstr,
+            'str'=>$time.$str,
+            'Expired_time'  => $expired,
+            'Cache-control' => 'no-cache,must-revalidate',
+            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Cache-name'    =>  $type."_".$msectime,
+        ])->send();
+        $redis =new Redis();
+        $redis->set($type."_".$msectime,$signstr."_".$str,600*60);
+        if(!input("type")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+        }*/
     }
 
 }

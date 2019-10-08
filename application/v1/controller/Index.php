@@ -12,9 +12,27 @@ use think\console\command\make\Model;
 use think\db;
 use think\captcha\Captcha;
 use think\cache;
+use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\LabelAlignment;
+use Endroid\QrCode\QrCode;
+
 
 class Index extends Base
 {
+    protected $_qr;
+    protected $_encoding        = 'UTF-8';              // 编码类型
+    protected $_logo_url        = './../public/logo.png';                   // logo图片路径
+    protected $_size            = 300;                  // 二维码大小
+    protected $_logo            = true;                // 是否需要带logo的二维码
+    protected $_logo_size       = 160;                   // logo大小
+    protected $_title           = true;                // 是否需要二维码title
+    protected $_title_content   = '';                   // title内容
+    protected $_generate        = 'display';            // display-直接显示  writefile-写入文件
+    protected $_file_name       = '../../public/static/qrcode';    // 写入文件路径
+    const MARGIN           = 10;                        // 二维码内容相对于整张图片的外边距
+    const WRITE_NAME       = 'png';                     // 写入文件的后缀名
+    const FOREGROUND_COLOR = ['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0];          // 前景色
+    const BACKGROUND_COLOR = ['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0];    // 背景色
     public function index()
     {
         $this->isLogin();
@@ -112,93 +130,163 @@ class Index extends Base
         else{
             $store_id = 0;
         }
-        if($redis->has("homepage")){
-            $data['data']=$redis->get("homepage");
-        }else{
-        //获取轮播图数据
-            $result = DB::name("tpl_data")->where("sld_shop_id=$store_id and sld_tpl_type = 6")->field("sld_tpl_data")->find();
-            $serializeData = $result['sld_tpl_data'];
-            $imagelist = unserialize($serializeData)['pic_list'];
-            $result = array();
-            foreach($imagelist as $k=>$v){
-                $result[$k]['pic'] = DB::name("fixture_album_pic")->field("sld_pic_name,sld_pic_width,sld_pic_height")->where("id=".$v['pic_id'])->find();
-            }
-            $data['album'] = $result;
-            //获取通知
-            $data['annoucelist'] = DB::name("article")->where("acid=1")->order("article_sort",'desc')->select();
-            //热门课程
-            $goods_list = unserialize((DB::name("tpl_data")->where("sld_tpl_type=2 and sld_is_vaild=1 and sld_tpl_code ='goods_floor2'")->field("sld_tpl_data")->find())['sld_tpl_data']);
-            $goods_list = $goods_list['goods'];
-            $model_goods = new \app\v1\model\Goods();
-            $data['peixun_tag_name'] = "培训专场";
-            $lession = array();
-            foreach($goods_list as $k=>$v){
-                $gid = $goods_list[$k]['goods_id'];
-                unset($goods_list[$k]);
-                $a =$model_goods->getGoodsList("gid = $gid", "*","","",1,0,1,1);
-                if(!empty($a)) {
-                    $goods_list[$k] = $a[0];
+        if(!input("page")) {
+            if ($redis->has("homepage")) {
+                $data['data'] = $redis->get("homepage");
+            } else {
+                //获取轮播图数据
+                $result = DB::name("tpl_data")->where("sld_shop_id=$store_id and sld_tpl_type = 6")->field("sld_tpl_data")->find();
+                $serializeData = $result['sld_tpl_data'];
+                $imagelist = unserialize($serializeData)['pic_list'];
+                $result = array();
+                foreach ($imagelist as $k => $v) {
+                    $result[$k]['pic'] = DB::name("fixture_album_pic")->field("sld_pic_name,sld_pic_width,sld_pic_height")->where("id=" . $v['pic_id'])->find();
+                    $result[$k]['pic']['sld_pic_name']="http://192.168.2.252:9999/data/upload/fixture/".$result[$k]['pic']['sld_pic_name'];
                 }
-                $goods_list[$k]['gid'] = $gid;
-            }
-            $ga = new GoodsActivity();
-            //$goods_list = $ga->rebuild_goods_data($goods_list,'web');
-            foreach ($goods_list as $k=>$v){
-               // if($goods_list[$v]) {
+                $data['album'] = $result;
+                //获取通知
+                $data['annoucelist'] = DB::name("article")->where("acid=1")->order("article_sort", 'desc')->select();
+                //热门课程
+                $goods_list = unserialize((DB::name("tpl_data")->where("sld_tpl_type=2 and sld_is_vaild=1 and sld_tpl_code ='goods_floor2'")->field("sld_tpl_data")->find())['sld_tpl_data']);
+                $goods_list = $goods_list['goods'];
+                $model_goods = new \app\v1\model\Goods();
+                $data['peixun_tag_name'] = "培训专场";
+                $lession = array();
+                foreach ($goods_list as $k => $v) {
+                    $gid = $goods_list[$k]['goods_id'];
+                    unset($goods_list[$k]);
+                    $a = $model_goods->getGoodsList("gid = $gid", "*", "", "", 1, 0, 1, 1);
+                    if (!empty($a)) {
+                        $goods_list[$k] = $a[0];
+                    }
+                    $goods_list[$k]['gid'] = $gid;
+                }
+                $ga = new GoodsActivity();
+                //$goods_list = $ga->rebuild_goods_data($goods_list,'web');
+                foreach ($goods_list as $k => $v) {
+                    // if($goods_list[$v]) {
                     $lession[$k]['goods_name'] = $v['goods_name'];
                     $lession[$k]['gid'] = $v['gid'];
                     $lession[$k]['goods_price'] = $v['goods_price'];
                     $lession[$k]['goods_image'] = $v['goods_image'];
-               //}
-             }
-            $data['hot_lession'] = $lession;
-                //教师列表
-            $field = '*';
-            $teachers = DB::name('member')->alias('m')->field($field)->join('teacher_extend e','m.member_id=e.member_id')->limit(9)->select();
-
-            //行业
-            $trade_list = DB::name('teacher_trade')->field("trade_id,trade_name")->select();
-            foreach ($trade_list as $val){
-                $arr1[] = $val['trade_id'];
-                $arr2[] = $val['trade_name'];
-            }
-            foreach ($teachers as &$val) {
-                $arr= explode(',',$val['trades']);
-                $res = str_replace($arr1,$arr2,$arr);
-                $res = implode(',',$res);
-                $val['trades'] = $res;
-            }
-            //$data['teachers'] = $teachers;
-            //培训
-            //$trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
-            $peixunClassList = db::name("goods_class_tag")->where(array("type_id"=>1))->select();
-            $goods_list = array();
-            foreach ($peixunClassList as $k=>$v){
-                $list = db::name("goods")->where("gc_id=".$v['gc_id']." and goods_state=1")->select();
-                foreach($list as $kk=>$vv){
-                    $goods_list[$kk]['goods_name'] = $vv['goods_name'];
-                    $goods_list[$kk]['gid'] = $vv['gid'];
-                    $goods_list[$kk]['del_price'] = $vv['goods_price'];
-                    if(isset($goods_list[$kk]['show_price']))
-                        $goods_list[$kk]['show_price'] = $vv['show_price'];
-                    else
-                        $goods_list[$kk]['show_price'] = $vv['goods_price'];
-                    if(isset($goods_list[$kk]['goods_promotion_type']) && $goods_list[$k]['goods_promotion_type']==2){
-                        $goods_list[$kk]['tag'][0]="限时优惠";
-                    }
-                    $goods_list[$kk]['goods_image'] = $vv['goods_image'];
+                    //}
                 }
+                $data['hot_lession'] = $lession;
+                //教师列表
+                $field = '*';
+                $teachers = DB::name('member')->alias('m')->field($field)->join('teacher_extend e', 'm.member_id=e.member_id')->limit(9)->select();
+
+                //行业
+                $trade_list = DB::name('teacher_trade')->field("trade_id,trade_name")->select();
+                foreach ($trade_list as $val) {
+                    $arr1[] = $val['trade_id'];
+                    $arr2[] = $val['trade_name'];
+                }
+                foreach ($teachers as &$val) {
+                    $arr = explode(',', $val['trades']);
+                    $res = str_replace($arr1, $arr2, $arr);
+                    $res = implode(',', $res);
+                    $val['trades'] = $res;
+                }
+                //$data['teachers'] = $teachers;
+                //培训
+                //$trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
+                if($redis->has("peixun")){
+                    $goods_list = $redis->get("peixun");
+                }else {
+                    $peixunClassList = db::name("goods_class_tag")->where(array("type_id" => 1))->select();
+                    $goods_list = array();
+                    foreach ($peixunClassList as $k => $v) {
+                        $list = db::name("goods")->where("gc_id=" . $v['gc_id'] . " and goods_state=1")->select();
+                        foreach ($list as $kk => $vv) {
+                            $goods_list[$kk]['goods_name'] = $vv['goods_name'];
+                            $goods_list[$kk]['gid'] = $vv['gid'];
+                            $goods_list[$kk]['del_price'] = $vv['goods_price'];
+                            if (isset($goods_list[$kk]['show_price']))
+                                $goods_list[$kk]['show_price'] = $vv['show_price'];
+                            else
+                                $goods_list[$kk]['show_price'] = $vv['goods_price'];
+                            if (isset($goods_list[$kk]['goods_promotion_type']) && $goods_list[$k]['goods_promotion_type'] == 2) {
+                                $goods_list[$kk]['tag'][0] = "限时优惠";
+                            }
+                            $goods_list[$kk]['goods_image'] = $vv['goods_image'];
+                        }
+                    }
+
+                    //print_r($goods_list);die;
+                    $ga = new GoodsActivity();
+                    $goods_list = $ga->rebuild_goods_data($goods_list, 'pc');
+                    $redis->set("peixun",$goods_list,30);
+                }
+                $data['count'] = count($goods_list);
+                $a = 0;
+                $new_goods_list = array();
+                foreach($goods_list as $k=>$v){
+                    $new_goods_list[$a]=$v;
+                    $a++;
+                    if($a==8){
+                        break;
+                    }
+                }
+                $trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
+                $data['peixun'] = $new_goods_list;
+                $redis->set("homepage", $data, 120);
+                $data = array();
+                $data['data'] = $redis->get("homepage");
             }
-            //print_r($goods_list);die;
-            $ga = new GoodsActivity();
-            $goods_list = $ga->rebuild_goods_data($goods_list, 'pc');
-            $trade_list = DB::name('peixun')->field("peixun_id,title,company_name")->limit(3)->select();
-            $data['peixun'] = $goods_list;
-            $redis->set("homepage",$data,120);
-            $data=array();
-            $data['data'] = $redis->get("homepage");
+            return json_encode($data, true);
+        }else{
+            $page = input("page");
+            if ($redis->has("homepage_$page")) {
+                $data['data'] = $redis->get("homepage_$page");
+            }else{
+                if($redis->has("peixun")){
+                    $goods_list = $redis->get("peixun");
+                }else {
+                    $peixunClassList = db::name("goods_class_tag")->where(array("type_id" => 1))->select();
+                    $goods_list = array();
+                    foreach ($peixunClassList as $k => $v) {
+                        $list = db::name("goods")->where("gc_id=" . $v['gc_id'] . " and goods_state=1")->select();
+                        foreach ($list as $kk => $vv) {
+                            $goods_list[$kk]['goods_name'] = $vv['goods_name'];
+                            $goods_list[$kk]['gid'] = $vv['gid'];
+                            $goods_list[$kk]['del_price'] = $vv['goods_price'];
+                            if (isset($goods_list[$kk]['show_price']))
+                                $goods_list[$kk]['show_price'] = $vv['show_price'];
+                            else
+                                $goods_list[$kk]['show_price'] = $vv['goods_price'];
+                            if (isset($goods_list[$kk]['goods_promotion_type']) && $goods_list[$k]['goods_promotion_type'] == 2) {
+                                $goods_list[$kk]['tag'][0] = "限时优惠";
+                            }
+                            $goods_list[$kk]['goods_image'] = $vv['goods_image'];
+                        }
+                    }
+
+                    //print_r($goods_list);die;
+                    $ga = new GoodsActivity();
+                    $goods_list = $ga->rebuild_goods_data($goods_list, 'pc');
+                    $redis->set("peixun",$goods_list);
+                }
+                $a = $page * 8;
+                $c=0;
+                $new_goods_list = array();
+                foreach($goods_list as $k=>$v){
+                    if(isset($goods_list[$a])) {
+                        $new_goods_list[$c] = $v;
+                        $a++;
+                        $c++;
+                        if ($a == $page * 8 + 8) {
+                            break;
+                        }
+                    }
+                }
+                $redis->set("homepage_$page", $new_goods_list, 120);
+                $data = array();
+
+                $data['data'] = $redis->get("homepage_$page");
+            }
+            return json_encode($data, true);
         }
-        return json_encode($data,true);
     }
     function messageCount(){
         if(!input("member_id")){
@@ -369,5 +457,66 @@ class Index extends Base
      */
     public function hotSearch(){
         return json_encode(db::name("hot_search")->where("status =1 and starttime<=".TIMESTAMP." and endtime>=".TIMESTAMP)->order("sort,searchtimes","desc")->limit(6)->select());
+    }
+    public function erweima(){
+        // 自定义二维码配置
+        $config = [
+            'title'         => true,
+            'title_content' => 'test',
+            'logo'          => true,
+            'logo_url'      => './logo.png',
+            'logo_size'     => 80,
+        ];
+
+        // 直接输出
+        //$qr_url = 'http://www.baidu.com?id=' . rand(1000, 9999);
+        $qr_url ="http://www.horizou.com";
+        //$qr_code = new QrcodeServer($config);
+        //$qr_img = $qr_code->createServer($qr_url);
+        $this->_qr = new QrCode($qr_url);
+        $this->_qr->setSize($this->_size);
+        $this->_qr->setWriterByName(self::WRITE_NAME);
+        $this->_qr->setMargin(self::MARGIN);
+        $this->_qr->setEncoding($this->_encoding);
+        $this->_qr->setErrorCorrectionLevel(ErrorCorrectionLevel::HIGH);   // 容错率
+        $this->_qr->setForegroundColor(self::FOREGROUND_COLOR);
+        $this->_qr->setBackgroundColor(self::BACKGROUND_COLOR);
+        // 是否需要title
+        if ($this->_title) {
+            $this->_qr->setLabel($this->_title_content, 16, null, LabelAlignment::CENTER);
+        }
+        // 是否需要logo
+        if ($this->_logo) {
+            $this->_qr->setLogoPath($this->_logo_url);
+            $this->_qr->setLogoWidth($this->_logo_size);
+        }
+
+        $this->_qr->setValidateResult(false);
+
+        if ($this->_generate == 'display') {
+            // 展示二维码
+            // 前端调用 例：<img src="http://localhost/qr.php?url=base64_url_string">
+            header('Content-Type: ' . $this->_qr->getContentType());
+            return $this->_qr->writeString();
+        } else if ($this->_generate == 'writefile') {
+            // 写入文件
+            $file_name = $this->_file_name;
+            return $this->generateImg($file_name);
+        } else {
+            return ['success' => false, 'message' => 'the generate type not found', 'data' => ''];
+        }
+
+        // 写入文件
+        $qr_url = '这是个测试二维码';
+        $file_name = './static/qrcode';  // 定义保存目录
+
+        $config['file_name'] = $file_name;
+        $config['generate']  = 'writefile';
+
+        //$qr_code = new QrcodeServer($config);
+        //$rs = $qr_code->createServer($qr_url);
+        print_r($rs);
+
+        exit;
     }
 }

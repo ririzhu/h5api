@@ -119,9 +119,10 @@ class Base extends Controller
         //print_r($functions);
         return $customer_functions;
     }
-    public function createToken($id){
+    public function createToken(){
+        $id = 1;
         $token=new Token();
-        return $str = $token->signToken($id,16000000000); //生成一个不会重复的字符串
+        return $str = $token->signToken($id,60); //生成一个不会重复的字符串
     }
 
     public  function checkToken(){
