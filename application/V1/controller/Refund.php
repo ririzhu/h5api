@@ -1,6 +1,8 @@
 <?php
 namespace app\v1\controller;
 use app\v1\model\Red;
+use app\v1\model\Tousu;
+use app\v1\model\TousuSubject;
 use app\v1\model\Trade;
 use think\console\command\make\Model;
 use think\Queue;
@@ -8,7 +10,7 @@ use think\Queue;
 /**
  * Class Refund
  * @package app\v1\controller
- * 退款退货
+ * 退款退货投诉
  */
 class Refund extends  Base
 {
@@ -330,5 +332,89 @@ class Refund extends  Base
         if ($return['express_id'] > 0 && !empty($return['invoice_no'])) {
         }
     }
+    /**
+     * 投诉
+     */
+    public function addTousu()
+    {
+        $order_id = intval($_GET['order_id']);
+        //获取订单详细信息，并检查权限
+        $order_info = $this->get_order_info($order_id,input("member_id"));
+        //检查是不是正在进行投诉
+        if(empty($order_info)) {
+            if ($this->check_complain_exist($order_id)) {
+                showMsg(Language::get('您已经投诉了该订单请等待处理'), '', 'html', 'error');//'您已经投诉了该订单请等待处理'
+            }
+            //检查订单状态是否可以投诉
+            $complain_time_limit = intval($GLOBALS['setting_config']['complain_time_limit']);
+            if (!empty($order_info['finnshed_time'])) {
+                if ((intval($order_info['finnshed_time']) + $complain_time_limit) < time()) {
+                    showMsg(Language::get('您的订单已经超出投诉时限'), '', 'html', 'error');//'您的订单已经超出投诉时限'
+                }
+            }
+            //列出订单商品列表
+            $order_goods_list = $order_info['extend_order_goods'];
+            //买家未付款不能投诉
+            if (intval($order_info['order_state']) < ORDER_STATE_PAY) {
+                //showMsg(Language::get('参数错误'),'','html','error');
+            }
 
+            //获取投诉类型
+            $model_complain_subject = new TousuSubject();
+            $param = array();
+            $complain_subject_list = $model_complain_subject->getActiveComplainSubject($param);
+            if (empty($complain_subject_list)) {
+                showMsg(Language::get('投诉主题不存在请联系管理员'), '', 'html', 'error');
+            }
+            $model_refund = Model('refund_return');
+            $order_list[$order_id] = $order_info;
+            $order_list = $model_refund->getGoodsRefundList($order_list);
+            if (intval($order_list[$order_id]['complain']) == 1) {//退款投诉
+                $complain_subject = Model()->table('tousu_subject')->where(array('complain_subject_id' => 1))->select();//投诉主题
+                $complain_subject_list = array_merge($complain_subject, $complain_subject_list);
+            }
+        }
+
+        //查询会员信息
+        $this->get_member_info();
+        Template::output('order_info', $order_info);
+        Template::output('order_goods_list', $order_goods_list);
+        Template::output('complain_info', $complain_info);
+        Template::output('subject_list', $complain_subject_list);
+        Template::output('left_show', 'order_view');
+        Template::showpage('tousu.submit');
+
+    }
+    /*
+ * 获取订单信息
+ */
+    private function get_order_info($order_id,$memberId) {
+        if(empty($order_id)) {
+           // showMsg(Language::get('参数错误'),'','html','error');
+        }
+        $model_order = Model('order');
+        $order_info = $model_order->getOrderInfo(array('order_id' => $order_id),array('order_goods'));
+        if($order_info['buyer_id'] != $memberId) {
+            //showMsg(Language::get('参数错误'),'','html','error');
+            return array();
+        }
+        $order_info['order_state_text'] = orderState($order_info);
+        return $order_info;
+    }
+    /*
+ * 检查投诉是否已经存在
+ */
+    private function check_complain_exist($order_id,$memberId) {
+        $model_complain = new Tousu();
+        $param = array();
+        $param['order_id'] = $order_id;
+        $param['accuser_id'] = $memberId;
+        $param['progressing'] = 'ture';
+        return $model_complain->isExist($param);
+    }
+    public function reasonList(){
+        $tousu = new TousuSubject();
+        $list = $tousu->getComplainSubject();
+        return json_encode($list,true);
+    }
 }

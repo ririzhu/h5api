@@ -71,14 +71,19 @@ class Goods extends Model
      * @return array
      */
     public function getGoodsListByColorDistinct($condition, $field = '*', $order = 'gid asc', $page = 0) {
-        $condition['goods_state']   = self::STATE1;
-        $condition['goods_verify']  = self::VERIFY1;
-        $condition = $this->_getRecursiveClass($condition);
+        if(is_array($condition)) {
+            $condition['goods_state'] = self::STATE1;
+            $condition['goods_verify'] = self::VERIFY1;
+            $condition = $this->_getRecursiveClass($condition);
+        }else{
+            $condition.=" and goods_state = ".self::STATE1;
+            $condition.=" and goods_verify =". self::VERIFY1;
+        }
         $field = "CONCAT(goods_commonid,',',color_id) as jmys_distinct ," . $field;
         $count = $this->getGoodsOnlineCount($condition,"distinct CONCAT(goods_commonid,',',color_id)");
         $goods_list = array();
         if ($count != 0) {
-            $goods_list = $this->getGoodsOnlineList($condition, $field, $page, $order, 0, 'jmys_distinct', false, $count);
+            $goods_list = $this->getGoodsOnlineList($condition, $field, $page, $order, 20, 'jmys_distinct', false, $count);
         }
         return $goods_list;
     }
@@ -965,8 +970,8 @@ class Goods extends Model
         }else{
             $condition.=" and goods_state=1 and goods_verify=1 ";
         }
-        //echo $condition;
         $result=DB::name('goods')->where($condition)->group($group)->select();
+        //echo db::name("goods")->getLastSql();
         return count($result);
     }
     /**

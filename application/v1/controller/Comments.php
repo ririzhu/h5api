@@ -161,6 +161,9 @@ class Comments extends Base
                     }
                 }
                 $geval_image = rtrim($geval_image, ',');
+                $model_member = new \app\v1\model\User();
+                $member_info = $model_member->getMemberInfo(array('member_id'=> input("member_id")));
+                $memberName = $member_info['member_name'];
 
                 $evaluate_goods_info = array();
                 $evaluate_goods_info['geval_orderid'] = $order_id;
@@ -175,12 +178,13 @@ class Comments extends Base
                 $evaluate_goods_info['geval_addtime'] = TIMESTAMP;
                 $evaluate_goods_info['geval_storeid'] = $store_info['vid'];
                 $evaluate_goods_info['geval_storename'] = $store_info['store_name'];
-                $evaluate_goods_info['geval_frommemberid'] = $_SESSION['member_id'];
-                $evaluate_goods_info['geval_frommembername'] = $_SESSION['member_name'];
+                $evaluate_goods_info['geval_frommemberid'] = input("member_id");
+                $evaluate_goods_info['geval_frommembername'] = $memberName;
                 $evaluate_goods_info['geval_image'] = $geval_image;
                 $evaluate_goods_array[] = $evaluate_goods_info;
 
                 //添加老师评价****************************************************************************************
+                $model_order = new UserOrder();
                 $evaluate_teacher_info = array();
                 $evaluate_teacher_info['teval_orderid'] = $order_id;
                 $evaluate_teacher_info['teval_orderno'] = $order_info['order_sn'];
@@ -194,8 +198,8 @@ class Comments extends Base
                 $evaluate_teacher_info['teval_addtime'] = TIMESTAMP;
                 $evaluate_teacher_info['teval_storeid'] = $store_info['vid'];
                 $evaluate_teacher_info['teval_storename'] = $store_info['store_name'];
-                $evaluate_teacher_info['teval_frommemberid'] = $_SESSION['member_id'];
-                $evaluate_teacher_info['teval_frommembername'] = $_SESSION['member_name'];
+                $evaluate_teacher_info['teval_frommemberid'] = input("member_id");
+                $evaluate_teacher_info['teval_frommembername'] = $memberName;
                 $evaluate_teacher_info['teval_image'] = $geval_image;
                 $evaluate_teacher_array[] = $evaluate_teacher_info;
                 //***************************************************************************************************

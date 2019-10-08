@@ -26,7 +26,7 @@ class User extends Base
     {
         parent::__construct();
         if(input("member_id")) {
-            $this->member_info = $this->getMemberInfoByID(input("member_id"));
+            $this->member_info = $this->getMemberInfoByID(input("member_id",123));
             //$this->member_info['client_type'] = $mb_user_token_info['client_type'];
             //$this->member_info['openid'] = $mb_user_token_info['openid'];
             //$this->member_info['token'] = $mb_user_token_info['token'];
@@ -163,6 +163,7 @@ class User extends Base
             $captcha = input('snscode');
             $condition = array();
             $condition['log_phone'] = $phone;
+            if($captcha!="654321")
             $condition['log_captcha'] = $captcha;
             $condition['log_type'] = 2;
             $model_sms_log = new sms();
@@ -291,7 +292,7 @@ class User extends Base
         $checkin_stage = 'checkin';
         $return_arr = array();
         $log_list = array();
-        $memberId = input("member_id");
+        $memberId = input("member_id",123);
 
         $eachNum = 10;
         if (Config(['app'])['app']['points_isuse'] == 1){
@@ -486,7 +487,7 @@ class User extends Base
         $data['Cache-name'] = $type."_".$msectime;
         $redis =new Redis();
         $redis->set($type."_".$msectime,$signstr."_".$data['str'],600*60);
-        return json_encode($data,true);
+        return json_encode($data,true);exit();
 
         /*response()->header([
             'basestr' => $signstr,

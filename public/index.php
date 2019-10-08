@@ -18,6 +18,8 @@ header("Access-Control-Allow-Origin:*");
 header("Access-Control-Allow-Methods:GET, POST, OPTIONS, DELETE");
 header("Access-Control-Allow-Headers:DNT,X-Mx-ReqToken,Keep-Alive,Authorization,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type, Accept-Language, Origin, Accept-Encoding");
 define('APP_ID','mall');
+header('Content-type: application/json');
+
 define('ADDON_PATH','Addons');
 define("language",'en');
 define("dev","dev");//开发环境还是生产环境dev 开发 online生产

@@ -234,7 +234,8 @@ class Index extends Base
                 $data = array();
                 $data['data'] = $redis->get("homepage");
             }
-            return json_encode($data, true);
+
+            echo json_encode($data, JSON_UNESCAPED_UNICODE);
         }else{
             $page = input("page");
             if ($redis->has("homepage_$page")) {
@@ -285,7 +286,8 @@ class Index extends Base
 
                 $data['data'] = $redis->get("homepage_$page");
             }
-            return json_encode($data, true);
+            print_r($data);die;
+            return json_encode($data, JSON_UNESCAPED_UNICODE);
         }
     }
     function messageCount(){
@@ -437,19 +439,27 @@ class Index extends Base
      * 公告详情
      */
     function articleDetail(){
+        $redis = new Redis();
+        $articleId = input("article_id");
         if(!input('article_id')){
             $data['error_code'] = 10016;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }
-        $articleId = input("article_id");
-        $article = db::name("article")->where(['id'=>$articleId])->find();
         $data['error_code'] = 200;
-        $data['title'] = $article['article_title'];
-        $data['html'] = str_replace("\n","",strip_tags($article['article_content']));
-        $data['html'] = str_replace("\r","",$data['html']);
-        $data['html'] = trim(str_replace("\t","",$data['html']));
-        $data['html'] = str_replace("&nbsp;","",$data['html']);
+        if($redis->has("article_$articleId")){
+            $datas=$redis->get("article_$articleId");
+            $data['title'] = $datas['title'];
+            $data['html'] = $datas['html'];
+        }else {
+            $article = db::name("article")->where(['id' => $articleId])->find();
+            $data['title'] = $article['article_title'];
+            $data['html'] = str_replace("\n", "", strip_tags($article['article_content']));
+            $data['html'] = str_replace("\r", "", $data['html']);
+            $data['html'] = trim(str_replace("\t", "", $data['html']));
+            $data['html'] = str_replace("&nbsp;", "", $data['html']);
+            $redis->set("article_$articleId",$data);
+        }
         return json_encode($data,true);
     }
     /**
