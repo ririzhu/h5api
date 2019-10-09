@@ -37,7 +37,7 @@ class Usercenter extends Base {
         }
         $member_id = input('member_id');
 
-        $field = 'member_name,member_avatar';
+        $field = 'member_name,member_avatar,available_predeposit';
         $member = new User();
         $param = [
             'member_id' =>$member_id,
@@ -561,7 +561,7 @@ class Usercenter extends Base {
 
         if (trim(input('new_password')) != trim(input('new_confirm_password'))){
             $data['code'] = 10003;
-            $data['message'] = lang("两次新密码不一致");
+            $data['message'] = lang("两次输入的密码不一致");
             return json_encode($data,true);
         }
 
