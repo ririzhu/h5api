@@ -32,7 +32,7 @@ class VendorJoinIn extends Model
      */
     public function getOne($condition){
         $result = db::name("vendor_joinin")->where($condition)->find();
-        echo db::name("vendor_joinin")->getLastSql();
+        //echo db::name("vendor_joinin")->getLastSql();
         return $result;
     }
 

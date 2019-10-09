@@ -19,40 +19,51 @@ class Bapply extends Base
 
     }
 
-    private function check_apply_state() {
-        $model_store_joinin = Model('vendor_joinin');
-        $joinin_detail = $model_store_joinin->getOne(array('member_id'=>$_SESSION['member_id']));
+    /**
+     * @return false|string
+     * 审核状态
+     */
+    public function check_apply_state() {
+        $model_store_joinin = new VendorJoinIn();
+        $joinin_detail = $model_store_joinin->getOne(array('member_id'=>input("member_id")));
+        $data['error_code'] = 200;
         if(!empty($joinin_detail)) {
             $this->joinin_detail = $joinin_detail;
             switch (intval($joinin_detail['joinin_state'])) {
                 case STORE_JOIN_STATE_NEW:
-                    $this->step4();
-                    $this->show_join_message(Language::get('入驻申请已经提交，请等待管理员审核'), FALSE, 'stepss');
+                    $data['status']=0;
+                    $data['message']=lang('入驻申请已经提交，请等待管理员审核');
                     break;
                 case STORE_JOIN_STATE_PAY:
-                    $this->show_join_message(Language::get('已经提交，请等待管理员核对后为您开通店铺'), FALSE, 'step4');
+                    $data['status']=2;
+                    $data['message']=lang('已经提交，请等待管理员核对后为您开通店铺');
                     break;
                 case STORE_JOIN_STATE_VERIFY_SUCCESS:
-                    if(!in_array($_GET['mod'], array('pay', 'pay_save'))) {
-                        $this->show_join_message(Language::get('审核成功，请完成付款，付款后点击下一步提交付款凭证'), MALL_URL.DS.'index.php?app=bapply&mod=pay');
-                    }
+                    //if(!in_array($_GET['mod'], array('pay', 'pay_save'))) {
+                    $data['status']=3;
+                    $data['message']=lang('审核成功，请完成付款，付款后点击下一步提交付款凭证');
+                    //}
                     break;
                 case STORE_JOIN_STATE_VERIFY_FAIL:
-                    if(!in_array($_GET['mod'], array('step1', 'step2', 'step3', 'step4s'))) {
-                        $this->show_join_message(Language::get('审核失败:').$joinin_detail['joinin_message'], MALL_URL.DS.'index.php?app=bapply&mod=step1');
-                    }
+                    //if(!in_array($_GET['mod'], array('step1', 'step2', 'step3', 'step4s'))) {
+                    $data['status']=4;
+                    $data['message']=lang('审核失败:').$joinin_detail['joinin_message'];
+                    //}
                     break;
                 case STORE_JOIN_STATE_PAY_FAIL:
-                    if(!in_array($_GET['mod'], array('pay', 'pay_save'))) {
-                        $this->show_join_message(Language::get('付款审核失败:').$joinin_detail['joinin_message'], MALL_URL.DS.'index.php?app=bapply&mod=pay');
-                    }
+                    //if(!in_array($_GET['mod'], array('pay', 'pay_save'))) {
+                    $data['status']=5;
+                    $data['message']=lang('付款审核失败:').$joinin_detail['joinin_message'];
+                    //}
                     break;
                 case STORE_JOIN_STATE_FINAL:
                     //@header('location: index.php?app=seller_login');
-                    @header("location:".BASE_VENDOR_URL."/index.php");
+                    $data['status']=1;
+                    $data['message']=lang('审核通过');
                     break;
             }
         }
+        return json_encode($data,true);
     }
 
 

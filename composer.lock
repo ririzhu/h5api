@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3bad801c79b6757bc6a7f7157557b980",
+    "content-hash": "6332368615439cb3f8099057aead601c",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -446,6 +446,54 @@
                 "zxing"
             ],
             "time": "2017-01-13T09:11:46+00:00"
+        },
+        {
+            "name": "mohuishou/image-ocr",
+            "version": "0.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mohuishou/ImageOCR.git",
+                "reference": "6b025e5a81b4b1ca2a1601d5309cc7e325a4d3f5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mohuishou/ImageOCR/zipball/6b025e5a81b4b1ca2a1601d5309cc7e325a4d3f5",
+                "reference": "6b025e5a81b4b1ca2a1601d5309cc7e325a4d3f5",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "php": ">5.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Mohuishou\\ImageOCR\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "mohuishou",
+                    "email": "1@lailin.xyz"
+                }
+            ],
+            "description": "验证码识别",
+            "keywords": [
+                "OCR",
+                "image",
+                "验证码",
+                "验证码识别"
+            ],
+            "time": "2019-01-11T19:42:52+00:00"
         },
         {
             "name": "myclabs/php-enum",

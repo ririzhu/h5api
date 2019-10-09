@@ -15,7 +15,7 @@ use think\cache;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\LabelAlignment;
 use Endroid\QrCode\QrCode;
-
+use ImageOCR;
 
 class Index extends Base
 {
@@ -533,26 +533,22 @@ class Index extends Base
      * 反馈
      */
     public function feedback(){
+        if(!input("member_id") || !input("reason") || !input("contactname") || !input("mobile") || !input("content") ){
+            $datas['error_code'] = 10016;
+            $datas['message'] = lang("缺少参数");
+            return json_encode($datas,true);exit();
+        }
+        $data['member_id'] = input("member_id");
         $data['reason'] = input("reason");
-        $data['isanonymous'] = input("isanonymous");
+        $data['isanonymous'] = input("isanonymous",0);
         $data['contactname'] = input("contactname");
         $data['mobile'] = input("mobile");
         $data['content'] = input("content");
-        $file = $_FILES['image'];
-        $PSize = filesize($file['tmp_name']);
-        //print_r($file);die;
-        $picturedata = fread(fopen($file['tmp_name'], "r"), $PSize);
-        $data['image'] = "http://192.168.2.252/upload/image.png";
-        $url = "http://192.168.2.252:9999/vendor/index.php?app=imagespace&mod=image_upload";
-        $images['category_id'] = 1;
-        $images['file'] = $picturedata;
-        $result = post($url,$images);
-        print_r($result);die;
+        $file = request()->file("images");
 
-        $info = $file->move('public/uploads');
+        $info = $file->move('uploads/feedback');
         if ($info) {
-            $this->success('文件上传成功');
-            echo $info->getFilename();
+            $data['image'] = "http://192.168.2.252:7777/".$info->getPathname();
         } else {
             //上传失败获取错误信息
             $this->error($file->getError());
@@ -578,14 +574,39 @@ class Index extends Base
     function object_to_array($array)
     {
 
-        if(is_object($array)) {
+        if (is_object($array)) {
             $array = (array)$array;
-        } if(is_array($array)) {
-        foreach($array as $key=>$value) {
-            $array[$key] = $this->object_to_array($value);
         }
-    }
+        if (is_array($array)) {
+            foreach ($array as $key => $value) {
+                $array[$key] = $this->object_to_array($value);
+            }
+        }
         return $array;
     }
 
+    /**
+     * 获取协议
+     */
+    public function getAgreements()
+    {
+        //$data['error_code'] = 200;
+        $redis = new Redis();
+        if(!$redis->has("agreements")) {
+            $data['titles'] = db::name("article")->where("id in(86,87,88)")->field("article_title")->select();
+            $data['agreement1'] = (db::name("article")->where("id =86")->field("article_content")->find())['article_content'];
+            $data['agreement2'] = (db::name("article")->where("id =87")->field("article_content")->find())['article_content'];
+            $data['agreement3'] = (db::name("article")->where("id =88")->field("article_content")->find())['article_content'];
+            $redis->set("agreements",$data,3600);
+            $data['error_code'] = 200;
+        }else{
+            $datas = $redis->get("agreements");
+            $data['titles'] = $datas['titles'];
+            $data['agreement1'] = $datas['agreement1'];
+            $data['agreement2'] = $datas['agreement2'];
+            $data['agreement3'] = $datas['agreement3'];
+            $data['error_code'] = 200;
+        }
+        return json_encode($data);
+    }
 }
