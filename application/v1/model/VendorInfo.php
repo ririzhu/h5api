@@ -70,9 +70,9 @@ class VendorInfo extends Model
      * @param string $field 字段
      * @return array
      */
-    public function getStoreOnlineList($condition, $page = null, $order = '', $field = '*') {
+    public function getStoreOnlineList($condition, $page = null, $order = '', $field = '*',$limit=10000) {
         $condition['store_state'] = 1;
-        return $this->getStoreList($condition, $page, $order, $field);
+        return $this->getStoreList($condition, $page, $order, $field,$limit);
     }
 
     /**

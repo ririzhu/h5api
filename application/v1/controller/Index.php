@@ -529,4 +529,63 @@ class Index extends Base
 
         exit;
     }
+    /**
+     * 反馈
+     */
+    public function feedback(){
+        $data['reason'] = input("reason");
+        $data['isanonymous'] = input("isanonymous");
+        $data['contactname'] = input("contactname");
+        $data['mobile'] = input("mobile");
+        $data['content'] = input("content");
+        $file = $_FILES['image'];
+        $PSize = filesize($file['tmp_name']);
+        //print_r($file);die;
+        $picturedata = fread(fopen($file['tmp_name'], "r"), $PSize);
+        $data['image'] = "http://192.168.2.252/upload/image.png";
+        $url = "http://192.168.2.252:9999/vendor/index.php?app=imagespace&mod=image_upload";
+        $images['category_id'] = 1;
+        $images['file'] = $picturedata;
+        $result = post($url,$images);
+        print_r($result);die;
+
+        $info = $file->move('public/uploads');
+        if ($info) {
+            $this->success('文件上传成功');
+            echo $info->getFilename();
+        } else {
+            //上传失败获取错误信息
+            $this->error($file->getError());
+        }
+        $res = db::name("feedback")->insert($data);
+        if($res){
+            $datas['error_code'] = 200;
+            $datas['message'] = lang("操作成功");
+            return json_encode($datas,true);
+        }else{
+            $datas['error_code'] = 10202;
+            $datas['message'] = lang("操作失败");
+            return json_encode($datas,true);
+        }
+    }
+
+    /**
+     * 对象 转 数组
+     *
+     * @param object $obj 对象
+     * @return array
+     */
+    function object_to_array($array)
+    {
+
+        if(is_object($array)) {
+            $array = (array)$array;
+        } if(is_array($array)) {
+        foreach($array as $key=>$value) {
+            $array[$key] = $this->object_to_array($value);
+        }
+    }
+        return $array;
+    }
+
 }

@@ -292,7 +292,7 @@ class User extends Base
         $checkin_stage = 'checkin';
         $return_arr = array();
         $log_list = array();
-        $memberId = input("member_id",123);
+        $memberId = input("member_id");
 
         $eachNum = 10;
         if (Config(['app'])['app']['points_isuse'] == 1){

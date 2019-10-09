@@ -6,7 +6,7 @@ use app\v1\model\TousuSubject;
 use app\v1\model\Trade;
 use think\console\command\make\Model;
 use think\Queue;
-
+use think\db;
 /**
  * Class Refund
  * @package app\v1\controller
@@ -332,59 +332,79 @@ class Refund extends  Base
         if ($return['express_id'] > 0 && !empty($return['invoice_no'])) {
         }
     }
-    /**
-     * 投诉
-     */
-    public function addTousu()
-    {
-        $order_id = intval($_GET['order_id']);
-        //获取订单详细信息，并检查权限
-        $order_info = $this->get_order_info($order_id,input("member_id"));
+    /*
+         * 保存用户提交的投诉
+         */
+    public function savetousu() {
+        //获取输入的投诉信息
+        $input = array();
+        $input['order_id'] = intval(input('order_id'));
         //检查是不是正在进行投诉
-        if(empty($order_info)) {
-            if ($this->check_complain_exist($order_id)) {
-                showMsg(Language::get('您已经投诉了该订单请等待处理'), '', 'html', 'error');//'您已经投诉了该订单请等待处理'
-            }
-            //检查订单状态是否可以投诉
-            $complain_time_limit = intval($GLOBALS['setting_config']['complain_time_limit']);
-            if (!empty($order_info['finnshed_time'])) {
-                if ((intval($order_info['finnshed_time']) + $complain_time_limit) < time()) {
-                    showMsg(Language::get('您的订单已经超出投诉时限'), '', 'html', 'error');//'您的订单已经超出投诉时限'
-                }
-            }
-            //列出订单商品列表
-            $order_goods_list = $order_info['extend_order_goods'];
-            //买家未付款不能投诉
-            if (intval($order_info['order_state']) < ORDER_STATE_PAY) {
-                //showMsg(Language::get('参数错误'),'','html','error');
-            }
-
-            //获取投诉类型
-            $model_complain_subject = new TousuSubject();
-            $param = array();
-            $complain_subject_list = $model_complain_subject->getActiveComplainSubject($param);
-            if (empty($complain_subject_list)) {
-                showMsg(Language::get('投诉主题不存在请联系管理员'), '', 'html', 'error');
-            }
-            $model_refund = Model('refund_return');
-            $order_list[$order_id] = $order_info;
-            $order_list = $model_refund->getGoodsRefundList($order_list);
-            if (intval($order_list[$order_id]['complain']) == 1) {//退款投诉
-                $complain_subject = Model()->table('tousu_subject')->where(array('complain_subject_id' => 1))->select();//投诉主题
-                $complain_subject_list = array_merge($complain_subject, $complain_subject_list);
+        if($this->check_complain_exist($input['order_id'])) {
+            //showDialog(Language::get('您已经投诉了该订单请等待处理'),'','error');
+        }
+        list($input['complain_subject_id'],$input['complain_subject_content']) = explode(',',trim($_POST['input_complain_subject']));
+        $input['complain_content'] = trim($_POST['input_complain_content']);
+        //验证输入的信息
+        $obj_validate = new Validate();
+        $obj_validate->validateparam = array(
+            array("input"=>$input['complain_content'], "require"=>"true","validator"=>"Length","min"=>"1","max"=>"255","message"=>Language::get('投诉内容不能为空且必须小于100个字符')),
+        );
+        $error = $obj_validate->validate();
+        if ($error != ''){
+            //showValidateError($error);
+        }
+        //获取有问题的商品
+        $checked_goods = $_POST['input_goods_check'];
+        $goods_problem = $_POST['input_goods_problem'];
+        if(empty($checked_goods)) {
+            //showDialog(Language::get('参数错误'),'','error');
+        }
+        $order_info = $this->get_order_info($input['order_id']);
+        $input['accuser_id'] = $order_info['buyer_id'];
+        $input['accuser_name'] = $order_info['buyer_name'];
+        $input['accused_id'] = $order_info['vid'];
+        $input['accused_name'] = $order_info['store_name'];
+        //上传图片
+        $complain_pic = array();
+        $complain_pic[1] = 'input_complain_pic1';
+        $complain_pic[2] = 'input_complain_pic2';
+        $complain_pic[3] = 'input_complain_pic3';
+        $pic_name = $this->upload_pic($complain_pic);
+        $input['complain_pic1'] = $pic_name[1];
+        $input['complain_pic2'] = $pic_name[2];
+        $input['complain_pic3'] = $pic_name[3];
+        $input['complain_datetime'] = time();
+        $input['complain_state'] = self::STATE_NEW;
+        $input['complain_active'] = self::STATE_UNACTIVE;
+        //保存投诉信息
+        $model_complain = new Tousu();
+        $complain_id = $model_complain->saveComplain($input);
+        //保存被投诉的商品详细信息
+        $model_complain_goods = new ;
+        $order_goods_list = $order_info['extend_order_goods'];
+        foreach($order_goods_list as $goods) {
+            $order_goods_id = $goods['rec_id'];
+            if (array_key_exists($order_goods_id,$checked_goods)) {//验证提交的商品属于订单
+                $input_checked_goods['complain_id'] = $complain_id;
+                $input_checked_goods['order_gid'] = $order_goods_id;
+                $input_checked_goods['order_goods_type'] = $goods['goods_type'];
+                $input_checked_goods['gid'] = $goods['gid'];
+                $input_checked_goods['goods_name'] = $goods['goods_name'];
+                $input_checked_goods['vid'] = $goods['vid'];
+                $input_checked_goods['goods_price'] = $goods['goods_price'];
+                $input_checked_goods['goods_num'] = $goods['goods_num'];
+                $input_checked_goods['goods_image'] = $goods['goods_image'];
+                $input_checked_goods['complain_message'] = $goods_problem[$order_goods_id];
+                $model_complain_goods->saveComplainGoods($input_checked_goods);
             }
         }
+        //商品被投诉发送商户消息
 
-        //查询会员信息
-        $this->get_member_info();
-        Template::output('order_info', $order_info);
-        Template::output('order_goods_list', $order_goods_list);
-        Template::output('complain_info', $complain_info);
-        Template::output('subject_list', $complain_subject_list);
-        Template::output('left_show', 'order_view');
-        Template::showpage('tousu.submit');
-
+        showDialog(Language::get('投诉提交成功,请等待系统审核'),'index.php?app=tousu','succ');
     }
+
+
     /*
  * 获取订单信息
  */

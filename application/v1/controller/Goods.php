@@ -790,12 +790,12 @@ class Goods extends  Base
                 $field = '*';
                 $order = 'goods_salenum desc';
             }
-            $sld_hotsale_goods = $model_goods->getGoodsOnlineList($condition, $field, 0, $order, 4, 'goods_commonid');
+            //$sld_hotsale_goods = $model_goods->getGoodsOnlineList($condition, $field, 0, $order, 4, 'goods_commonid');
             // 获取最终价格
             $ga = new GoodsActivity();
-            $sld_hotsale_goods = $ga->rebuild_goods_data($sld_hotsale_goods, 'pc');
+            //$sld_hotsale_goods = $ga->rebuild_goods_data($sld_hotsale_goods, 'pc');
 
-            $data['sld_hotsale_goods'] = $sld_hotsale_goods;
+            //$data['sld_hotsale_goods'] = $sld_hotsale_goods;
             //显示左侧分类
             if (intval(input('cid')) > 0) {
                 $goods_class_array = $this->_model_search->getLeftCategory(array(input('cid')));
@@ -1015,4 +1015,218 @@ class Goods extends  Base
             return json_encode($data,true);
         }
     }
+    /**
+     * 签到页推荐
+     */
+    public function recommend(){
+      $page = input("page", 0);
+            $this->_model_search = new Search();
+            $memberId = input("member_id");
+            $conditionstr = "1=1 ";
+            $searchtype = input("searchtype", 0);
+            $data['error_code'] = 200;
+            $data['message'] = lang("操作成功");
+            if ($searchtype == 0 || $searchtype == 1) {
+                //获取该城市的最后一级id
+                $curSldCityId = Logic('city_site')->getUrlCityBindId($_SERVER['HTTP_HOST']);
+                //优先从全文索引库里查找
+                list($indexer_ids, $indexer_count) = $this->_indexer_search();
+                $data_attr = $this->_get_attr_list(input("cid"), input("bid"), input("aid"), $curSldCityId);
+                //处理排序
+                $order = '';
+                if (in_array(input('key'), array('1', '2', '3'))) {
+                    $sequence = input('sort') == '1' ? 'asc' : 'desc';
+                    $order = str_replace(array('1', '2', '3'), array('goods_salenum', 'goods_click', 'goods_price'), input('key'));
+                    //虚拟销量
+                    if (Config('virtual_sale')) {
+                        if ($order == 'goods_salenum') {
+                            //$order = '(goods_salenum+virtual_sale) as goods_salenum';
+                            $order = 'goods_salenum';
+                        }
+                    }
+                    $order .= ' ' . $sequence;
+                }
+                $model_goods = new \app\v1\model\Goods();
+
+                $condition = array();
+
+                if (!isset($data_attr['sign']) || $data_attr['sign'] === true) {
+                    // 字段
+                    $fields = "gid,goods_label,goods_commonid,goods_name,goods_jingle,gc_id,vid,store_name,goods_price,goods_marketprice,goods_storage,goods_image,goods_freight,goods_salenum,color_id,evaluation_good_star,evaluation_count,is_free";
+                    //虚拟销量
+                    if (Config('virtual_sale')) {
+                        $fields .= ',(goods_salenum+virtual_sale) as goods_salenum';
+                    }
+                    // 只检索零售商品
+                    $condition['goods_type'] = 0;
+
+                    //执行正常搜索，重新查库
+                    if (isset($data_attr['gcid_array'])) {
+                        $condition['gc_id'] = array('in', arrayToString($data_attr['gcid_array']));
+                        $conditionstr .= " and gc_id in ( " . arrayToString($data_attr['gcid_array']) . ") ";
+                    }
+                    //如果搜索的一级地区id跟当前绑定的城市分站一级id一致，正常搜索，不一致的话，以信息
+
+                    if (intval(input('area_id')) > 0) {
+                        $condition['areaid_1'] = intval(input('area_id'));
+                    }
+
+                    if (isset($data_attr['goodsid_array'])) {
+                        $condition['gid'] = array('in', $data_attr['goodsid_array']);
+                        $conditionstr .= " and gid  in (" . arrayToString($data_attr['goodsid_array']) . ")";
+                    }
+
+                    //商品
+                    if (!empty($gids)) {
+                        $condition['gid'] = array('in', arrayToString($gids));
+                        $conditionstr .= " and gid in (" . arrayToString($gids) . ")";
+                    } else if (!empty($gc_ids) && input('store_self') == 1) {//自营店分类
+                        $condition['gc_id_1'] = array('in', implode(",", $gc_ids));
+                        //获取与所有的自营店
+                        $model_vendor = new VendorInfo();
+                        $shop_vids = $model_vendor->getStoreOnlineList(array('is_own_shop' => 1), '', '', 'vid',$limit=4);
+                        $vids = array();
+                        foreach ($shop_vids as $v) {
+                            $vids[] = $v['vid'];
+                        }
+                        $condition['vid'] = array('in', implode(",", $vids));
+                    } else if (!empty($gc_ids) && input('store_self') != 1) {//所有店铺分类
+                        $condition['gc_id_1'] = array('in', $gc_ids);
+                        $conditionstr .= "gc_id_1 in (" . arrayToString($gc_ids) . ")";
+                    } else if (input('red_vid')) {//如果没有指定商品和分类 判断店铺优惠券
+                        $condition['vid'] = input('red_vid');
+                        $conditionstr .= " and vid=" . input("red_vid");
+                    } else if (input('store_self') == 1) {//自营店所有商品
+                        //获取与所有的自营店
+                        $model_vendor = new VendorInfo();
+                        $shop_vids = $model_vendor->getStoreOnlineList(array('is_own_shop' => 1), '', '', 'vid');
+                        $vids = array();
+                        foreach ($shop_vids as $v) {
+                            $vids[] = $v['vid'];
+                        }
+                        $condition['vid'] = array('in', arrayToString($vids));
+                        $conditionstr .= " and vid in (" . arrayToString($vids) . ")";
+                    }
+
+                    //[end搜索优惠券的商品]
+
+                    //按照商品的SPU展示
+                    /*$goods_list = $model_goods->getGoodsListByCommonidDistinct($conditionstr, $fields, $order, $page);
+                    // 商品多图
+                    if (!empty($goods_list)) {
+                        $goodsid_array = array();       // 商品id数组
+                        $commonid_array = array(); // 商品公共id数组
+                        $storeid_array = array();       // 店铺id数组
+                        foreach ($goods_list as $value) {
+                            $goodsid_array[] = $value['gid'];
+                            $commonid_array[] = $value['goods_commonid'];
+                            $storeid_array[] = $value['vid'];
+                        }
+                        $goodsid_array = array_unique($goodsid_array);
+                        $commonid_array = array_unique($commonid_array);
+                        $storeid_array = array_unique($storeid_array);
+
+                        // 商品多图
+                        $goods = new \app\v1\model\Goods();
+                        $goodsimage_more = $goods->getGoodsImageList(array('goods_commonid' => array('in', arrayToString($commonid_array))));
+
+                        // 店铺
+                        $vendor = new VendorInfo();
+                        $store_list = json_decode($vendor->getStoreMemberIDList($storeid_array), true);
+                        $favorite_model = new Favorites();
+                        // $model_sole = Model('p_mbuy');
+//                $tobuy_detail_model = Model('today_buy_detail');
+//                $tobuy_time_model = Model('today_buy');
+                        foreach ($goods_list as $key => $value) {
+                            $favorite_info = $favorite_model->getOneFavorites(array('fav_id' => $value["gid"], 'fav_type' => 'goods', 'member_id' => $memberId));
+                            if (empty($favorite_info)) {
+                                $favorites_flag = 0;
+                            } else {
+                                $favorites_flag = 1;
+                            }
+                            $goods_list[$key]['favorites_flag'] = $favorites_flag;
+                            // 商品多图
+                            foreach ($goodsimage_more as $v) {
+                                if ($value['goods_commonid'] == $v['goods_commonid'] && $value['vid'] == $v['vid'] && $value['color_id'] == $v['color_id']) {
+                                    $goods_list[$key]['image'][] = $v;
+                                }
+                            }
+                            // 店铺的开店会员编号
+                            $vid = $value['vid'];
+                            if (isset($store_list[$vid])) {
+                                $goods_list[$key]['member_id'] = $store_list[$vid]['member_id'];
+                                $goods_list[$key]['store_domain'] = $store_list[$vid]['store_domain'];
+                            }
+                        }
+                    }
+
+                    // 获取最终价格
+                    $ga = new GoodsActivity();
+                    $goods_list = $ga->rebuild_goods_data($goods_list, 'pc');*/
+                    //$data['goods_list'] = $goods_list;
+                    //Template::output('goods_list', $goods_list);
+                }
+                if (isset($data_attr['gc_name']))
+                    $data['class_name'] = $data_attr['gc_name'];
+                //Template::output('class_name',  @$data_attr['gc_name']);
+                //热卖推荐（销量的前4个）
+                //虚拟库存
+                if (Config('virtual_sale')) {
+                    $field = '*,(goods_salenum+virtual_sale) as goods_salenum';
+                    $order = "goods_salenum desc";
+                } else {
+                    $field = '*';
+                    $order = 'goods_salenum desc';
+                }
+                $sld_hotsale_goods = $model_goods->getGoodsOnlineList($condition, $field, 0, $order, 4, 'goods_commonid');
+                // 获取最终价格
+                $ga = new GoodsActivity();
+                $sld_hotsale_goods = $ga->rebuild_goods_data($sld_hotsale_goods, 'pc');
+
+                $data['sld_hotsale_goods'] = $sld_hotsale_goods;
+                //显示左侧分类
+                if (intval(input('cid')) > 0) {
+                    $goods_class_array = $this->_model_search->getLeftCategory(array(input('cid')));
+                } elseif (input('keyword') != '') {
+                    $goods_class_array = $this->_model_search->getTagCategory(input('keyword'));
+                } else {
+                    $goods_class_array = array();
+                }
+                $data['goods_class_array'] = $goods_class_array;
+
+                if (input('keyword') == '') {
+                    //不显示无商品的搜索项
+                    if (Config('fullindexer.open')) {
+                        $data_attr['brand_array'] = $this->_model_search->delInvalidBrand($data_attr['brand_array']);
+                        $data_attr['attr_array'] = $this->_model_search->delInvalidAttr($data_attr['attr_array']);
+                    }
+                }
+
+
+            }
+            if ($searchtype == 0 || $searchtype == 2) {
+                $keyword = input("keyword");
+                $conditions = "1=1 ";
+                $conditions .= " and (store_name like '%$keyword%' or store_zy like '%$keyword%')";
+                $curSldCityId = Logic('city_site')->getUrlCityBindId($_SERVER['HTTP_HOST']);
+                //绑定的城市分站id大于0的情况下采取根据地址选择
+                if ($curSldCityId > 0) {
+                    $conditions .= " and (province_id=$curSldCityId or city_id=$curSldCityId or area_id = $curSldCityId)";
+                }
+                $conditions .= " and store_state = 1";
+                $conditions .= " and sld_is_supplier = 0";
+                $model_store = new VendorInfo();
+                $order = 'store_sort asc';
+                $store_list = db::name("vendor")->where($conditions)->order($order)->page(1)->select();
+                //获取店铺商品数，推荐商品列表等信息
+                //$store_list = $model_store->getStoreSearchList($store_list);
+                //$data['store_list'] = $store_list;
+            }
+
+
+            return json_encode($data, true);
+            //$data['goodslist');
+
+        }
+
 }
