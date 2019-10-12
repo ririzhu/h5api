@@ -293,6 +293,8 @@ define('QINIU_ACCESSKEY', $config['accessKey']);
 define('QINIU_SECRETKEY', $config['secretKey']);
 
 define('DBPRE',($config['db'][1]['dbname']).'`.`'.($config['tablepre']));
+define("WXAPPID","wxa1fb530295fba5d7");
+define("WXAPPSECRET","c9faafe9e9ec6d08ebdf1eeff3a47222");
 if($config['sld_oss_open']){
     define('OSS_ENABLE',1);
     define('QINIU_ENABLE',0);

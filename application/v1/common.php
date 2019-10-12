@@ -1164,3 +1164,12 @@ function post($url,$param,$post_file=false){
         return false;
     }
 }
+
+/**
+ * @param $str
+ * @return bool
+ * 检测是否为base64编码
+ */
+function checkStringIsBase64($str){
+    return $str == base64_encode(base64_decode($str)) ? true : false;
+}

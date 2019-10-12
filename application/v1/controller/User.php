@@ -179,7 +179,7 @@ class User extends Base
                 $data['message'] = "当前手机号已被注册";
                 return json_encode($data, true);
             }
-            $userData["inviteCode"] = input("inviteCode");
+            $userData["inviteCode"] = input("inviteCode","");
             if ($userModel->insertMemberWithMobile($userData)) {
                 $member = $userModel->getMemberInfo(array('member_mobile'=> $phone));//检查手机号是否已被注册
                 //$this->createSession($member);
@@ -484,9 +484,9 @@ class User extends Base
         $data['basestr'] = $signstr;
         $data['str'] = $time.$str;
         $data['expired_time'] = $expired;
-        $data['Cache-name'] = $type."_".$msectime;
+        $data['Cache_name'] = md5($type."_".$msectime);
         $redis =new Redis();
-        $redis->set($type."_".$msectime,$signstr."_".$data['str'],600*60);
+        $redis->set($data['Cache_name'],$signstr."_".$data['str'],600*60);
         return json_encode($data,true);exit();
 
         /*response()->header([

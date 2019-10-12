@@ -137,8 +137,8 @@ class Cart extends Base
                 }
                 $cart['button1']="http://192.168.2.252:9999/data/upload/mall/store/1/this_20190930145714.png";
                 $cart['button2']="http://192.168.2.252:9999/data/upload/mall/store/1/this_circle_20190930145309.png";
-
                 $store_cart_list[$cart['vid']][] = $cart;
+                $store_cart_list[$cart['vid']]['store_name'] = $cart['store_name'];
             }
             $a=0;
             foreach($store_cart_list as $k=>$v){

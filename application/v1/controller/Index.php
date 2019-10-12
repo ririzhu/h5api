@@ -152,6 +152,7 @@ class Index extends Base
                 $model_goods = new \app\v1\model\Goods();
                 $data['peixun_tag_name'] = "培训专场";
                 $lession = array();
+                $new_goods_list = array();
                 foreach ($goods_list as $k => $v) {
                     $gid = $goods_list[$k]['goods_id'];
                     unset($goods_list[$k]);
@@ -160,10 +161,14 @@ class Index extends Base
                         $goods_list[$k] = $a[0];
                     }
                     $goods_list[$k]['gid'] = $gid;
+                    $new_goods_list[$k]=$goods_list[$k];
+                    if($k==2){
+                        break;
+                    }
                 }
                 $ga = new GoodsActivity();
                 //$goods_list = $ga->rebuild_goods_data($goods_list,'web');
-                foreach ($goods_list as $k => $v) {
+                foreach ($new_goods_list as $k => $v) {
                     // if($goods_list[$v]) {
                     $lession[$k]['goods_name'] = $v['goods_name'];
                     $lession[$k]['gid'] = $v['gid'];
@@ -174,7 +179,7 @@ class Index extends Base
                 $data['hot_lession'] = $lession;
                 //教师列表
                 $field = '*';
-                $teachers = DB::name('member')->alias('m')->field($field)->join('teacher_extend e', 'm.member_id=e.member_id')->limit(9)->select();
+                $teachers = DB::name('member')->alias('m')->field($field)->join('teacher_extend e', 'm.member_id=e.member_id')->limit(3)->select();
 
                 //行业
                 $trade_list = DB::name('teacher_trade')->field("trade_id,trade_name")->select();
@@ -608,5 +613,42 @@ class Index extends Base
             $data['error_code'] = 200;
         }
         return json_encode($data);
+    }
+    /**
+     * 换一换
+     */
+    public function huanyihuan(){
+        $page = input("page",0);
+        $goods_list = unserialize((DB::name("tpl_data")->where("sld_tpl_type=2 and sld_is_vaild=1 and sld_tpl_code ='goods_floor2'")->limit(1)->page($page)->field("sld_tpl_data")->find())['sld_tpl_data']);
+        $goods_list = $goods_list['goods'];
+        $model_goods = new \app\v1\model\Goods();
+        $lession = array();
+        $kk = $page*3;
+        foreach ($goods_list as $k => $v) {
+            if(($kk)%3==0&& $kk!=$page*3){
+                break;
+            }
+            $gid = $goods_list[$k]['goods_id'];
+            //unset($goods_list[$k]);
+            $a = $model_goods->getGoodsList("gid = $gid", "*", "", "", 1, 1, 1, 1);
+            if (!empty($a)) {
+                $goods_list[$k] = $a[0];
+            }
+            $goods_list[$k]['gid'] = $gid;
+            $new_goods_list[$k]=$goods_list[$k];
+            $kk++;
+        }
+        $ga = new GoodsActivity();
+        //$goods_list = $ga->rebuild_goods_data($goods_list,'web');
+        foreach ($new_goods_list as $k => $v) {
+            // if($goods_list[$v]) {
+            //$lession[$k]['goods_name'] = $v['goods_name'];
+            $lession[$k]['gid'] = $v['gid'];
+            //$lession[$k]['goods_price'] = $v['goods_price'];
+            $lession[$k]['goods_image'] = $v['goods_image'];
+            //}
+        }
+        $data['hot_lession'] = $lession;
+        return json_encode($data['hot_lession'],true);
     }
 }

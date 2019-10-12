@@ -533,16 +533,17 @@ class Goods extends  Base
      * 获取分类列表
      */
     function categoryListByCid(){
-        $parentId = input("parent_id",0);
+        $parentId = input("parent_id",1);
         $gc = new GoodsClass();
         $name = (db::name("goods_class")->where("gc_id=$parentId")->find())['gc_name'];
-        $list = $gc->getGoodsClassListByParentId($parentId);
+        $list = $gc->getGoodsClassListByParentId($parentId);//print_r($list);die;
         $newlist = array();
         $c = 0;
-        $a = 10;
+        $a = 0;
         foreach ($list as $k=>$v){
-            $newlist["".str_replace("/","",$name)."$a"][$c]['name'] = $v['gc_name'];
-            $newlist["".str_replace("/","",$name)."$a"][$c]['gc_id'] = $v['gc_id'];
+            //$newlist["".str_replace("/","",$name)."$a"][$c]['name'] = $v['gc_name'];
+            $newlist[$a][$c]['name'] = $v['gc_name'];
+            $newlist[$a][$c]['gc_id'] = $v['gc_id'];
             if($c==2){
                 $c=0;$a++;
             }else{

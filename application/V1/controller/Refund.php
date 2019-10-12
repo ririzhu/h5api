@@ -28,24 +28,55 @@ class Refund extends  Base
         $model_refund = new \app\v1\model\Refund();
         $model_goods= new \app\v1\model\Goods();
         $order_id = intval(input('order_id'));
-        $gid = intval(input('gid'));
+        $goods = db::name("order_goods")->where(array("order_id"=>$order_id))->find();
+        $gid = $goods['gid'];
         $condition = array();
         $condition['buyer_id'] = input("member_id");
         $condition['order_id'] = $order_id;
-        $order_list = $model_order->getOrderList($condition);
+        $order_list = $model_order->getOrderList($condition,1,'*','',1);
         $order = $order_list[0];
         $order_id = $order['order_id'];
+        $imagebase64List = input("image_list",null);
+        if($imagebase64List != null){
+            foreach($imagebase64List as $kk=>$vv){
+                if(!checkStringIsBase64($vv)){
+                    $data['error_code'] = 10016;
+                    $data['message'] = lang("图片格式错误");
+                    return json_encode($data,true);exit;
+                };
+                $image = $vv;
+                $imageName = $order['order_sn']."_".date("His",time())."_".rand(1111,9999).'.png';
+                if (strstr($image,",")){
+                    $image = explode(',',$image);
+                    $image = $image[1];
+                }
 
+                $path = "uploads/orderright/".date("Ymd",time());
+                if (!is_dir($path)){ //判断目录是否存在 不存在就创建
+                    mkdir($path,0777,true);
+                }
+                $imageSrc=  $path."/". $imageName;  //图片名字
+
+                $r = file_put_contents($imageSrc, base64_decode($image));//返回的是字节数
+                if (!$r) {
+                    //return json(['data'=>null,"code"=>1,"msg"=>"图片生成失败"]);
+                }else{
+                    $data['pic_info'][$kk] = "http://192.168.2.252:7777/".$imageSrc;
+                    //return json(['data'=>1,"code"=>0,"msg"=>"图片生成成功"]);
+                }
+            }
+            $data['pic_info'] = json_encode($data['pic_info'],true);
+        }
         $condition = array();
         $condition['order_id'] = $order_id;
-        $condition['rec_id'] = $gid;//订单商品表编号
+        //$condition['rec_id'] = $gid;//订单商品表编号
         $goods_info=$model_goods->getGoodsInfoByID($gid);//根据商品id获取商品的信息
         $yongjin = $goods_info['fenxiao_yongjin'];//商品的佣金
-        $goods_list = $model_order->getOrderGoodsList($condition);
+        $goods_list = $model_order->getOrderGoodsList($condition,'*',1,1);
 
         // // 获取最终价格
         // $goods_list = Model('goods_activity')->rebuild_goods_data($goods_list,'pc');
-
+        //print_r($goods_list);die;
         $goods = $goods_list[0];
         $goods_pay_price = $goods['goods_pay_price'];//商品实际成交价
         $order_amount = $order['order_amount'];//订单金额
@@ -64,46 +95,52 @@ class Refund extends  Base
 //        }
         //Template::output('goods',$goods);
 
-        $gid = $goods['rec_id'];
+        $gid = $goods['gid'];
         $condition = array();
         $condition['buyer_id'] = $order['buyer_id'];
         $condition['order_id'] = $order['order_id'];
-        $condition['order_goods_id'] = $gid;
-        $condition['seller_state'] = array('lt','3');
-        $refund_list = $model_refund->getRefundReturnList($condition);
+        //$condition['gid'] = $gid;
+        //$condition['seller_state'] = array('lt','3');
+        $refund_list = $model_refund->getRefundReturnList($condition,1,'*',1);
         $refund = array();
         if (!empty($refund_list) && is_array($refund_list)) {
             $refund = $refund_list[0];
         }
         if (chksubmit() && $gid > 0){
             $refund_state = $model_refund->getRefundState($order);//根据订单状态判断是否可以退款退货
-            if ($refund['refund_id'] > 0 || $refund_state != 1) {//检查订单状态,防止页面刷新不及时造成数据错误
+            //print_r($refund_list);die;
+            //if ($refund['refund_id'] > 0 || $refund_state != 1) {//检查订单状态,防止页面刷新不及时造成数据错误
                 //showDialog(Language::get('参数错误'),'reload','error','CUR_DIALOG.close();');
-            }
+            //}
             $refund_array = array();
-            $refund_amount = floatval($_POST['refund_amount']);//退款金额
-            if (($refund_amount < 0) || ($refund_amount > $goods_pay_price)) {
-                $refund_amount = $goods_pay_price;
-            }
-            $goods_num = intval($_POST['goods_num']);//退货数量
-            if (($goods_num < 0) || ($goods_num > $goods['goods_num'])) {
-                $goods_num = 1;
-            }
+            //$refund_amount = floatval($_POST['refund_amount']);//退款金额
+            //if (($refund_amount < 0) || ($refund_amount > $goods_pay_price)) {
+                //$refund_amount = $goods_pay_price;
+            //}
+            $goods_num = $goods['goods_num'];//intval($_POST['goods_num']);//退货数量
+            //if (($goods_num < 0) || ($goods_num > $goods['goods_num'])) {
+                //$goods_num = 1;
+            //}
             $model_trade = new Trade();
-            $order_shipped = $model_trade->getOrderState('order_shipped');//订单状态30:已发货
+            //$order_shipped = $model_trade->getOrderState('order_shipped');//订单状态30:已发货
+            $order_shipped = $model_trade->getOrderState('order_completed');//订单状态30:已发货
             if ($order['order_state'] == $order_shipped) {
                 $refund_array['order_lock'] = '2';//锁定类型:1为不用锁定,2为需要锁定
             }
-            $refund_array['refund_type'] = input('refund_type');//类型:1为退款,2为退货
-            $refund_array['return_type'] = '2';//退货类型:1为不用退货,2为需要退货
+            $refund_array['refund_type'] = input('refund_type',1);//类型:1为退款,2为退货
+            $refund_array['return_type'] = '1';//退货类型:1为不用退货,2为需要退货
             if ($refund_array['refund_type'] != '2') {
                 $refund_array['refund_type'] = '1';
                 $refund_array['return_type'] = '1';
             }
             $refund_array['seller_state'] = '1';//状态:1为待审核,2为同意,3为不同意
-            $refund_array['refund_amount'] = sldPriceFormat($refund_amount);
+            //$refund_array['refund_amount'] = sldPriceFormat($refund_amount);
             $refund_array['goods_num'] = $goods_num;
-            $refund_array['buyer_message'] = $_POST['buyer_message'];
+            $refund_array['buyer_message'] = input('buyer_message');
+            $refund_array['reason_id'] = input("reason_id");
+            if(input("reason_id")==0){
+                $refund_array['reason_info']=input("reason_info");
+            }
             $refund_array['add_time'] = time();
 
             $state = $model_refund->addRefundReturn($refund_array,$order,$goods);
@@ -113,7 +150,7 @@ class Refund extends  Base
                     $model_refund->editOrderLock($order_id);
                 }
 
-                $now_refund_list = $model_refund->getRefundReturnList(array('refund_id' => $state));
+                $now_refund_list = $model_refund->getRefundReturnList(array('refund_id' => $state),1,'*',1);
                 $now_refund_info = $now_refund_list[0];
 
                 $refund_type_str = ($now_refund_info['refund_type'] == 2) ? '退货' : '退款';
@@ -131,16 +168,22 @@ class Refund extends  Base
                     'keyword2' => $now_refund_info['refund_amount'],
                     'keyword3' => $now_refund_info['goods_num'],
                     'keyword4' => $now_refund_info['buyer_message'],
-                    'remark' => '点击【详情】查看退款退货详情',
+                    'remark' => '点击【详情】查看维权详情',
 
                     'url' => WAP_SITE_URL.'/cwap_user_refund_info.html?refund_id='.$now_refund_info['refund_id']
                 );
                 $param['system_type']=4;
                 $param['link']=WAP_SITE_URL.'/cwap_user_refund_info.html?refund_id='.$now_refund_info['refund_id'];
                 //QueueClient::push('sendMemberMsg', $param);
+                $data['error_code']=200;
+                $data['message'] = $first_msg;
+                return json_encode($data,true);
 
                 //showDialog(Language::get('保存成功'),'reload','succ','CUR_DIALOG.close();');
             } else {
+                $data['error_code']=10201;
+                $data['message'] = lang("失败");
+                return json_encode($data,true);
                 //showDialog(Language::get('保存失败'),'reload','error','CUR_DIALOG.close();');
             }
         }
@@ -162,8 +205,8 @@ class Refund extends  Base
         $condition = array();
         $condition['buyer_id'] = input('member_id');
         $condition['order_id'] = $order_id;
-        $order_list = $model_order->getOrderList($condition,1,'*',null,1);
-        $order = $order_list[0];
+        $order_list = ($model_order->getOrderList($condition,'','*','order_id desc', $limit = 1))[0];
+        $order = $order_list;
         //Template::output('order',$order);
         $order_amount = $order['order_amount'];//订单金额
         $condition = array();
@@ -192,9 +235,13 @@ class Refund extends  Base
             $refund_array['goods_name'] = '订单商品全部退款';
             $refund_array['refund_amount'] = sldPriceFormat($order_amount);
             $refund_array['buyer_message'] = input('buyer_message');
+            $refund_array['reason_id'] = input("reason_id");
+            if(input("reason_id")==0){
+                $refund_array['reason_info']=input("reason_info");
+            }
             $refund_array['add_time'] = time();
             $state = $model_refund->addRefundReturn($refund_array,$order);
-            if ($state) {
+            if ($state) {echo 1;
                 $model_refund->editOrderLock($order_id);
 
                 $now_refund_list = $model_refund->getRefundList(array('refund_id' => $state),0,10);
@@ -225,7 +272,7 @@ class Refund extends  Base
                 //Queue::push('sendMemberMsg', $param);
 
                 //showDialog(Language::get('保存成功'),'reload','succ','CUR_DIALOG.close();');
-            } else {
+            } else {echo 2;
                $data['errorCode']=10017;
                $data['message']=lang("不要重复提交");
                 //showDialog(Language::get('保存失败'),'reload','error','CUR_DIALOG.close();');
@@ -381,7 +428,7 @@ class Refund extends  Base
         $model_complain = new Tousu();
         $complain_id = $model_complain->saveComplain($input);
         //保存被投诉的商品详细信息
-        $model_complain_goods = new ;
+        /*$model_complain_goods = new ;
         $order_goods_list = $order_info['extend_order_goods'];
         foreach($order_goods_list as $goods) {
             $order_goods_id = $goods['rec_id'];
@@ -398,7 +445,7 @@ class Refund extends  Base
                 $input_checked_goods['complain_message'] = $goods_problem[$order_goods_id];
                 $model_complain_goods->saveComplainGoods($input_checked_goods);
             }
-        }
+        }*/
         //商品被投诉发送商户消息
 
         showDialog(Language::get('投诉提交成功,请等待系统审核'),'index.php?app=tousu','succ');
@@ -437,4 +484,49 @@ class Refund extends  Base
         $list = $tousu->getComplainSubject();
         return json_encode($list,true);
     }
+
+    /**
+     * @return false|string
+     * 维权初始界面
+     */
+    public function rightReasonList(){
+        if(!input("order_id") || !input("member_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);exit();
+        }
+        //检查订单状态
+        $order_id = intval(input('order_id'));
+        //$gid = intval(input('gid'));
+        $condition = array();
+        $condition['buyer_id'] = input("member_id");
+        $condition['order_id'] = $order_id;
+        $model_order = new \app\v1\model\Order();
+        $model_refund = new \app\v1\model\Refund();
+        $model_goods= new \app\v1\model\Goods();
+        $order_list = ($model_order->getOrderList($condition,'','*','order_id desc', $limit = 1))[0];
+        $goods = db::name("order_goods")->where(array("order_id"=>$order_id))->find();
+        $order_list['goods_name'] = $goods['goods_name'];
+        $order_list['goods_image'] = $goods['goods_image'];
+        $order_list['goods_pay_price'] = $goods['goods_pay_price'];
+        if($order_list['order_state']!=40){
+            $data['error_code']=10016;
+            $data['message'] = lang("当前订单无法进行维权");
+            return json_encode($data,true);exit();
+        }
+        else{
+            $refundcount = db::name("refund_return")->where(array("order_id"=>$order_id))->count();
+            if($refundcount>0){
+                $data['error_code']=10016;
+                $data['message'] = lang("当前订单无法进行维权");
+                return json_encode($data,true);exit();
+            }else{
+                $data['error_code'] = 200;
+                $data['order'] = $order_list;
+                $data['reasonlist'] = $list = db::name("refund_reason")->field("reason_id,reason_info")->select();
+            }
+        }
+        return json_encode($data,true);
+    }
+
 }

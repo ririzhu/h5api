@@ -138,6 +138,8 @@ class Order extends Model
      * @param string $key
      */
     public function getOrderGoodsList($condition = array(), $fields = '*', $limit = null, $page = null, $order = 'rec_id desc', $group = null, $key = null) {
-        return $this->table('order_goods')->field($fields)->where($condition)->limit($limit)->order($order)->group($group)->key($key)->page($page)->select();
+        $list = db::name('order_goods')->field($fields)->where($condition)->limit($limit)->order($order)->group($group)->force($key)->page($page)->select();
+        //echo db::name("order_goods")->getLastSql();
+        return $list;
     }
 }

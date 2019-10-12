@@ -21,13 +21,13 @@ class Sms extends Base
         $condition['log_type'] = $type;
         $sms_log = $sms->getSmsInfo($condition);
         $redis = new Redis();
-        if(!input('Cache-name')){
+        if(!input('Cache_name')){
             return json_encode(array("error_code"=>2));
         }else if( !input('basestr')){
             return json_encode(array("error_code"=>1));
         }else{
             $basestr = input("basestr");
-            $name = input("Cache-name");
+            $name = input("Cache_name");
             $redisvalue = $redis->get($name);
             if($redisvalue!=$basestr."_".input("str")){
                 $data['error_code']=10016;

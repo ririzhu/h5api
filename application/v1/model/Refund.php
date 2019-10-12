@@ -56,7 +56,9 @@ class Refund extends Model
             $refund_array['goods_image'] = $goods['goods_image'];
         }
         $refund_array['refund_sn'] = $this->getRefundsn($refund_array['vid']);
-        if(count(db::name("refund_return")->where(['order_sn'=>$order['order_sn']])->find())=='0') {
+        $count = db::name("refund_return")->where(['order_sn'=>$order['order_sn']])->count();
+        //echo db::name("refund_return")->getLastSql();
+        if(db::name("refund_return")->where(['order_sn'=>$order['order_sn']])->count()=='0') {
             $refund_id = db::name('refund_return')->insert($refund_array);
             // 发送商家提醒
             $param = array();
@@ -251,7 +253,9 @@ class Refund extends Model
         if(isset($condition['vendor.province_id']) && $condition['vendor.province_id>0'] | isset($condition['vendor.city_id']) && $condition['vendor.city_id'>0]| isset($condition['vendor.city_id']) && $condition['vendor.area_id']>0){
             $result = DB::name('refund_return')->join('vendor','refund_return.vid=vendor.vid')->field($fields)->where($condition)->page($page)->limit($limit)->order('refund_id desc')->select();
         }else{
-            $result = DB::name('refund_return')->field($fields)->where($condition)->page($page)->limit($limit)->order('refund_id desc')->select();
+            $list = DB::name('refund_return')->field($fields)->where($condition)->page($page)->limit($limit)->order('refund_id desc')->select();;
+            //echo db::name("refund_return")->getLastSql();
+            $result = $list;
         }
         return $result;
     }
