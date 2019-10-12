@@ -55,6 +55,18 @@ class Points extends Model
                 }
                 //$insertarr['pl_points'] = intval($GLOBALS['setting_config']['sign_points']);
                 break;
+            case 'goods_share':
+                if (!isset($insertarr['pl_desc'])){
+                    $insertarr['pl_desc'] = '商品分享';
+                }
+            //$insertarr['pl_points'] = intval($GLOBALS['setting_config']['sign_points']);
+                break;
+            case 'article_share':
+                if (!isset($insertarr['pl_desc'])){
+                    $insertarr['pl_desc'] = '文章分享';
+                }
+                //$insertarr['pl_points'] = intval($GLOBALS['setting_config']['sign_points']);
+                break;
             case 'checkin_week':
                 if (!isset($insertarr['pl_desc'])){
                     $insertarr['pl_desc'] = '会员连续7天签到奖励';

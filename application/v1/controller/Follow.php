@@ -4,6 +4,7 @@ namespace app\v1\controller;
 use app\v1\model\Favorites;
 use app\v1\model\GoodsActivity;
 use app\v1\model\Stats;
+use app\v1\model\UserCart;
 use app\v1\model\VendorInfo;
 
 class Follow extends Base
@@ -51,15 +52,41 @@ class Follow extends Base
         //收藏统计记录
         $stats = new Stats();
         $stats->put_goods_stats(1,$goods_info['gid'],'favorite',$token,1,input("member_id"));
-
-        if ($result){
-            //增加收藏数量
-            $goods_model->editGoods(array('goods_collect' => array('inc', 'goods_collect + 1')), array('gid' => $fav_id));
-            echo json_encode(array('done'=>true,'msg'=>lang('收藏成功','UTF-8')));
-            die;
+        if(!input("cart_id")) {
+            if ($result) {
+                //增加收藏数量
+                $goods_model->editGoods(array('goods_collect' => array('inc', 'goods_collect + 1')), array('gid' => $fav_id));
+                echo json_encode(array('done' => true, 'msg' => lang('收藏成功', 'UTF-8')));
+                die;
+            } else {
+                echo json_encode(array('done' => false, 'msg' => lang('收藏失败', 'UTF-8')));
+                die;
+            }
         }else{
-            echo json_encode(array('done'=>false,'msg'=>lang('收藏失败','UTF-8')));
-            die;
+            if(!input("cart_id") || !input("is_supplier") || !input("member_id")|| !input("gid")|| !input("ismini")){
+                $data['error_code']=10016;
+                $data['message'] = "缺少参数";
+                return json_encode($data);exit;
+            }
+            $memberId = input("member_id");
+            $cart_id = intval(input("cart_id"));
+            $gid = intval(input("gid"));
+            $is_supplier = isset($_POST["is_supplier"]) ? intval(input("is_supplier")) : 0;
+            $ismini = strip_tags(trim($_POST['ismini']));
+            if($cart_id < 0 || $gid < 0) return ;
+            $model_cart	= new UserCart();
+            $data = array();
+            $delete	= $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId,'is_supplier'=>$is_supplier),['ismini'=>$ismini]);
+            if($delete) {
+                $data['error_code'] = 200;
+                $data['message'] = "移入收藏夹成功";
+            } else {
+                $data['error_code'] = 10022;
+                $data["message"] = "删除失败";
+            }
+
+
+            exit(json_encode($data,true));
         }
     }
     /**

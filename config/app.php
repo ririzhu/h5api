@@ -116,6 +116,9 @@ $config['service_dbname'] = 'new_im2';//聊天系统数据库名
 $config['jpush_open'] = true;
 $config['jpush_appkey'] = 'b660716da4a05e0dc4c4904e';
 $config['jpush_secret'] = 'e20e956981b0dca619a73f70';
+//define("dev",true);
+define("DEV_PAY_URI","https://test.allinpaygd.com");//测试环境通联支付uri;
+define("MASTER_PAY_URI","https://vsp.allinpay.com");//生产环境通联支付uri;
 define('BASE_ROOT_PATH',str_replace('\\','/',dirname(__FILE__)));
 define('TIMESTAMP',time());
 define('DS','/');
