@@ -82,7 +82,7 @@ class User extends Model
         }
         Db::startTrans();
         try {
-            $res = DB::table("bbc_member")->insert(["member_mobile"=>$userData["member_mobile"],'inviter_id'=>$userData["inviteCode"],'inviter2_id'=>$userData["inviter3_id"],'inviter3_id'=>$userData["inviter3_id"]]);
+            $res = DB::table("bbc_member")->insert(["member_mobile"=>$userData["member_mobile"],'inviter_id'=>$userData["inviteCode"],'inviter2_id'=>$userData["inviter2_id"],'inviter3_id'=>$userData["inviter3_id"]]);
             return DB::commit();
         } catch (Exception $e) {
             DB::rollback();

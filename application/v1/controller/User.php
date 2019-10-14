@@ -148,10 +148,6 @@ class User extends Base
             $data['error_code'] = 10003;
             $data['message'] = "缺少username参数";
             return json_encode($data, true);
-        } else if (!input("code")) {
-            $data['error_code'] = 10004;
-            $data['message'] = "缺少code参数";
-            //return json_encode($data, true);
         } else if (!input("snscode")) {
             $data['error_code'] = 10005;
             $data['message'] = "缺少短信验证码参数";
