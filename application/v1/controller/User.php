@@ -140,7 +140,7 @@ class User extends Base
      */
     public function registerWithMobile()
     {
-        if (!request()->isPost()) {
+        if (!$this->request->isPost()) {
             $data['error_code'] = 10001;
             $data['message'] = "使用了非法提交方式";
             return json_encode($data, true);
