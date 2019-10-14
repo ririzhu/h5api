@@ -80,7 +80,7 @@ class Weixin extends  Base
             $points_type = "points_article_share";
             $checkin_stage = 'article_share';
         }
-        $checkin_stage = 'share';
+        //$checkin_stage = 'share';
         $eachNum = 10;
         if (Config(['app'])['app']['points_isuse'] == 1){
 
@@ -98,7 +98,7 @@ class Weixin extends  Base
                 $data['message'] = '每日只可分享5次';
                 return json_encode($data,true);
             }
-            if (!$has_checked_flag) {
+            else {
                 //添加会员积分
                 $points_model->savePointsLog($checkin_stage,array('pl_memberid'=>$this->member_info['member_id'],'pl_membername'=>$this->member_info['member_name'],'pl_points'=>Config($points_type)));
                 $data['error_code'] = 200;

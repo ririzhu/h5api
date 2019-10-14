@@ -22,9 +22,9 @@ class Sms extends Base
         $sms_log = $sms->getSmsInfo($condition);
         $redis = new Redis();
         if(!input('Cache_name')){
-            return json_encode(array("error_code"=>2));
+            //return json_encode(array("error_code"=>2));
         }else if( !input('basestr')){
-            return json_encode(array("error_code"=>1));
+            //return json_encode(array("error_code"=>1));
         }else{
             $basestr = input("basestr");
             $name = input("Cache_name");
@@ -32,7 +32,7 @@ class Sms extends Base
             if($redisvalue!=$basestr."_".input("str")){
                 $data['error_code']=10016;
                 $data['message']="请求header参数错误";
-                return json_encode($data,true);
+                //return json_encode($data,true);
             }else{
                 //$redis->clear($name);
             }
