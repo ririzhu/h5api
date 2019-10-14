@@ -75,6 +75,8 @@ class User extends Model
      */
     public function insertMemberWithMobile($userData)
     {
+        $userData['inviter2_id'] = 0;
+        $userData['inviter3_id'] = 0;
         if($userData['inviteCode']!=""){
             $inviteIds = $this->getInviteIds($userData["inviteCode"]);
             $userData['inviter2_id'] = $inviteIds["inviter_id"];
