@@ -161,7 +161,7 @@ class User extends Base
             $condition['log_phone'] = $phone;
             if($captcha!="654321")
             $condition['log_captcha'] = $captcha;
-            $condition['log_type'] = 2;
+            $condition['log_type'] = 1;
             $model_sms_log = new sms();
             $sms_log = $model_sms_log->getSmsInfo($condition);
             if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效
