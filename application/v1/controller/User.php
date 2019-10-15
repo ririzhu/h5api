@@ -148,10 +148,6 @@ class User extends Base
             $data['error_code'] = 10003;
             $data['message'] = "缺少username参数";
             return json_encode($data, true);
-        } else if (!input("code")) {
-            $data['error_code'] = 10004;
-            $data['message'] = "缺少code参数";
-            //return json_encode($data, true);
         } else if (!input("snscode")) {
             $data['error_code'] = 10005;
             $data['message'] = "缺少短信验证码参数";
@@ -165,7 +161,7 @@ class User extends Base
             $condition['log_phone'] = $phone;
             if($captcha!="654321")
             $condition['log_captcha'] = $captcha;
-            $condition['log_type'] = 2;
+            $condition['log_type'] = 1;
             $model_sms_log = new sms();
             $sms_log = $model_sms_log->getSmsInfo($condition);
             if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效

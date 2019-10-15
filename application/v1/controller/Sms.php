@@ -114,11 +114,13 @@ class Sms extends Base
                     //$r->data()
                 }
                 if($r->isSucc()){
+                    $countryCode = input("country_code")?86:input("country_code");
+                    $mobile = $countryCode.$mobile;
                     $log_array['log_phone'] = $mobile;
                     $log_array['log_captcha'] = $captcha;
                     $log_array['log_ip'] = getIp();
                     $log_array['log_msg'] = $log_msg;
-                    $log_array['log_type'] = $sms;
+                    $log_array['log_type'] = $type;
                     $log_array['add_time'] = time();
                     $sms->addSms($log_array);
                     $data['error_code'] = 200;

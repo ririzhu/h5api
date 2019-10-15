@@ -75,6 +75,8 @@ class User extends Model
      */
     public function insertMemberWithMobile($userData)
     {
+        $userData['inviter2_id'] = 0;
+        $userData['inviter3_id'] = 0;
         if($userData['inviteCode']!=""){
             $inviteIds = $this->getInviteIds($userData["inviteCode"]);
             $userData['inviter2_id'] = $inviteIds["inviter_id"];
@@ -82,7 +84,7 @@ class User extends Model
         }
         Db::startTrans();
         try {
-            $res = DB::table("bbc_member")->insert(["member_mobile"=>$userData["member_mobile"],'inviter_id'=>$userData["inviter_id"],'inviter3_id'=>$userData["inviter3_id"],'inviter3_id'=>$userData["inviter3_id"]]);
+            $res = DB::table("bbc_member")->insert(["member_mobile"=>$userData["member_mobile"],'inviter_id'=>$userData["inviteCode"],'inviter2_id'=>$userData["inviter2_id"],'inviter3_id'=>$userData["inviter3_id"]]);
             return DB::commit();
         } catch (Exception $e) {
             DB::rollback();

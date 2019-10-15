@@ -10,11 +10,13 @@ use Firebase\JWT\JWT;
 use think\db;
 class Base extends Controller
 {
+    protected $request;
     /**
      * init
      */
     public  function __construct() {
         global $setting_config;
+        $this->request = request();
         //$request = new Request();
         $controller=request()->controller();
         $action=request()->action();
