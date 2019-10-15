@@ -505,4 +505,52 @@ class User extends Base
         }*/
     }
 
+    /**
+     * @return false|string
+     * @throws \think\exception\DbException
+     * @throws db\exception\DataNotFoundException
+     * @throws db\exception\ModelNotFoundException
+     * 用户银行卡列表
+     */
+    public function cardList(){
+        if(!input("member_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }else{
+            $member_id = input("member_id");
+            $cardList = db::name("member_bankcard")->where("member_id=$member_id")->select();
+            $data['error_code'] = 200;
+            $data['cardList'] = $cardList;
+            return json_encode($data,true);
+        }
+    }
+    public function getBankMessage(){
+        if(!input("member_id") || !input("card_num") || !input("card_type") || !input("identity_num") || !input("mobile") || !input("name") ||!input("code")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }else{
+            if(input("card_type")==2){
+                if(!input("cvv2") || !input("validdate")){
+                    $data['error_code'] = 10016;
+                    $data['message'] = lang("缺少参数");
+                    return json_encode($data,true);
+                }
+            }
+            $memberId = input("member_id");
+            $acctno = input("card_num");
+            $accttype = input("card_type");
+            $idno = input("identity_num");
+            $acctname = input("name");
+            $date = date("YmdHis",TIMESTAMP);
+            if(dev == "dev"){
+                $uri = DEV_PAY_URI;
+            }else{
+                $uri = MASTER_PAY_URI;
+            }
+            $url = $uri."/apiweb/qpay/agreeapply";
+        }
+    }
+
 }
