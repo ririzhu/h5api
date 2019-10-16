@@ -81,7 +81,7 @@ class EvaluateGoods extends Model
             $update['evaluation_good_star'] = $info['good_star'];
             $update['evaluation_count'] = $info['all'];
             $model_goods->editGoods($update, array('gid' => $gid));
-            $base->wmemcache($gid, $info, $prefix);
+            //$base->wmemcache($gid, $info, $prefix);
         }
         return $info;
     }

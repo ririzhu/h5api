@@ -133,7 +133,7 @@ class GoodsActivity extends Model
                     $goods_item['show_price'] = $goods_item['show_price'] ? $goods_item['show_price'] : $goods_item['goods_price']*1;
                     break;
             }
-
+            $goods_item['labels'] = db::name("goods")->join("bbc_goods_label","bbc_goods.goods_label=bbc_goods_label.id")->where("gid=".$goods_item['gid'])->field("label_name")->select();
             $goods_data = $goods_item;
         }else{
             // 多个商品
@@ -183,6 +183,7 @@ class GoodsActivity extends Model
                         }
                         break;
                 }
+                $goods_item['labels'] = db::name("goods")->join("bbc_goods_label","bbc_goods.goods_label=bbc_goods_label.id")->where("gid=".$goods_item['gid'])->field("label_name")->select();
 
                 $goods_data[$key] = $goods_item;
             }

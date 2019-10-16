@@ -169,14 +169,16 @@ class User extends Base
                 $data['message'] = '动态码错误或已过期，重新输入';
                 return json_encode($data,true);
             }
-            $userData["member_mobile"] = trim(input("mobile"));
+            $userData['member_name']=$userData["member_mobile"] = trim(input("mobile"));
+            $userData['member_passwd'] = md5(trim(input("password")));
             if($userModel->checkMobile($userData["member_mobile"])>0){
                 $data['error_code'] = 10008;
                 $data['message'] = "当前手机号已被注册";
                 return json_encode($data, true);
             }
             $userData["inviteCode"] = input("inviteCode","");
-            if ($userModel->insertMemberWithMobile($userData)) {
+            $res = $userModel->insertMemberWithMobile($userData);
+            if ($res==1) {
                 $member = $userModel->getMemberInfo(array('member_mobile'=> $phone));//检查手机号是否已被注册
                 //$this->createSession($member);
                 $data['error_code'] = 200;

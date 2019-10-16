@@ -176,7 +176,7 @@ class Goods extends Model
         //if(APP_ID=='mall' || APP_ID=='cmobile'){
          //   $condition['sites'] = ['exp',"FIND_IN_SET('".LANG_TYPE."',sites)"];
         //}
-        return $this->getGoodsList($condition, $field, $group, $order, $limit, $page, $lock, $count);
+        return $this->getGoodsList($condition, $field, '', $order, $limit, $page, $lock, $count);
     }
 
     /**

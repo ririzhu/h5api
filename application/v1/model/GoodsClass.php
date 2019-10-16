@@ -323,19 +323,19 @@ class GoodsClass extends Model
             $data['children'][$ppid][] = $id;
         }
         $ret = array();//print_r($data);die;
-        foreach ((array) $data['children'][$pid] as $i) {
+        /*foreach ((array) $data['children'][$pid] as $i) {
             if ($data['data'][$i]) {//print_r($data['data'][$id]);die;
                 if($data['data'][$i]['gc_parent_id']==$pid)
                 $ret[] = $data['data'][$i];//echo $pid;
             }
-        }
-        /*if(isset($data['children'][$pid]))
+        }*/
+        if(isset($data['children'][$pid]))
         foreach ($data['children'][$pid] as $i) {
 
             if (isset($data['data'][$i])) {
                 $ret[] = $data['data'][$i];
             }
-        }*/
+        }
         return $ret;
     }
     /*

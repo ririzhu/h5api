@@ -30,12 +30,12 @@ class Goods extends  Base
     private $_model_search;
     const PAGESIZE = 24;
     public function detail(){
-        if(!input("gid") || !input("member_id")){
+        if(!input("gid") ){
             $data['error_code']=10100;
             $data['message']=lang("缺少参数");
             return json_encode($data,true);
         }
-        $memberId = input("member_id");
+        $memberId = input("member_id",0);
         $gid = input("gid");
         $is_supplier_close = 0;
 
@@ -213,7 +213,7 @@ class Goods extends  Base
                 }
             }
             // 缓存商品信息
-            Base::wmemcache ( $hash_key, $data, 'product' );
+            //Base::wmemcache ( $hash_key, $data, 'product' );
         }
 
         // 检查是否为店主本人
@@ -346,9 +346,9 @@ class Goods extends  Base
 
         // 当前位置导航
         $goodsClass = new GoodsClass();
-        $nav_link_list = $goodsClass->getGoodsClassNav($goods_info['gc_id'], 0);
-        $nav_link_list[] = array('title' => $goods_info['goods_name']);
-        $data['nav_link_list'] =$nav_link_list;
+        //$nav_link_list = $goodsClass->getGoodsClassNav($goods_info['gc_id'], 0);
+        //$nav_link_list[] = array('title' => $goods_info['goods_name']);
+        //$data['nav_link_list'] =$nav_link_list;
         //Template::output('nav_link_list', $nav_link_list );
 
         //评价信息
@@ -373,8 +373,8 @@ class Goods extends  Base
         if(isset($goods_info['goods_keywords']))
         $seo_param['key'] = $goods_info['goods_keywords'];
         if(isset($goods_info['description'])) {
-            $seo_param['description'] = $goods_info['goods_description'];
-            $data['goods_info']['seo']=Model('seo')->type('product')->param($seo_param)->show();
+            //$seo_param['description'] = $goods_info['goods_description'];
+            //$data['goods_info']['seo']=Model('seo')->type('product')->param($seo_param)->show();
         }
         $data['goods_info'] =$goods_info;
         return json_encode($data);
@@ -399,7 +399,7 @@ class Goods extends  Base
 
 
         $data['StoreNavigation']=$this->getStoreNavigation($vid);
-        $data['Seo']=$this->outputSeoInfo($store_info);
+        //$data['Seo']=$this->outputSeoInfo($store_info);
         return $data;
     }
     protected function getStoreNavigation($vid) {
@@ -432,13 +432,13 @@ class Goods extends  Base
         //Template::output('goods_class_list', $goods_class_list);
 
         //热销排行
-        $hot_sales = $model_store->getHotSalesList($store_info['vid'], 5);
-        $data['hot_sales']=$hot_sales;
+        //$hot_sales = $model_store->getHotSalesList($store_info['vid'], 5);
+       // $data['hot_sales']=$hot_sales;
         //Template::output('hot_sales', $hot_sales);
 
         //收藏排行
-        $hot_collect = $model_store->getHotCollectList($store_info['vid'], 5);
-        $data['hot_collect']=$hot_collect;
+        //$hot_collect = $model_store->getHotCollectList($store_info['vid'], 5);
+        //$data['hot_collect']=$hot_collect;
         //Template::output('hot_collect', $hot_collect);
 
         //卖家列表
@@ -537,17 +537,23 @@ class Goods extends  Base
         $gc = new GoodsClass();
         $name = (db::name("goods_class")->where("gc_id=$parentId")->find())['gc_name'];
         $list = $gc->getGoodsClassListByParentId($parentId);//print_r($list);die;
+        //print_r($list);die;
         $newlist = array();
-        $c = 0;
-        $a = 0;
         foreach ($list as $k=>$v){
-            //$newlist["".str_replace("/","",$name)."$a"][$c]['name'] = $v['gc_name'];
-            $newlist[$a][$c]['name'] = $v['gc_name'];
-            $newlist[$a][$c]['gc_id'] = $v['gc_id'];
-            if($c==2){
-                $c=0;$a++;
-            }else{
-                $c++;
+            $newlist[$k]["name"] = $v['gc_name'];
+            $list1 = db::name("goods_class")->where(array("gc_parent_id"=>$v['gc_id']))->select();//print_r(count($list1));die;//echo $v['gc_id'];
+            $a=0;
+            if(count($list1)==0){
+                $newlist[$k]['list'][$a]['gc_name'] = $v['gc_name'];
+                $newlist[$k]['list'][$a]['gc_id'] = $v['gc_id'];
+            }else {
+                $a = 0;
+                foreach ($list1 as $kk => $vv) {
+                    //$newlist["".str_replace("/","","category")."$a"]['parentname'] = $v['gc_name'];
+                    $newlist[$k]['list'][$a]['gc_name'] = $vv['gc_name'];
+                    $newlist[$k]['list'][$a]['gc_id'] = $vv['gc_id'];
+                    $a++;
+                }
             }
 
         }
@@ -1229,5 +1235,12 @@ class Goods extends  Base
             //$data['goodslist');
 
         }
+    public function advs(){
+        $redis = new Redis();
+        if($redis->has("goods_advs")){
+            $data['adv_list'] = $redis->get("goods_advs");
+        }else{
 
+        }
+    }
 }

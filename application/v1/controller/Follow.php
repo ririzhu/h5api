@@ -6,7 +6,7 @@ use app\v1\model\GoodsActivity;
 use app\v1\model\Stats;
 use app\v1\model\UserCart;
 use app\v1\model\VendorInfo;
-
+use think\db;
 class Follow extends Base
 {
 
@@ -14,13 +14,14 @@ class Follow extends Base
      * 增加商品收藏
      */
     public function followgoods(){
-        if(!input("member_id") || !input("gid") || !input("token")){
+        if(!input("member_id") || !input("gid")){
             $data['error_code']=10016;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }
         $fav_id = intval(input('gid'));
-        $token = input("token");
+        $token = (db::name("mb_user_token")->where(array("member_id"=>input("member_id")))->order("token_id","desc")->find())['token'];
+        //$token = input("token");
         if ($fav_id <= 0){
             echo json_encode(array('done'=>false,'msg'=>lang('收藏失败','UTF-8')));
             die;

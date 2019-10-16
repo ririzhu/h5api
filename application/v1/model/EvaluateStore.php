@@ -82,7 +82,7 @@ class EvaluateStore extends Model
             $model_store = new VendorInfo();
             $store_id_string = $model_store->getStoreIDString(array('sc_id' => $sc_id));
             $info = $this->_getEvaluateStore(array('seval_storeid' => array('in', $store_id_string)));
-            $base->wmemcache($sc_id, $info, $prefix);
+            //$base->wmemcache($sc_id, $info, $prefix);
         }
         return $info;
     }
