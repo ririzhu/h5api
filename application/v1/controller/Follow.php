@@ -14,46 +14,49 @@ class Follow extends Base
      * 增加商品收藏
      */
     public function followgoods(){
-        if(!input("member_id") || !input("gid")){
+        if(!input("member_id") || (!input("gid") && !is_array(input("cart_id")))){
             $data['error_code']=10016;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }
-        $fav_id = intval(input('gid'));
-        $token = (db::name("mb_user_token")->where(array("member_id"=>input("member_id")))->order("token_id","desc")->find())['token'];
-        //$token = input("token");
-        if ($fav_id <= 0){
-            echo json_encode(array('done'=>false,'msg'=>lang('收藏失败','UTF-8')));
-            die;
-        }
+
+
         $favorites_model = new Favorites();
         //判断是否已经收藏
-        $favorites_info = $favorites_model->getOneFavorites(array('fav_id'=>"$fav_id",'fav_type'=>'goods','member_id'=>input("member_id")));
-        if(!empty($favorites_info)){
-            echo json_encode(array('done'=>false,'msg'=>lang('您已收藏过该商品','UTF-8')));
-            die;
-        }
-        //判断商品是否为当前会员所有
-        $goods_model = new \app\v1\model\Goods();
-        $goods_info = $goods_model->getGoodsInfo(array('gid' => $fav_id));
-        if ($goods_info['vid'] == input("member_id")){
-            echo json_encode(array('done'=>false,'msg'=>lang('不能收藏自己的商品','UTF-8')));
-            die;
-        }
-        //添加收藏
-        $insert_arr = array();
-        $insert_arr['member_id'] = input("member_id");
-        $insert_arr['fav_id'] = $fav_id;
-        $insert_arr['fav_type'] = 'goods';
-        $insert_arr['fav_time'] = time();
-        $result = $favorites_model->addFavorites($insert_arr);
+        $token = (db::name("mb_user_token")->where(array("member_id"=>input("member_id")))->order("token_id","desc")->find())['token'];
 
-
-        $fav_id = '';
-        //收藏统计记录
-        $stats = new Stats();
-        $stats->put_goods_stats(1,$goods_info['gid'],'favorite',$token,1,input("member_id"));
         if(!input("cart_id")) {
+            $fav_id = intval(input('gid'));
+            //$token = input("token");
+            if ($fav_id <= 0){
+                echo json_encode(array('done'=>false,'msg'=>lang('收藏失败','UTF-8')));
+                die;
+            }
+            $favorites_info = $favorites_model->getOneFavorites(array('fav_id'=>"$fav_id",'fav_type'=>'goods','member_id'=>input("member_id")));
+            if(!empty($favorites_info)){
+                echo json_encode(array('done'=>false,'msg'=>lang('您已收藏过该商品','UTF-8')));
+                die;
+            }
+            //判断商品是否为当前会员所有
+            $goods_model = new \app\v1\model\Goods();
+            $goods_info = $goods_model->getGoodsInfo(array('gid' => $fav_id));
+            if ($goods_info['vid'] == input("member_id")){
+                echo json_encode(array('done'=>false,'msg'=>lang('不能收藏自己的商品','UTF-8')));
+                die;
+            }
+            //添加收藏
+            $insert_arr = array();
+            $insert_arr['member_id'] = input("member_id");
+            $insert_arr['fav_id'] = $fav_id;
+            $insert_arr['fav_type'] = 'goods';
+            $insert_arr['fav_time'] = time();
+            $result = $favorites_model->addFavorites($insert_arr);
+
+
+            $fav_id = '';
+            //收藏统计记录
+            $stats = new Stats();
+            $stats->put_goods_stats(1,$goods_info['gid'],'favorite',$token,1,input("member_id"));
             if ($result) {
                 //增加收藏数量
                 $goods_model->editGoods(array('goods_collect' => array('inc', 'goods_collect + 1')), array('gid' => $fav_id));
@@ -64,27 +67,50 @@ class Follow extends Base
                 die;
             }
         }else{
-            if(!input("cart_id") || !input("is_supplier") || !input("member_id")|| !input("gid")|| !input("ismini")){
-                $data['error_code']=10016;
-                $data['message'] = "缺少参数";
-                return json_encode($data);exit;
-            }
-            $memberId = input("member_id");
-            $cart_id = intval(input("cart_id"));
-            $gid = intval(input("gid"));
             $is_supplier = isset($_POST["is_supplier"]) ? intval(input("is_supplier")) : 0;
-            $ismini = strip_tags(trim($_POST['ismini']));
-            if($cart_id < 0 || $gid < 0) return ;
             $model_cart	= new UserCart();
-            $data = array();
-            $delete	= $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId,'is_supplier'=>$is_supplier),['ismini'=>$ismini]);
-            if($delete) {
+            $memberId = input("member_id");
+            $is_supplier = isset($_POST["is_supplier"]) ? intval(input("is_supplier")) : 0;
+            $ismini = 0;// strip_tags(trim($_POST['ismini']));
+            if(is_array(input("cart_id"))){
+                $cartlist = input("cart_id");
+                foreach($cartlist as $k=>$v){
+                    $cart_id = $v;
+                    $fav_id = (db::name("cart")->where("cart_id =$v")->find())['gid'];
+                    if($fav_id==null){
+                        continue;
+                    }
+                    $favorites_info = $favorites_model->getOneFavorites(array('fav_id'=>"$fav_id",'fav_type'=>'goods','member_id'=>input("member_id")));
+                    if(!empty($favorites_info)){
+                        $delete	= $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId,'is_supplier'=>$is_supplier),['ismini'=>0]);
+                        continue;
+                    }
+                    //判断商品是否为当前会员所有
+                    $goods_model = new \app\v1\model\Goods();
+                    $goods_info = $goods_model->getGoodsInfo(array('gid' => $fav_id));
+                    if ($goods_info['vid'] == input("member_id")){
+                        //continue;
+                    }
+                    //添加收藏
+                    $insert_arr = array();
+                    $insert_arr['member_id'] = input("member_id");
+                    $insert_arr['fav_id'] = $fav_id;
+                    $insert_arr['fav_type'] = 'goods';
+                    $insert_arr['fav_time'] = time();
+                    $result = $favorites_model->addFavorites($insert_arr);print_r($result);
+
+
+                    $fav_id = '';echo 3;
+                    //收藏统计记录
+                    $stats = new Stats();
+                    $stats->put_goods_stats(1,$goods_info['gid'],'favorite',$token,1,input("member_id"));
+                    $delete	= $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId,'is_supplier'=>$is_supplier),['ismini'=>1]);
+                }
                 $data['error_code'] = 200;
                 $data['message'] = "移入收藏夹成功";
-            } else {
-                $data['error_code'] = 10022;
-                $data["message"] = "删除失败";
             }
+
+
 
 
             exit(json_encode($data,true));

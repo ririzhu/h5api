@@ -10,11 +10,11 @@ class Types extends Model
     }
 
     public function getTypeBrandList($condition, $field = '*') {
-        return $this->table('type_brand')->field($field)->where($condition)->select();
+        return $this->name('type_brand')->field($field)->where($condition)->select();
     }
 
     public function getGoodsAttrIndexList($conditoin,$page = 0, $fields = '', $order = '', $limit = '') {
-        return $this->table('goods_attr_index')->where($conditoin)->order($order)->limit($limit)->page($page)->select();
+        return $this->name('goods_attr_index')->where($conditoin)->order($order)->limit($limit)->page($page)->select();
     }
 
     /**

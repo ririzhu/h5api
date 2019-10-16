@@ -291,13 +291,12 @@ class Index extends Base
 
                 $data['data'] = $redis->get("homepage_$page");
             }
-            print_r($data);die;
             return json_encode($data, JSON_UNESCAPED_UNICODE);
         }
     }
     function messageCount(){
-        if(!input("member_id")){
-            return json_encode($data['count']=0,true);
+        if(!input("member_id") || input("member_id")==""){
+            return null;
         }
         $memberId = input("member_id");
         //查询新接收到普通的消息
@@ -454,10 +453,16 @@ class Index extends Base
         $data['error_code'] = 200;
         if($redis->has("article_$articleId")){
             $datas=$redis->get("article_$articleId");
+            if(empty($datas)){
+                return null;
+            }
             $data['title'] = $datas['title'];
             $data['html'] = $datas['html'];
         }else {
             $article = db::name("article")->where(['id' => $articleId])->find();
+            if(empty($article)){
+                return null;
+            }
             $data['title'] = $article['article_title'];
             $data['html'] = str_replace("\n", "", strip_tags($article['article_content']));
             $data['html'] = str_replace("\r", "", $data['html']);
@@ -623,9 +628,9 @@ class Index extends Base
         $goods_list = $goods_list['goods'];
         $model_goods = new \app\v1\model\Goods();
         $lession = array();
-        $kk = $page*3;
+        $kk = $page*6;
         foreach ($goods_list as $k => $v) {
-            if(($kk)%3==0&& $kk!=$page*3){
+            if(($kk)%6==0&& $kk!=$page*6){
                 break;
             }
             $gid = $goods_list[$k]['goods_id'];

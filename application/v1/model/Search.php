@@ -287,16 +287,19 @@ class Search extends Model
                         $data['goodsid_array'] = $goodsid_array;
                     }
                 }
-
-                //品牌列表
+                $data['brand_array'] = array();
+                $param['brand_id'] = array();
+                    //品牌列表
                 $typebrand_list = $model_type->getTypeBrandList(array('type_id' => $data['type_id']), 'brand_id');
                 if (!empty($typebrand_list)) {
                     $brandid_array = array();
                     foreach ($typebrand_list as $val) {
                         $brandid_array[] = $val['brand_id'];
                     }
-                    $brand_array = Model('brand')->getBrandPassList(array('brand_id' => array('in', $brandid_array)), 'brand_id,brand_name');
-                    $data['brand_array'] = array_under_reset($brand_array, 'brand_id');
+                    if(!empty($brandid_array)) {
+                        $brand_array = Model('brand')->getBrandPassList("brand_id in (" . arrayToString($brandid_array) . ")", 'brand_id,brand_name');
+                        $data['brand_array'] = array_under_reset($brand_array, 'brand_id');
+                    }
                 }
                 // 被选中的品牌
                 if(is_array($param['brand_id']) && !empty($data['brand_array'])){
@@ -310,7 +313,7 @@ class Search extends Model
                 }
 
                 //属性列表
-                $model_attribute = Model('attribute');
+                $model_attribute =new Attribute();
                 $attribute_list = $model_attribute->getAttributeShowList(array('type_id' => $data['type_id']), 'attr_id,attr_name');
                 $attributevalue_list = $model_attribute->getAttributeValueList(array('type_id' => $data['type_id']), 'attr_value_id,attr_value_name,attr_id');
                 $attributevalue_list = array_under_reset($attributevalue_list, 'attr_id', 2);
@@ -325,7 +328,7 @@ class Search extends Model
                 $data['attr_array'] = $attr_array;
 
                 //被选中的属性
-                if(is_array($param['attr_id']) && !empty($data['attr_array'])){
+                if(isset($param['attr_id']) && is_array($param['attr_id']) && !empty($data['attr_array'])){
                     $checked_attr = array();
                     foreach ($param['attr_id'] as $s){
                         foreach ($data['attr_array'] as $k=>$d){
@@ -340,7 +343,7 @@ class Search extends Model
                 }
 
                 //缓存规格组合结果
-                $base->wmemcache($hash_key,$data,'search_p');
+                //$base->wmemcache($hash_key,$data,'search_p');
             }
         }
         return $data;
@@ -402,7 +405,7 @@ class Search extends Model
                 if (isset($value[1]) && isset($gc_list[$value[0]]['class2'][$value[1]])) { // 二级
                     $tpl_data[$value[0]]['class2'][$value[1]]['gc_id'] = $gc_list[$value[0]]['class2'][$value[1]]['gc_id'];
                     $tpl_data[$value[0]]['class2'][$value[1]]['gc_name'] = $gc_list[$value[0]]['class2'][$value[1]]['gc_name'];
-                    if (!empty($gc_list[$value[0]]['class2'][$value[1]]['class3'][$value[2]])) {    // 三级
+                    if (isset($value[2])&&!empty($gc_list[$value[0]]['class2'][$value[1]]['class3'][$value[2]])) {    // 三级
                         $tpl_data[$value[0]]['class2'][$value[1]]['class3'][$value[2]]['gc_id'] = $gc_list[$value[0]]['class2'][$value[1]]['class3'][$value[2]]['gc_id'];
                         $tpl_data[$value[0]]['class2'][$value[1]]['class3'][$value[2]]['gc_name'] = $gc_list[$value[0]]['class2'][$value[1]]['class3'][$value[2]]['gc_name'];
                         if (!$sign) {   // 取得全部三级分类

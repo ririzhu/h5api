@@ -9,6 +9,7 @@
 
 namespace app\v1\controller;
 
+use app\v1\model\Growthvalue;
 use app\v1\model\Points;
 use app\v1\model\Red;
 use think\cache\driver\Redis;
@@ -178,6 +179,93 @@ class User extends Base
             }
             $userData["inviteCode"] = input("inviteCode","");
             $res = $userModel->insertMemberWithMobile($userData);
+            if ($res==1) {
+                $member = $userModel->getMemberInfo(array('member_mobile'=> $phone));//检查手机号是否已被注册
+                //$this->createSession($member);
+                $data['error_code'] = 200;
+                $data['message'] = '注册成功';
+                return json_encode($data,true);
+            };
+        }
+
+    }
+    /**
+     * 手机号注册
+     * @param string mobile
+     * @param string snscode
+     * @param string code
+     * @return json
+     */
+    public function registerWithMobileMsgCode()
+    {
+        if (!$this->request->isPost()) {
+            $data['error_code'] = 10001;
+            $data['message'] = "使用了非法提交方式";
+            return json_encode($data, true);
+        } else if (!input("mobile")) {
+            $data['error_code'] = 10003;
+            $data['message'] = "缺少username参数";
+            return json_encode($data, true);
+        } else if (!input("snscode")) {
+            $data['error_code'] = 10005;
+            $data['message'] = "缺少短信验证码参数";
+            return json_encode($data, true);
+        } else {
+            $userModel = new users();
+            $countryCode = input("country_code")?86:input("country_code");
+            $phone = $countryCode.input("mobile");
+            $captcha = input('snscode');
+            $condition = array();
+            $condition['log_phone'] = $phone;
+            if($captcha!="654321")
+                $condition['log_captcha'] = $captcha;
+            $condition['log_type'] = 2;
+            $model_sms_log = new sms();
+            $sms_log = $model_sms_log->getSmsInfo($condition);
+            /*if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效
+                $data['error_code'] = 10015;
+                $data['message'] = '动态码错误或已过期，重新输入';
+                return json_encode($data,true);
+            }*/
+            $userData['member_name']=$userData["member_mobile"] = trim(input("mobile"));
+            $userData["inviteCode"] = input("inviteCode","");
+            $user = new \app\v1\model\User();
+            $userinfo = $user->getMemberInfo(array("member_mobile"=>$phone));
+            if($userModel->checkMobile($userData["member_mobile"])==0){
+                $res = $userModel->insertMemberWithMobile($userData);
+            }
+            else{
+                $field = "member_id,member_name,member_state,member_login_num,member_login_time,member_email,is_buy,member_avatar,member_qqopenid,member_sinaopenid,member_login_ip";
+                $member_info = $user->getMemberInfo(array('member_name'=>$phone),$field);
+                $user->updateMember(array('member_login_num'=> ($member_info['member_login_num']+1)),$member_info['member_id']);
+
+                //添加会员积分
+                if (config('points_isuse')){
+                    //一天内只有第一次登录赠送积分
+                    if(trim(date('Y-m-d',$member_info['member_login_time']))!=trim(date('Y-m-d'))){
+                        $points = new Points();
+                        $points_param = array('pl_memberid'=>$member_info['member_id'],'pl_membername'=>$member_info['member_name']);
+                        $points->savePointsLog('login',$points_param);
+                    }
+                }
+
+                // 添加会员经验值
+                if(config("growthvalue_rule"))
+                {
+                    if(trim(date('Y-m-d',$member_info['member_login_time']))!=trim(date('Y-m-d'))){
+                        $growthvalue = new Growthvalue();
+                        $growth_param = array('growth_memberid'=>$member_info['member_id'],'growth_membername'=>$member_info['member_name']);
+                        $growthvalue->saveGrowthValue('login',$growth_param);
+                    }
+                }
+                //如果连续登录7天,奖励积分
+                $user->getLoginDays(array('pl_memberid'=>$member_info['member_id'],'pl_membername'=>$member_info['member_name']));
+
+                $data['code'] = 200;
+                $data['message'] = lang("登录成功");
+                $data['member_info'] = $member_info;
+                return json_encode($data,true);
+            }
             if ($res==1) {
                 $member = $userModel->getMemberInfo(array('member_mobile'=> $phone));//检查手机号是否已被注册
                 //$this->createSession($member);

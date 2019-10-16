@@ -17,7 +17,12 @@ class Brand extends Model
      * @return array
      */
     public function getBrandPassList($condition, $field = '*') {
+        if(is_array($condition))
         $condition['brand_apply'] = 1;
+        else{
+            echo $condition;
+            $condition.=" and brand_apply=1";
+        }
         return $this->where($condition)->field($field)->select();
     }
 

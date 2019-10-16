@@ -54,7 +54,7 @@ class Goods extends Model
     public function getGoodsList($condition, $field = '*', $group = '',$order = '', $limit = 100, $page = 0, $lock = false, $count = 100) {
         //$condition = $this->_getRecursiveClass($condition);
         //$result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page, $count)->lock($lock)->select();
-        $result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit($limit)->page($page)->lock($lock)->select();
+        $result = DB::table('bbc_goods')->field($field)->where($condition)->group($group)->order($order)->limit(100)->page($page)->lock($lock)->select();
         foreach($result as $k=>$v){
             $result[$k]['goods_image']="http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$result[$k]['goods_image'];
         }
@@ -111,7 +111,7 @@ class Goods extends Model
         $count = $this->getGoodsOnlineCount($condition,"distinct goods_commonid");
         $goods_list = array();
         if ($count != 0) {
-            $goods_list = $this->getGoodsOnlineList($condition, $field, $page, $order, $limit, 'jmys_distinct', false, $count);
+            $goods_list = $this->getGoodsOnlineList($condition, $field, $page, $order, $limit, 'jmys_distinct', false, 10);
         }
         return $goods_list;
     }

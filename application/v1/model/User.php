@@ -52,6 +52,7 @@ class User extends Model
             $userData['inviter2_id'] = $inviteIds["inviter_id"];
             $userData['inviter3_id'] = $inviteIds["inviter2_id"];
         }
+
         Db::startTrans();
         try {
             $res = DB::table("bbc_member")->insert(['member_name'=>$userData["username"],"member_passwd"=>$userData["password"],'inviter_id'=>$userData["inviter_id"],'inviter3_id'=>$userData["inviter3_id"],'inviter3_id'=>$userData["inviter3_id"]]);

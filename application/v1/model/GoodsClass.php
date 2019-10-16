@@ -562,7 +562,7 @@ class GoodsClass extends Model
                         }
                     }
                 }
-                F('category', $gc_list, 'cache');
+                //F('category', $gc_list, 'cache');
             }
         } else {
             $gc_list = include $file_name;

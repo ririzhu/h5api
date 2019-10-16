@@ -140,6 +140,12 @@ class Cart extends Base
                 //$cart['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$cart['goods_image'];
                 $store_cart_list[$cart['vid']]['goods'][] = $cart;
                 $store_cart_list[$cart['vid']]['shop']['store_name'] = $cart['store_name'];
+                $vredcount = db::name("red")->where("red_vid=".$cart['vid']." and red_receive_end<".TIMESTAMP." and red_delete=0 and red_hasget<red_limit")->count();
+                if($vredcount>0){
+                    $store_cart_list[$cart['vid']]['shop']['has_red'] = true;
+                }else{
+                    $store_cart_list[$cart['vid']]['shop']['has_red'] = false;
+                }
                 $store_cart_list[$cart['vid']]['shop']['button1']=$cart['button1'];
                 $store_cart_list[$cart['vid']]['shop']['button2']=$cart['button2'];
             }
@@ -514,20 +520,27 @@ class Cart extends Base
      * 购物车删除单个商品，未登录前使用goods_id，此时cart_id可能为0，登录后使用cart_id
      */
     public function del() {
-        if(!input("cart_id") || !input("is_supplier") || !input("member_id")|| !input("gid")|| !input("ismini")){
+        if(!input("cart_id") || !input("member_id")){
             $data['error_code']=10016;
             $data['message'] = "缺少参数";
             return json_encode($data);exit;
         }
-        $memberId = input("member_id");
-        $cart_id = intval(input("cart_id"));
-        $gid = intval(input("gid"));
-        $is_supplier = isset($_POST["is_supplier"]) ? intval(input("is_supplier")) : 0;
-        $ismini = strip_tags(trim($_POST['ismini']));
-        if($cart_id < 0 || $gid < 0) return ;
         $model_cart	= new UserCart();
         $data = array();
-        $delete	= $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId,'is_supplier'=>$is_supplier),['ismini'=>$ismini]);
+        $memberId = input("member_id");
+        $cart_id = intval(input("cart_id"));
+        //$gid = intval(input("gid"));
+        $is_supplier = isset($_POST["is_supplier"]) ? intval(input("is_supplier")) : 0;
+        $ismini = 0;//strip_tags(trim($_POST['ismini']));
+        if(is_array(input("cart_id"))){
+            foreach(input("cart_id") as $k=>$v){
+                $delete	= $model_cart->delCart('db',array('cart_id'=>$v,'buyer_id'=>$memberId,'is_supplier'=>$is_supplier),['ismini'=>$ismini]);
+
+            }
+        }else{
+            $delete	= $model_cart->delCart('db',array('cart_id'=>$cart_id,'buyer_id'=>$memberId,'is_supplier'=>$is_supplier),['ismini'=>$ismini]);
+        }
+        //if($cart_id < 0 || $gid < 0) return ;
             if($delete) {
                 $data['error_code'] = 200;
                 $data['quantity'] = $model_cart->cart_goods_num;
@@ -778,5 +791,20 @@ class Cart extends Base
             }
         }*/
     }
-
+    public function redListByVid(){
+        $vid = input("vid");
+        $member_id = input("member_id");
+        $storeRedList = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$vid." and red_receive_end<".TIMESTAMP." and red_delete=0 and red_hasget<red_limit")->select();
+        foreach($storeRedList as $kk=>$vv){
+            $userHasCount = db::name("red_user")->where("reduser_uid=$member_id and red_id=".$vv['red_id'])->count();
+            if($userHasCount>=$vv['red_rach_max']){
+                $storeRedList[$kk]['canuse'] = false;
+            }else{
+                $storeRedList[$kk]['canuse'] = true;
+            }
+        }
+        $data['error_code'] = 200;
+        $data['list'] = $storeRedList;
+        return json_encode($data,true);
+    }
 }

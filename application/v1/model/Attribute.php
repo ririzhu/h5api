@@ -19,7 +19,7 @@ class Attribute extends Model
      * @return array
      */
     public function getAttributeList($condition, $field = '*') {
-        return $this->table('attribute')->where($condition)->field($field)->order('attr_sort asc')->select();
+        return $this->name('attribute')->where($condition)->field($field)->order('attr_sort asc')->select();
     }
 
     /**
@@ -42,7 +42,7 @@ class Attribute extends Model
      * @return array
      */
     public function getAttributeValueList($condition, $field = '*') {
-        return $this->table('attribute_value')->where($condition)->field($field)->order('attr_value_sort asc,attr_value_id asc')->select();
+        return $this->name('attribute_value')->where($condition)->field($field)->order('attr_value_sort asc,attr_value_id asc')->select();
     }
 
     /**
@@ -51,7 +51,7 @@ class Attribute extends Model
      * @return boolean
      */
     public function addAttributeValueAll($insert) {
-        return $this->table('attribute_value')->insertAll($insert);
+        return $this->name('attribute_value')->insertAll($insert);
     }
 
     /**
@@ -60,7 +60,7 @@ class Attribute extends Model
      * @return boolean
      */
     public function addAttributeValue($insert) {
-        return $this->table('attribute_value')->insert($insert);
+        return $this->name('attribute_value')->insert($insert);
     }
 
     /**
@@ -70,6 +70,6 @@ class Attribute extends Model
      * @return boolean
      */
     public function editAttributeValue($update, $condition) {
-        return $this->table('attribute_value')->where($condition)->update($update);
+        return $this->name('attribute_value')->where($condition)->update($update);
     }
 }

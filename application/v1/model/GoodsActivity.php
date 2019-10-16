@@ -134,6 +134,17 @@ class GoodsActivity extends Model
                     break;
             }
             $goods_item['labels'] = db::name("goods")->join("bbc_goods_label","bbc_goods.goods_label=bbc_goods_label.id")->where("gid=".$goods_item['gid'])->field("label_name")->select();
+            $videos = db::name("goods")->where("gid=".$goods_item['gid']." and videos<>''")->field("videos")->count();
+            if($videos>0){
+                $goods_item['video']=true;
+            }
+            else{
+                $goods_item['video']=false;
+            }
+            if(empty($goods_item['labels'])){
+                $labels = ["新品","满减","初级"];
+                $goods_item['labels']=$labels;
+            }
             $goods_data = $goods_item;
         }else{
             // 多个商品
@@ -184,7 +195,17 @@ class GoodsActivity extends Model
                         break;
                 }
                 $goods_item['labels'] = db::name("goods")->join("bbc_goods_label","bbc_goods.goods_label=bbc_goods_label.id")->where("gid=".$goods_item['gid'])->field("label_name")->select();
-
+                $videos = db::name("goods")->where("gid=".$goods_item['gid']." and videos<>''")->field("videos")->count();
+                if($videos>0){
+                    $goods_item['video']=true;
+                }
+                else{
+                    $goods_item['video']=false;
+                }
+                if(empty($goods_item['labels'])){
+                    $labels = ["新品","满减","初级"];
+                    $goods_item['labels']=$labels;
+                }
                 $goods_data[$key] = $goods_item;
             }
         }

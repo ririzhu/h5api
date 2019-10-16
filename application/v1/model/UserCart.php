@@ -420,7 +420,8 @@ class UserCart extends Model
             $result = true;
         }
         //重新计算购物车商品数和总金额
-        if (count($result)>0) {
+        //if (count($result)>0) {
+        if ($result>0) {
             if($extend['ismini'] == 'mini'){
                 $this->getCartNum($type,array('buyer_id'=>$condition['buyer_id']));
             }else{

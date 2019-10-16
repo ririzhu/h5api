@@ -544,13 +544,13 @@ class Goods extends  Base
             $list1 = db::name("goods_class")->where(array("gc_parent_id"=>$v['gc_id']))->select();//print_r(count($list1));die;//echo $v['gc_id'];
             $a=0;
             if(count($list1)==0){
-                $newlist[$k]['list'][$a]['gc_name'] = $v['gc_name'];
+                $newlist[$k]['list'][$a]['label'] = $v['gc_name'];
                 $newlist[$k]['list'][$a]['gc_id'] = $v['gc_id'];
             }else {
                 $a = 0;
                 foreach ($list1 as $kk => $vv) {
                     //$newlist["".str_replace("/","","category")."$a"]['parentname'] = $v['gc_name'];
-                    $newlist[$k]['list'][$a]['gc_name'] = $vv['gc_name'];
+                    $newlist[$k]['list'][$a]['label'] = $vv['gc_name'];
                     $newlist[$k]['list'][$a]['gc_id'] = $vv['gc_id'];
                     $a++;
                 }
@@ -608,7 +608,7 @@ class Goods extends  Base
             }
             if (!isset($data_attr['sign']) || $data_attr['sign'] === true) {
                 // 字段
-                $fields = "gid,goods_label,goods_commonid,goods_name,goods_jingle,gc_id,vid,store_name,goods_price,goods_marketprice,goods_storage,goods_image,goods_freight,goods_salenum,color_id,evaluation_good_star,evaluation_count,is_free";
+                $fields = "gid,goods_label,goods_commonid,goods_name,goods_jingle,gc_id,vid,store_name,goods_price,goods_marketprice,goods_storage,goods_image,goods_freight,goods_salenum,color_id,evaluation_good_star,videos,evaluation_count,is_free";
                 //虚拟销量
                 if (Config('virtual_sale')) {
                     $fields .= ',(goods_salenum+virtual_sale) as goods_salenum';
@@ -839,10 +839,7 @@ class Goods extends  Base
                 $seo_class_name = @$data_attr['gc_name'];
                 if (is_numeric(input('cid')) && empty(input('keyword'))) {
                     $model_goods_class = new GoodsClass();
-                    $seo_info = $model_goods_class->getKeyWords(input('cid'));
-                    if (empty($seo_info[1])) {
-                        $seo_info[1] = Config('site_name') . ' - ' . $seo_class_name;
-                    }
+
                     // Model('seo')->type($seo_info)->param(array('name' => $seo_class_name))->show();
                 } else if (input('keyword') != '') {
                     // Template::output('html_title', (empty($_GET['keyword']) ? '' : $_GET['keyword'] . ' - ') . C('site_name') . L('bbc_common_search'));
