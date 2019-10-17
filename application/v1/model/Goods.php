@@ -616,6 +616,7 @@ class Goods extends Model
 
 
         $goods_info = array_merge($result2, $result1);
+        $goods_info['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$goods_info['goods_image'];
         $goods_info['spec_value'] = unserialize($goods_info['spec_value']);
         $goods_info['spec_name'] = unserialize($goods_info['spec_name']);
         $goods_info['goods_spec'] = unserialize($goods_info['goods_spec']);
@@ -690,7 +691,7 @@ class Goods extends Model
         }
         // slodon_放大镜开始
         $image_more = $this->getGoodsImageByKey($goods_info['goods_commonid'] . '|' . $goods_info['color_id']);
-        /*$goods_image = array();
+        $goods_image = array();
         $goods_image_mobile = array();
         if (!empty($image_more)) {
             foreach ($image_more as $val) {
@@ -700,7 +701,7 @@ class Goods extends Model
         } else {
             $goods_image[] = "{ title : '', levelA : '" . thumb($goods_info, 60) . "', levelB : '" . thumb($goods_info, 350) . "', levelC : '" . thumb($goods_info, 350) . "', levelD : '" . thumb($goods_info, 1280) . "'}";
             $goods_image_mobile[] = thumb($goods_info, 350);
-        }*/
+        }
         // slodon_放大镜结束
 
         // 批发商品 无促销活动

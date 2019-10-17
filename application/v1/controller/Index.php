@@ -628,9 +628,9 @@ class Index extends Base
         $goods_list = $goods_list['goods'];
         $model_goods = new \app\v1\model\Goods();
         $lession = array();
-        $kk = $page*6;
+        $kk = $page*3;
         foreach ($goods_list as $k => $v) {
-            if(($kk)%6==0&& $kk!=$page*6){
+            if(($kk)%3==0&& $kk!=$page*3){
                 break;
             }
             $gid = $goods_list[$k]['goods_id'];
@@ -652,6 +652,9 @@ class Index extends Base
             //$lession[$k]['goods_price'] = $v['goods_price'];
             $lession[$k]['goods_image'] = $v['goods_image'];
             //}
+        }
+        if(count($lession)==0){
+            $data['last'] = true;
         }
         $data['hot_lession'] = $lession;
         return json_encode($data['hot_lession'],true);

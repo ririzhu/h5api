@@ -109,11 +109,34 @@ class Goods extends  Base
             }
         }
         $goods_detail['goods_info']['grade_info'] = $grade_list;
+        $banners = (db::name("goods_images")->where("color_id=".$goods_detail['goods_info']['color_id']." and goods_commonid=".$goods_detail['goods_info']['goods_commonid'])->field("goods_image")->select());
+        $bannerslist = array();
+        foreach($banners as $k=>$v){
+            $bannerslist[$k] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$v['goods_image'];
+        }
+        $goods_detail['goods_info']['banners'] = $bannerslist;//(db::name("goods_images")->where("color_id=".$goods_detail['goods_info']['color_id']." and goods_commonid=".$goods_detail['goods_info']['goods_commonid'])->field("goods_image")->select());
+        if($goods_detail['goods_info']['is_free']==true){
+            $goods_detail['goods_info']['xianshi_price'] = 0;
+        }
+        else
+        $goods_detail['goods_info']['xianshi_price'] = (db::name("p_xianshi_goods")->where("gid=".$gid." and start_time>".TIMESTAMP." and end_time<".TIMESTAMP)->find())['xianshi_price'];
         if(!empty($goods_detail['goods_info']['promotion_type']) && in_array($goods_detail['goods_info']['promotion_type'],array('tuan','xianshi','phone_price','today_buy','pin_tuan','p_mbuy'))){
             $goods_detail['goods_info']['cart_xian']=0;
         }else{
             $goods_detail['goods_info']['cart_xian']=1;
         }
+        if(is_array($goods_detail['goods_info']['goods_spec'])) {
+            $speckey = array_keys($goods_detail['goods_info']['goods_spec'])[0];
+            $specvaluekey = $goods_detail['goods_info']['goods_spec'][$speckey];//;
+            if(is_numeric($specvaluekey)){
+                $specvaluekey.=lang("天");
+            }
+            $goods_detail['goods_info']['specvalue'] = $specvaluekey;//$goods_detail['goods_info']['spec_value'][$specvaluekey][$speckey] . lang("天");
+        }
+        else{
+            $goods_detail['goods_info']['specvalue'] = null;
+        }
+        $goods_detail['goods_info']['points'] = $goods_detail['goods_info']['goods_price'];
 
         $goods_info = $goods_detail['goods_info'];
         if ($goods_info['goods_type']) {
