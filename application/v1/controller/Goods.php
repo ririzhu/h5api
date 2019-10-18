@@ -117,9 +117,20 @@ class Goods extends  Base
         $goods_detail['goods_info']['banners'] = $bannerslist;//(db::name("goods_images")->where("color_id=".$goods_detail['goods_info']['color_id']." and goods_commonid=".$goods_detail['goods_info']['goods_commonid'])->field("goods_image")->select());
         if($goods_detail['goods_info']['is_free']==true){
             $goods_detail['goods_info']['xianshi_price'] = 0;
+            $goods_detail['goods_info']['xianshi_status']=false;
         }
         else
-        $goods_detail['goods_info']['xianshi_price'] = (db::name("p_xianshi_goods")->where("gid=".$gid." and start_time>".TIMESTAMP." and end_time<".TIMESTAMP)->find())['xianshi_price'];
+        {
+          $xianshi = (db::name("p_xianshi_goods")->where("gid=".$gid." and start_time>".TIMESTAMP." and end_time<".TIMESTAMP)->find());
+          if(!empty($xianshi)){
+              $goods_detail['goods_info']['xianshi_status']=true;
+              $goods_detail['goods_info']['xianshi_price']= $xianshi['xianshi_price'];
+          }else{
+              $goods_detail['goods_info']['xianshi_status']=false;
+          }
+
+        }
+
         if(!empty($goods_detail['goods_info']['promotion_type']) && in_array($goods_detail['goods_info']['promotion_type'],array('tuan','xianshi','phone_price','today_buy','pin_tuan','p_mbuy'))){
             $goods_detail['goods_info']['cart_xian']=0;
         }else{
@@ -130,6 +141,8 @@ class Goods extends  Base
             $specvaluekey = $goods_detail['goods_info']['goods_spec'][$speckey];//;
             if(is_numeric($specvaluekey)){
                 $specvaluekey.=lang("天");
+            }else{
+                $specvaluekey.=0;
             }
             $goods_detail['goods_info']['specvalue'] = $specvaluekey;//$goods_detail['goods_info']['spec_value'][$specvaluekey][$speckey] . lang("天");
         }
@@ -398,6 +411,15 @@ class Goods extends  Base
         if(isset($goods_info['description'])) {
             //$seo_param['description'] = $goods_info['goods_description'];
             //$data['goods_info']['seo']=Model('seo')->type('product')->param($seo_param)->show();
+        }
+        $comments = db::name("evaluate_goods")->where("geval_goodsid=".$gid." and geval_state=1")->field("geval_addtime,geval_image,cct_user_avatar,geval_content,geval_scores,geval_frommembername,geval_isanonymous")->order("geval_id","desc")->find();
+        if($comments==null){
+            $goods_info['comments_count'] = 0;
+        }else {
+            if($comments['geval_isanonymous']==1){
+                $comments['geval_frommembername'] = lang("匿名");
+            }
+            $goods_info['comments'] = $comments;
         }
         $data['goods_info'] =$goods_info;
         return json_encode($data);
@@ -1255,12 +1277,46 @@ class Goods extends  Base
             //$data['goodslist');
 
         }
+
+    /**
+     * @return false|string
+     * 分类界面广告
+     */
     public function advs(){
         $redis = new Redis();
-        if($redis->has("goods_advs")){
-            $data['adv_list'] = $redis->get("goods_advs");
-        }else{
-
+        $cid = input("cid",1);
+        if($redis->has("class_adv")){
+            $sld_hotsale_goods = $redis->get("class_adv");
         }
+        else {
+            $sld_hotsale_goods = db::query("SELECT * FROM bbc_goods where goods_verify=1 and goods_state=1  ORDER BY  RAND() LIMIT 10");
+            $redis->set("class_adv",$sld_hotsale_goods);
+        }
+        $data['sld_hotsale_goods'] = $sld_hotsale_goods;
+        $data['error_code'] = 200;
+        $data['message'] = lang("成功");
+        return json_encode($data,true);
+    }
+
+    /**
+     * @return false|string
+     * 签到页面精品推荐
+     */
+    public function recommand(){
+        $redis = new Redis();
+        if($redis->has("goods_recomand")){
+            $sld_hotsale_goods = $redis->get("goods_recomand");
+        }
+        else {
+            $sld_hotsale_goods = db::query("SELECT * FROM bbc_goods where goods_verify=1 and goods_state=1  ORDER BY  RAND() LIMIT 10");
+            foreach($sld_hotsale_goods as $k=>$v){
+                $sld_hotsale_goods[$k]['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$sld_hotsale_goods[$k]['goods_image'];
+            }
+            $redis->set("goods_recomand",$sld_hotsale_goods,60);
+        }
+        $data['sld_hotsale_goods'] = $sld_hotsale_goods;
+        $data['error_code'] = 200;
+        $data['message'] = lang("成功");
+        return json_encode($data,true);
     }
 }

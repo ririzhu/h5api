@@ -2,7 +2,7 @@
 namespace app\v1\model;
 
 use think\Model;
-
+use think\db;
 class Address extends Model
 {
     public function __construct() {
@@ -15,7 +15,8 @@ class Address extends Model
      * @param array $condition
      */
     public function getDefaultAddressInfo($condition = array()) {
-        return $this->where($condition)->order('is_default desc,address_id desc')->find();
+        $address = db::name("address")->where($condition)->order('is_default desc,address_id desc')->find();
+        return $address;
     }
 
     public function getAddressInfo($condition) {

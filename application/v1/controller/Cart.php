@@ -142,9 +142,9 @@ class Cart extends Base
                 $store_cart_list[$cart['vid']]['shop']['store_name'] = $cart['store_name'];
                 $vredcount = db::name("red")->where("red_vid=".$cart['vid']." and red_receive_end<".TIMESTAMP." and red_delete=0 and red_hasget<red_limit")->count();
                 if($vredcount>0){
-                    $store_cart_list[$cart['vid']]['shop']['has_red'] = true;
+                    $store_cart_list[$cart['vid']]['has_red'] = true;
                 }else{
-                    $store_cart_list[$cart['vid']]['shop']['has_red'] = false;
+                    $store_cart_list[$cart['vid']]['has_red'] = false;
                 }
                 $store_cart_list[$cart['vid']]['shop']['button1']=$cart['button1'];
                 $store_cart_list[$cart['vid']]['shop']['button2']=$cart['button2'];

@@ -56,8 +56,18 @@ class Buy extends Base
             $returns['red'] = $red['red'];
             $returns['vred'] = $red['vred'];
         //}
-
-        $returns['store_cart_list'] = $result['store_cart_list'];
+        $newstorecartlist = array();
+        $a = 0;
+        foreach($result['store_cart_list'] as $k=>$v){
+            $newstorecartlist["store_name$a"] = $v[0]["store_name"];
+            $newstorecartlist["store_vid$a"] = $v[0]["vid"];
+            $newstorecartlist["store_total$a"] = $result['store_goods_total'][$k];
+            $newstorecartlist["goods$a"]=$v;
+            $newstorecartlist["store_mansong_rule_list$a"] = $result['store_mansong_rule_list'][$k];
+            $a++;
+        }
+        //print_r($newstorecartlist);die;
+        $returns['store_cart_list'] = $newstorecartlist;//$result['store_cart_list'];
         $returns['store_goods_total']= $result['store_goods_total'];
         if ($is_supplier) {
             # code...
@@ -154,17 +164,19 @@ class Buy extends Base
         $extends_data = array();
 
         $extends_data['from'] = 'pc';
-
-        $result = $model_buy->buyStep2($_POST, $memberId, "jack", "932563595@qq.com",$extends_data);
+        $memberId = input("member_id");
+        $userModel = new \app\v1\model\User();
+        $memberinfo = $userModel->getMemberInfo(array("member_id"=>$memberId));
+        $result = $model_buy->buyStep2($_POST, $memberId, $memberinfo['member_name'], $memberinfo['member_email'],$extends_data,!input("ifcart"));
 
         if(!empty($result['error'])) {
-            echo $result['error'];
+            echo $result['error'];die;
             //showMsg($result['error'], '', 'html', 'error');
         }
         $return['error_code'] = 200;
         $return['message'] = "下单成功";
         $return['pay_sn'] = $result['pay_sn'];
-        return $return;
+        return json_encode($return,true);
         //转向到商城支付页面
         //$pay_url = 'index.php?app=buy&mod=pay&pay_sn='.$result['pay_sn'];
         //redirect($pay_url);

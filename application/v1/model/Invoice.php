@@ -24,7 +24,8 @@ class Invoice extends Model
      * @param array $condition
      */
     public function getInvInfo($condition = array()) {
-        return $this->where($condition)->find();
+        //print_r($condition);die;
+        return DB::name("invoice")->where($condition)->find();
     }
 
     /**

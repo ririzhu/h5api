@@ -271,7 +271,7 @@ class UserBuy extends Model {
         $goods_storage_quantity = $this->_getEachGoodsStorageQuantity($store_cart_list,$store_premiums_list);
 
         //取得每种商品的购买量
-        $goods_buy_quantity = $this->_getEachGoodsBuyQuantity($store_cart_list);
+        $goods_buy_quantity = $this->_getEachGoodsBuyQuantity($store_cart_list);//print_r($goods_buy_quantity);die;
 
         //本次购买后，余库存为0的，则后面不再送赠品
         $last_storage = array();
@@ -311,7 +311,7 @@ class UserBuy extends Model {
                     $new_data['goods_total'] = 0;
                     $new_data['ifzengpin'] = true;
                     $store_cart_list[$vid][] = $new_data;
-                    $goods_buy_quantity[$goods_info['gid']] += 1;
+                    $goods_buy_quantity[$goods_info['gid']+1] += 1;
                 }
             }
         }
@@ -331,6 +331,9 @@ class UserBuy extends Model {
             foreach ($store_cart as $cart_info) {
                 if (!intval($cart_info['bl_id'])) {
                     //正常商品
+                    if(!isset($cart_info['goods_storage'])){
+                        $cart_info['goods_storage'] = 100;
+                    }
                     $goods_storage_quangity[$cart_info['gid']] = $cart_info['goods_storage'];
                 } elseif (!empty($cart_info['bl_goods_list']) && is_array($cart_info['bl_goods_list'])) {
                     //优惠套装
@@ -674,6 +677,7 @@ class UserBuy extends Model {
                             $order_goods[$i]['goods_type'] = 1;
                         }
                     }
+                    $order_goods[$i]['goods_type'] = 1;
                     if(isset($goods_info['promotions_id']))
                     $order_goods[$i]['promotions_id'] = $goods_info['promotions_id'] ? $goods_info['promotions_id'] : 0;
                     else
@@ -1484,7 +1488,7 @@ class UserBuy extends Model {
 
 
                 if(empty($goods_info)) {
-                    return array('error' => '商品不存在');
+                    return array('error' => "商品不存在");
                 }
 
 
@@ -1732,6 +1736,7 @@ class UserBuy extends Model {
                     }
                 }
             }else{
+                $goods_buy_quantity = array();
                 //得到限时折扣信息
                 $cart_list = $model_cart->getXianshiCartList($cart_list);
 
@@ -1934,16 +1939,16 @@ class UserBuy extends Model {
 
 
         //将赠品追加到购买列表(如果库存不足，则不送赠品)
-        $append_premiums_to_cart_list = $this->appendPremiumsToCartList($store_cart_list,$store_premiums_list,$store_mansong_rule_list,$member_id);
+        /*$append_premiums_to_cart_list = $this->appendPremiumsToCartList($store_cart_list,$store_premiums_list,$store_mansong_rule_list,$member_id);
         if(!empty($append_premiums_to_cart_list['error'])) {
             return array('error' => $append_premiums_to_cart_list['error']);
         } else {
             @list($store_cart_list,$goods_buy_quantity,$store_mansong_rule_list) = $append_premiums_to_cart_list;
-        }
+        }*/
 
         $input = array();
         //使用积分抵扣
-        if(isset($post['oints_pay']) && $post['points_pay'] == 1 && $post['use_points']>0){
+        if(isset($post['points_pay']) && $post['points_pay'] == 1 && $post['use_points']>0){
             //不允许使用
             if($GLOBALS['setting_config']['points_max_use']==0){
                 return array('error' => '平台不允许使用积分抵扣');
@@ -2046,13 +2051,13 @@ class UserBuy extends Model {
         if(!$again){
             //删除购物车中的商品
             if ($post['ifcart']) {
-                $ids = "";print_r($input_buy_items);
+                $ids = "";//print_r($input_buy_items);
                 foreach($input_buy_items as $k=>$v){
                     $ids .=$k.",";
                 }
                 $ids = substr($ids,0,strlen($ids)-1);
-                $model_cart->delCart('db',array('buyer_id'=>$member_id,'cart_id'=>array('in',$ids)));
-                echo DB::table("bbc_cart")->getLastSql();die;
+                $res=$model_cart->delCart('db',array('buyer_id'=>$member_id,'cart_id'=>array('in',$ids)));
+                //echo db::name("cart")->getLastSql();
             }
         }
 

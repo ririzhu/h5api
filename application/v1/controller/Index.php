@@ -629,22 +629,31 @@ class Index extends Base
         $model_goods = new \app\v1\model\Goods();
         $lession = array();
         $kk = $page*3;
-        foreach ($goods_list as $k => $v) {
-            if(($kk)%3==0&& $kk!=$page*3){
-                break;
+        $new_goods_list = array();
+        if(count($goods_list)>=$kk) {
+            foreach ($goods_list as $k => $v) {
+                if (($kk) % 3 == 0 && $kk != $page * 3) {
+                    break;
+                }
+                if(isset($goods_list[$kk])) {
+                    $gid = $goods_list[$kk]['goods_id'];
+                    //unset($goods_list[$k]);
+                    $a = $model_goods->getGoodsList("gid = $gid", "*", "", "", 1, 1, 1, 1);
+                    if (!empty($a)) {
+                        $goods_list[$k] = $a[0];
+                    }
+                    $goods_list[$k]['gid'] = $gid;
+                    $new_goods_list[$k] = $goods_list[$k];
+                    $kk++;
+                }
             }
-            $gid = $goods_list[$k]['goods_id'];
-            //unset($goods_list[$k]);
-            $a = $model_goods->getGoodsList("gid = $gid", "*", "", "", 1, 1, 1, 1);
-            if (!empty($a)) {
-                $goods_list[$k] = $a[0];
-            }
-            $goods_list[$k]['gid'] = $gid;
-            $new_goods_list[$k]=$goods_list[$k];
-            $kk++;
+        }else{
+            $new_goods_list = array();
         }
         $ga = new GoodsActivity();
         //$goods_list = $ga->rebuild_goods_data($goods_list,'web');
+        $lession = array();
+        if(count($new_goods_list)>0)
         foreach ($new_goods_list as $k => $v) {
             // if($goods_list[$v]) {
             //$lession[$k]['goods_name'] = $v['goods_name'];
@@ -654,9 +663,11 @@ class Index extends Base
             //}
         }
         if(count($lession)==0){
+            $data['last'] = false;
+        }else{
             $data['last'] = true;
         }
         $data['hot_lession'] = $lession;
-        return json_encode($data['hot_lession'],true);
+        return json_encode($data,true);
     }
 }

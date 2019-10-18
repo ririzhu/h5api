@@ -19,9 +19,9 @@ class FirstOrder extends Model
     public function handle_buy_list($store_cart_list,$member_id){
 
         $_first = [];
-
+//print_r($store_cart_list);die;
         foreach ($store_cart_list as $k=>$v){
-            $_cids = [];
+            $_cids = array();
             foreach ($v as $vv){
                 $_cids[] = $vv['goods_commonid'];
             }
