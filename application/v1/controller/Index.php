@@ -35,8 +35,7 @@ class Index extends Base
     const BACKGROUND_COLOR = ['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0];    // 背景色
     public function index()
     {
-        $this->isLogin();
-        return $this->test();
+        return $this->fetch();
     }
 
     public function isLogin()

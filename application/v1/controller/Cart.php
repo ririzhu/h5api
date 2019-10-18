@@ -792,11 +792,16 @@ class Cart extends Base
         }*/
     }
     public function redListByVid(){
-        $vid = input("vid");
-        $member_id = input("member_id");
-        $storeRedList = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$vid." and red_receive_end<".TIMESTAMP." and red_delete=0 and red_hasget<red_limit")->select();
+        //print_r($_POST);die;
+        $vid = $_POST["vid"];
+        $member_id = $_POST["member_id"];
+        $storeRedList = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$vid." and red_receive_start<=".TIMESTAMP." and red_receive_end>".TIMESTAMP." and red_delete=0 and red_hasget<red_limit")->select();
         foreach($storeRedList as $kk=>$vv){
             $userHasCount = db::name("red_user")->where("reduser_uid=$member_id and red_id=".$vv['red_id'])->count();
+            $storeRedList[$kk]['red_receive_start'] = date("Y.m.d",$storeRedList[$kk]['red_receive_start']);
+            $storeRedList[$kk]['red_receive_end'] = date("Y.m.d",$storeRedList[$kk]['red_receive_end']);
+            $storeRedList[$kk]['redinfo_start'] = date("Y.m.d",$storeRedList[$kk]['redinfo_start']);
+            $storeRedList[$kk]['redinfo_end'] = date("Y.m.d",$storeRedList[$kk]['redinfo_end']);
             if($userHasCount>=$vv['red_rach_max']){
                 $storeRedList[$kk]['canuse'] = false;
             }else{
