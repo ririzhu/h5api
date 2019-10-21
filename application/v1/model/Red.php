@@ -360,9 +360,9 @@ class Red extends Model
             return '请先登陆，再领券';
         }
 
-        $condition['red_status'] = 1;
-        $condition['red_info.id'] = $red_id;
-        $condition['red_front_show'] = 1;
+        $condition['bbc_red.red_status'] = 1;
+        $condition['bbc_red_info.id'] = $red_id;
+        $condition['bbc_red.red_front_show'] = 1;
         $red_info  = $this->getRedLingList($member_id,$condition);
 
         if($red_info && count($red_info)){

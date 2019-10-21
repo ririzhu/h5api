@@ -39,7 +39,7 @@ class Stats extends Model
                 $insert_array[] = array('stat_end'=>$end,'uid' => $memberId, 'gid' => $v, 'arrive' => $date, $type => $no,'ukey'=>$ukey);
             }
         }
-        $re = DB::table('BBC_stats_goods');
+        $re = DB::name('stats_goods');
         $re->insertAll($insert_array);
     }
 

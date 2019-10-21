@@ -560,7 +560,7 @@ class Cart extends Base
      *
      */
     public function add() {
-        if(!input("quantity") || !input("member_id") ||!input("token")){
+        if(!input("quantity") || !input("member_id")){
             $data['error_code']=10016;
             $data['message'] = "缺少参数";
             return json_encode($data);exit;
@@ -666,6 +666,7 @@ class Cart extends Base
             $data = array('state'=>'true', 'num' => $model_cart->cart_goods_num, 'amount' => sldPriceFormat($model_cart->cart_all_price),'goods_num'=>$quantity,'goods_price'=>$goods_info['goods_price'],'subtotal'=>$goods_info['goods_price']*$quantity);
             //加购统计记录
             $statModel = new Stats();
+            $token = (db::name("mb_user_token")->where("member_id=".input("member_id"))->field("token")->order("token_id","desc")->find())['token'];
             $statModel->put_goods_stats(1,$goods_info['gid'],'cart',$token,$quantity,input("member_id"));
         } else {
             $data = array('state'=>'false','msg'=>$insert['error']);
@@ -791,25 +792,41 @@ class Cart extends Base
             }
         }*/
     }
+
+    /**
+     * @return false|string
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * 店铺红包列表
+     */
     public function redListByVid(){
-        //print_r($_POST);die;
-        $vid = $_POST["vid"];
-        $member_id = $_POST["member_id"];
-        $storeRedList = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$vid." and red_receive_start<=".TIMESTAMP." and red_receive_end>".TIMESTAMP." and red_delete=0 and red_hasget<red_limit")->select();
-        foreach($storeRedList as $kk=>$vv){
-            $userHasCount = db::name("red_user")->where("reduser_uid=$member_id and red_id=".$vv['red_id'])->count();
-            $storeRedList[$kk]['red_receive_start'] = date("Y.m.d",$storeRedList[$kk]['red_receive_start']);
-            $storeRedList[$kk]['red_receive_end'] = date("Y.m.d",$storeRedList[$kk]['red_receive_end']);
-            $storeRedList[$kk]['redinfo_start'] = date("Y.m.d",$storeRedList[$kk]['redinfo_start']);
-            $storeRedList[$kk]['redinfo_end'] = date("Y.m.d",$storeRedList[$kk]['redinfo_end']);
-            if($userHasCount>=$vv['red_rach_max']){
-                $storeRedList[$kk]['canuse'] = false;
-            }else{
-                $storeRedList[$kk]['canuse'] = true;
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $postData = $_POST;
+            // 获取post请求参数
+            $member_id = input("member_id");//isset($postData['memeber_id']) ? $postData['memeber_id'] : '';die;
+            $vid = isset($postData['vid']) ? $postData['vid'] : '';
+            $storeRedList = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$vid." and red_receive_start<=".TIMESTAMP." and red_receive_end>".TIMESTAMP." and red_delete='0' and red_hasget<red_limit")->select();
+            foreach($storeRedList as $kk=>$vv){
+                $userHasCount = db::name("red_user")->where("reduser_uid=" . $member_id . " and red_id=" . $vv['red_id'])->count();
+                if($userHasCount>0){
+                    $storeRedList[$kk]['red_hasget'] = 1;
+                }else{
+                    $storeRedList[$kk]['red_hasget'] = 0;
+                }
+                $storeRedList[$kk]['red_receive_start'] = date("Y.m.d",$storeRedList[$kk]['red_receive_start']);
+                $storeRedList[$kk]['red_receive_end'] = date("Y.m.d",$storeRedList[$kk]['red_receive_end']);
+                $storeRedList[$kk]['redinfo_start'] = date("Y.m.d",$storeRedList[$kk]['redinfo_start']);
+                $storeRedList[$kk]['redinfo_end'] = date("Y.m.d",$storeRedList[$kk]['redinfo_end']);
+                if($userHasCount>=$vv['red_rach_max']){
+                    $storeRedList[$kk]['canuse'] = false;
+                }else{
+                    $storeRedList[$kk]['canuse'] = true;
+                }
             }
+            $data['error_code'] = 200;
+            $data['list'] = $storeRedList;
+            return json_encode($data,true);
         }
-        $data['error_code'] = 200;
-        $data['list'] = $storeRedList;
-        return json_encode($data,true);
     }
 }

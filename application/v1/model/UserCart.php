@@ -122,12 +122,19 @@ class UserCart extends Model
         $check_cart	= $this->checkCart($condition);
 
 
-        if (!empty($check_cart)){
+        if (!empty($check_cart[0])){
 
-            if (isset($check_cart['sld_is_supplier'])) {
-                $old_spec_num = unserialize($check_cart['spec_num']);
-                $old_num=$check_cart['goods_num'];
-                $new_num = $old_num+array_sum($quantity);
+            if (isset($check_cart[0]['sld_is_supplier'])) {
+                $old_spec_num = unserialize($check_cart[0]['spec_num']);
+                $old_num=$check_cart[0]['goods_num'];
+                //$new_num = $old_num+array_sum($quantity);
+                $new_num = $old_num+$quantity;
+                $b = array();
+                $b[0] = $quantity;
+                $quantity = $b;
+                $c = array();
+                $c[0] = $old_spec_num;
+                $old_spec_num = $c;
                 $new_spec_num = array_merge_recursive($quantity,$old_spec_num);
                 foreach ($new_spec_num as $key => $value) {
                     if (is_array($value)) {
@@ -141,36 +148,41 @@ class UserCart extends Model
                 $count_i = 0;
                 $total_i = 0;
                 $total_number = $new_num;
-                $total_i = count($sld_ladder_price);
-                foreach ($sld_ladder_price as $k => $item) {
-                    if($check_flag){
-                        if($before_number == 0 && $before_price == 0){
-                            $now_price = $item*1;
-                        }else{
-                            if ($total_number*1 >= $k*1 && ($total_i-1) == $count_i) {
-                                // 最后一个
-                                $now_price = $item*1;
-                                $check_flag = false;
-                            }elseif ($total_number*1 < $k*1 && $total_number*1>= $before_number*1){
-                                $now_price = $before_price*1;
-                                $check_flag = false;
+                if(!isset($sld_ladder_price)){
+                    $total_i = 0;
+                }
+                else {
+                    $total_i = count($sld_ladder_price);
+                    foreach ($sld_ladder_price as $k => $item) {
+                        if ($check_flag) {
+                            if ($before_number == 0 && $before_price == 0) {
+                                $now_price = $item * 1;
+                            } else {
+                                if ($total_number * 1 >= $k * 1 && ($total_i - 1) == $count_i) {
+                                    // 最后一个
+                                    $now_price = $item * 1;
+                                    $check_flag = false;
+                                } elseif ($total_number * 1 < $k * 1 && $total_number * 1 >= $before_number * 1) {
+                                    $now_price = $before_price * 1;
+                                    $check_flag = false;
+                                }
                             }
+                            $before_number = $k * 1;
+                            $before_price = $item * 1;
                         }
-                        $before_number = $k*1;
-                        $before_price = $item*1;
+                        $count_i++;
                     }
-                    $count_i++;
                 }
                 $new_spec_num = serialize($new_spec_num);
                 return $this->editCart(array('goods_num'=>$new_num,'goods_price'=>$now_price,'spec_num'=>$new_spec_num),array('buyer_id'=>$goods_info['buyer_id'],'gid'=>$goods_info['gid']));
             }else{
-                if(isset($check_cart['goods_num']))
-                $old_num=$check_cart['goods_num'];
-//                if($goods_info['course_type']==2){
-//                    $new_num=1;
-//                }else{
-//                    $new_num=$old_num+$quantity;
-//                }
+                if(isset($check_cart[0]['goods_num']))
+                $old_num=$check_cart[0]['goods_num'];
+                if($goods_info['course_type']==2){
+                    $new_num=1;
+                }else{
+                    $new_num=$check_cart[0]['goods_num']+$quantity;
+                }
 
                 $new_num=1;
 

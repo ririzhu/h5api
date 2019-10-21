@@ -35,7 +35,7 @@ class Invoice extends Model
      * @return unknown
      */
     public function getInvList($condition, $limit = '') {
-        return $this->where($condition)->limit($limit)->select();
+        return db::name("invoice")->where($condition)->limit($limit)->select();
     }
 
     /**

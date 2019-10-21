@@ -304,6 +304,13 @@ class Buy extends Base
         // 获取最终价格
         $goods_rand_list = Model('goods_activity')->rebuild_goods_data($goods_rand_list,'pc');
         $data['goods_rand_list'] = $goods_rand_list;
+        $data['spec_list'] = $goods_detail['spec_list'];
+        $data['spec_image'] = $goods_detail['spec_image'];
+        $data['goods_image'] = $goods_detail['goods_image'];
+        $data['xianshi_info'] = $goods_detail['xianshi_info'];
+        $data['mansong_info'] = $goods_detail['mansong_info'];
+
+
 //        Template::output('goods_rand_list', $goods_rand_list);
 
 //        Template::output('spec_list', $goods_detail['spec_list']);
@@ -743,17 +750,17 @@ class Buy extends Base
         $memberId = input("member_id");
         $condition = array();
         $vat_hash = input("vat_hash");
-        if ($model_buy->buyDecrypt($vat_hash, $memberId) == 'allow_vat') {
-        } else {
+        /*if ($model_buy->buyDecrypt($vat_hash, $memberId) == 'allow_vat') {
+        } else {*/
             $returns['vat_deny']=true;
             $condition['inv_state'] = 1;
-        }
+        //}
         $condition['member_id'] = $memberId;
         $delid = input("del_id",0);
         $model_inv = new Invoice();
         //如果传入ID，先删除再查询
         if (intval($delid) > 0) {
-            $model_inv->delInv(array('inv_id'=>intval($_GET['del_id']),'member_id'=>$memberId));
+            $model_inv->delInv(array('inv_id'=>intval($delid),'member_id'=>$memberId));
         }
         $list = $model_inv->getInvList($condition,10);
         if (!empty($list)) {
@@ -1028,4 +1035,5 @@ class Buy extends Base
             $result['price'] = $total;
         return json_encode($result,true);
     }
+
 }
