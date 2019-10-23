@@ -412,13 +412,23 @@ class Goods extends  Base
             //$seo_param['description'] = $goods_info['goods_description'];
             //$data['goods_info']['seo']=Model('seo')->type('product')->param($seo_param)->show();
         }
+        $count = db::name("evaluate_goods")->where("geval_goodsid=".$gid." and geval_state=1")->field("geval_addtime,geval_image,cct_user_avatar,geval_content,geval_scores,geval_frommembername,geval_isanonymous")->order("geval_id","desc")->count();
         $comments = db::name("evaluate_goods")->where("geval_goodsid=".$gid." and geval_state=1")->field("geval_addtime,geval_image,cct_user_avatar,geval_content,geval_scores,geval_frommembername,geval_isanonymous")->order("geval_id","desc")->find();
+        $hasImg = db::name("evaluate_goods")->where("geval_goodsid=".$gid." and geval_state=1 and geval_image!=''")->field("geval_addtime,geval_image,cct_user_avatar,geval_content,geval_scores,geval_frommembername,geval_isanonymous")->order("geval_id","desc")->count();
         if($comments==null){
             $goods_info['comments_count'] = 0;
         }else {
+            $comments['images'] = $hasImg;
             if($comments['geval_isanonymous']==1){
+
                 $comments['geval_frommembername'] = lang("匿名");
             }
+            $comments['count'] = $count;
+            $comments['geval_image'] = "http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
+            $comments['geval_image'] = "http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
+            $comments['cct_user_avatar'] = "http://www.horizou.cn/data/upload/mall/store/goods/1/1_06134852812430539_240.png";
+            $comments['geval_addtime']=date("Y-m-d H:i:s",$comments['geval_addtime']);
+            //http://www.horizou.cn/data/upload/mall/common/06249945949889035.png;
             $goods_info['comments'] = $comments;
         }
         $data['goods_info'] =$goods_info;
@@ -513,10 +523,11 @@ class Goods extends  Base
     }
     public function getComments() {
         $condition = array();
+        $gid = input("gid");
         $condition="geval_goodsid =".input("gid");
         $type = input("type");
         $page = input("page")?input("page"):1;
-        $hasImg = input("has_img");
+        $hasImg = input("has_img",0);
         switch ($type) {
             case '1':
                 $condition .= " and geval_scores  <=5 and geval_scores >=3.5";
@@ -540,7 +551,27 @@ class Goods extends  Base
         //查询商品评分信息
         $model_evaluate_goods = new EvaluateGoods();
         $goodsevallist = $model_evaluate_goods->getEvaluateGoodsList($condition, $page);
-        return json_encode($goodsevallist);
+        $hasImg = db::name("evaluate_goods")->where("geval_goodsid=".$gid." and geval_state=1 and geval_image!=''")->field("geval_addtime,geval_image,cct_user_avatar,geval_content,geval_scores,geval_frommembername,geval_isanonymous")->order("geval_id","desc")->count();
+        if($goodsevallist==null){
+            $data['comments_count'] = 0;
+        }else {
+            $data['images'] = $hasImg;
+            foreach($goodsevallist as $k=>$v){
+                if($goodsevallist[$k]['geval_isanonymous']==1){
+
+                    $goodsevallist[$k]['geval_frommembername'] = lang("匿名");
+                }
+                $goodsevallist[$k]['geval_image'] = "http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
+                $goodsevallist[$k]['geval_image'] = "http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
+                $goodsevallist[$k]['cct_user_avatar'] = "http://www.horizou.cn/data/upload/mall/store/goods/1/1_06134852812430539_240.png";
+                $goodsevallist[$k]['geval_addtime']=date("Y-m-d H:i:s",$goodsevallist[$k]['geval_addtime']);
+            }
+
+            //            $comments['geval_addtime']=date("Y-m-d H:i:s",$comments['geval_addtime']);
+            //http://www.horizou.cn/data/upload/mall/common/06249945949889035.png;
+            $data['comments'] = $goodsevallist;
+        }
+        return json_encode($data,true);
         //Template::output('goodsevallist',$goodsevallist);
         //Template::output('show_page',$model_evaluate_goods->showpage('5'));
     }

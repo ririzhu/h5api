@@ -406,7 +406,7 @@ class User extends Base
                 $message = '每日只可签到一次';
             }// 获取 当前会员的签到记录列表
             $log_condition = array();
-            $log_condition['pl_memberid'] = $this->member_info['member_id'];
+            $log_condition['pl_memberid'] = $memberId;
             $log_condition['pl_stage'] = $checkin_stage;
             $log_condition['order'] = 'pl_addtime desc';
             $log_list = $points_model->getPointsLogList($log_condition,$eachNum);

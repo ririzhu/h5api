@@ -63,6 +63,7 @@ class Buy extends Base
             $newstorecartlist["store_vid$a"] = $v[0]["vid"];
             $newstorecartlist["store_total$a"] = $result['store_goods_total'][$k];
             $newstorecartlist["goods$a"]=$v;
+            if(!empty($result['store_mansong_rule_list']))
             $newstorecartlist["store_mansong_rule_list$a"] = $result['store_mansong_rule_list'][$k];
             $a++;
         }
@@ -986,7 +987,7 @@ class Buy extends Base
         $score = input("score",0);
         $cart_id = input("cart_id");
         $model_buy = new UserBuy();
-        $result = $model_buy->buyStep1($_POST['cart_id'], $_POST['ifcart'], 0, input("member_id"), null,null,null);
+        $result = $model_buy->buyStep1(input("cart_id"), $_POST['ifcart'], 0, input("member_id"), null,null,null);
         $memberId = input("member_id");
         $returns['is_supplier']= 0;
         $returns['ifcart'] = input("ifcart");
