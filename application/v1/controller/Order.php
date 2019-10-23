@@ -450,7 +450,7 @@ class Order extends Base
         if(empty(input("member_id"))){
             return;
         }
-        $state_type = input("s");
+        $state_type = input("s",'');
         $post = input();
         $order_id   = intval(input('order_id'));
 
