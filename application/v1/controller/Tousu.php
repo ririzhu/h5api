@@ -158,7 +158,9 @@ class Tousu extends Base
         $checked_goods = $_POST['input_goods_check'];
         $goods_problem = $_POST['input_goods_problem'];
         if(empty($checked_goods)) {
-            land('参数错误');
+            $data['error_code']=10201;
+            $data['message']=lang('参数错误');
+            return json_encode($data,true);
         }
         $order_info = $this->get_order_info($input['order_id']);
         $input['accuser_id'] = $order_info['buyer_id'];
