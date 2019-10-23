@@ -594,7 +594,6 @@ class Order extends Base
                 $evaluate_t_comment = $_POST['goods'][$value['gid']]['t_comment'];
                 if(empty($evaluate_t_comment)) {
                     $evaluate_t_comment = Language::get('不错哦');
-                    
                 }
 
                 $geval_image = '';
