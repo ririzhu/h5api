@@ -140,7 +140,7 @@ class Tousu extends Base
         //检查是不是正在进行投诉
         if($this->check_complain_exist($input['order_id'])) {
             $data['error_code']=10201;
-            $data['message']=lang('您已经投诉了该订单请等待处理2222222');
+            $data['message']=lang('您已经投诉了该订单请等待处理');
             return json_encode($data,true);
         }
         list($input['complain_subject_id'],$input['complain_subject_content']) = explode(',',trim(input('input_complain_subject')));
