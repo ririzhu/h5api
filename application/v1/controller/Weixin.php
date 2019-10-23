@@ -11,7 +11,7 @@ class Weixin extends  Base
      *
      */
     public function config(){
-        $url=input("url",10016);
+        $url=input("url",100162);
         $ticket = $this->getTicket();
         $noncestr = "HorizouApiipAuoziroH";
         $timestrap = time();
