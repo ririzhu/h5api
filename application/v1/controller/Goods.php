@@ -427,7 +427,7 @@ class Goods extends  Base
             $comments['geval_image'] = "http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
             $comments['geval_image'] = "http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
             $comments['cct_user_avatar'] = "http://www.horizou.cn/data/upload/mall/store/goods/1/1_06134852812430539_240.png";
-            $comments['geval_addtime']=date("Y-m-d H:i:s",$comments['geval_addtime']);
+            $comments['geval_addtime']=date("Y-m-d",$comments['geval_addtime']);
             //http://www.horizou.cn/data/upload/mall/common/06249945949889035.png;
             $goods_info['comments'] = $comments;
         }
