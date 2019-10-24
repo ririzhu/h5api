@@ -147,13 +147,13 @@ class Tousu extends Base
         $input['complain_content'] = trim(input('input_complain_content'));
         //验证输入的信息
         $obj_validate = new Validate();
-        
+
         $obj_validate->validateparam = array(
             array("input"=>$input['complain_content'], "require"=>"true","validator"=>"Length","min"=>"1","max"=>"255","message"=>Language::get('投诉内容不能为空且必须小于100个字符')),
         );
         $error = $obj_validate->validate();
         if ($error != ''){
-           showValidateError($error);
+           //showValidateError($error);
         }
         //获取有问题的商品
         $checked_goods = $_POST['input_goods_check'];
