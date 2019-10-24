@@ -153,7 +153,7 @@ class Tousu extends Base
         );
         $error = $obj_validate->validate();
         if ($error != ''){
-           //showValidateError($error);
+           showValidateError($error);
         }
         //获取有问题的商品
         $checked_goods = $_POST['input_goods_check'];
