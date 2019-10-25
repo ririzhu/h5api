@@ -451,7 +451,6 @@ class Goods extends  Base
 
         if(empty($store_info)) {
             echo lang('该供应商已关闭');
-            
         }
         $store_info['store_label']='http://192.168.2.252:9999/data/upload/mall/store/goods/1/'.$store_info['store_label'];
 
