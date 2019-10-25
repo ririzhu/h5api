@@ -452,7 +452,8 @@ class Goods extends  Base
         if(empty($store_info)) {
             echo lang('该供应商已关闭');
         }
-        $store_info['store_label']='http://192.168.2.252:9999/data/upload/mall/store/goods/1/'.$store_info['store_label'];
+        //$store_info['store_label']='http://192.168.2.252:9999/data/upload/mall/store/goods/1/'.$store_info['store_label'];
+        $store_info['store_label']="http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
 
         $data['storeinfo']=$this->outputStoreInfo($store_info);
         $nav = cache('nav')?:cache('nav',true);
