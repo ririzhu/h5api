@@ -216,4 +216,109 @@ class Payment extends Model
     public function getOrderInfo($order_sn){
         return $this->table('order')->field('*')->where(array('order_sn'=>$order_sn,'order_state'=>10))->find();
     }
+
+    /**
+     * add by zhengyifan 2019-10-17
+     * 支付回调业务处理程序
+     * @param $out_trade_no
+     * @return mixed
+     */
+    public function notifyProcess($out_trade_no)
+    {
+        $order = new Order();
+
+        $condition = [
+            'pay_sn' => $out_trade_no,
+            'order_state' => ORDER_STATE_NEW,
+        ];
+        $order_list = $order->getOrderList($condition);
+        if (empty($order_list)){
+            $data['code'] = 256;
+            $data['message'] = '订单不存在或已支付';
+            return $data;
+        }
+
+        $pay_condition = [
+            'pay_sn' => $out_trade_no,
+        ];
+        $order_pay_info =$order->getOrderPayInfo($pay_condition);
+        if (empty($order_pay_info)){
+            $data['code'] = 256;
+            $data['message'] = '订单不存在';
+            return $data;
+        }
+        if ($order_pay_info['api_pay_state'] == 1){
+            $data['code'] = 256;
+            $data['message'] = '订单已支付';
+            return $data;
+        }
+
+        $result = $this->updateBuy($out_trade_no,$order_list);
+        if (isset($result['error'])){
+            $data['code'] = 256;
+            $data['message'] = $result['error'];
+            return $data;
+        }
+        $data['code'] = 200;
+        $data['message'] = '成功';
+        return $data;
+    }
+
+    /**
+     * add by zhengyifan 2019-10-17
+     * 支付成功修改订单状态
+     * @param $out_trade_no
+     * @param $order_list
+     * @return array
+     */
+    public function updateBuy($out_trade_no,$order_list)
+    {
+        try{
+            $order = new Order();
+
+            DB::startTrans();
+
+            $order_pay_data = [
+                'api_pay_state' => 1,
+            ];
+            $order_pay_condition = [
+                'pay_sn' => $out_trade_no,
+            ];
+            $update =$order->editOrderPay($order_pay_data,$order_pay_condition);
+            if (!$update){
+                throw new Exception('更新订单状态失败');
+            }
+
+            $order_data = [
+                'order_state' => ORDER_STATE_SUCCESS,
+                'payment_time' => time(),
+            ];
+            $order_condition = [
+                'pay_sn' => $out_trade_no,
+                'order_state' => ORDER_STATE_NEW,
+            ];
+            $order_update = $order->editOrder($order_data,$order_condition);
+            if (!$order_update){
+                throw new Exception('更新订单状态失败');
+            }
+
+            foreach ($order_list as $key => $val){
+                $log_data = [
+                    'order_id' => $val['order_id'],
+                    'log_role' => 'buyer',
+                    'log_msg' => '完成了付款(支付平台交易号：'.$out_trade_no,
+                    'log_orderstate' => ORDER_STATE_SUCCESS,
+                ];
+                $insert = $order->addOrderLog($log_data);
+                if (!$insert) {
+                    throw new Exception('记录订单日志出现错误');
+                }
+            }
+            DB::commit();
+            return ['success' => true];
+        }catch (Exception $e){
+            DB::rollback();
+            return ['error' => $e->getMessage()];
+        }
+    }
 }

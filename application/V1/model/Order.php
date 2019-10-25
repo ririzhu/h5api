@@ -7,7 +7,7 @@ class Order extends Model
 {
     /**
      * 取得订单列表
-     * @param unknown $condition
+     * @param array $condition
      * @param string $pagesize
      * @param string $field
      * @param string $order
@@ -141,5 +141,182 @@ class Order extends Model
         $list = db::name('order_goods')->field($fields)->where($condition)->limit($limit)->order($order)->group($group)->force($key)->page($page)->select();
         //echo db::name("order_goods")->getLastSql();
         return $list;
+    }
+
+    /**
+     * add by zhengyifan 2019-10-17
+     * 取单条订单信息
+     * @param array $condition
+     * @param array $extend
+     * @param string $fields
+     * @param string $order
+     * @param string $group
+     */
+    public function getOrderInfo($condition = array(), $extend = array(), $fields = '*', $order = '',$group = '') {
+        $order_info = DB::name('order')->field($fields)->where($condition)->group($group)->order($order)->find();
+        if (empty($order_info)) {
+            return array();
+        }
+        $order_info['state_desc'] = orderState($order_info);
+        $order_info['payment_name'] = orderPaymentName($order_info['payment_code']);
+
+        //追加返回订单扩展表信息
+        if (in_array('order_common',$extend)) {
+            $order_info['extend_order_common'] = $this->getOrderCommonInfo(array('order_id'=>$order_info['order_id']));
+            $order_info['extend_order_common']['reciver_info'] = unserialize($order_info['extend_order_common']['reciver_info']);
+            $order_info['extend_order_common']['invoice_info'] = unserialize($order_info['extend_order_common']['invoice_info']);
+        }
+
+        //追加返回店铺信息
+        if (in_array('store',$extend)) {
+            $order_info['extend_store'] = Model('vendor')->getStoreInfo(array('vid'=>$order_info['vid']));
+        }
+
+        //返回买家信息
+        if (in_array('member',$extend)) {
+            $order_info['extend_member'] = Model('member')->getMemberInfo(array('member_id'=>$order_info['buyer_id']));
+        }
+
+        //追加返回商品信息
+        if (in_array('order_goods',$extend)) {
+            //取商品列表
+            $order_goods_list = $this->getOrderGoodsList(array('order_id'=>$order_info['order_id']));
+
+            // // 获取最终价格
+            // $order_goods_list = Model('goods_activity')->rebuild_goods_data($order_goods_list);
+
+            foreach ($order_goods_list as $value) {
+                $item_goods_info = Model('goods')->getGoodsInfoByID($value['gid'],'goods_commonid,goods_serial');
+                // 获取 多规格商品 多规格相关信息
+                if ($value['has_spec']) {
+                    $value['spec_num_arr'] = unserialize($value['spec_num']);
+                    // 有规格 (获取规格信息)
+                    $spec_array = Model('goods')->getGoodsList(array('goods_commonid' => $item_goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage');
+                    $spec_list = array();       // 各规格商品地址，js使用
+                    foreach ($spec_array as $s_key => $s_value) {
+                        $s_array = unserialize($s_value['goods_spec']);
+
+                        $tmp_array = array();
+                        if (!empty($s_array) && is_array($s_array)) {
+                            foreach ($s_array as $k => $v) {
+                                $tmp_array[] = $k;
+                            }
+                        }
+                        sort($tmp_array);
+                        $spec_sign = implode('|', $tmp_array);
+
+                        $spec_list[$spec_sign]['storage'] = $s_value['goods_storage'];
+                        $spec_list[$spec_sign]['field_name'] = implode('/', $s_array);
+                    }
+                    $value['spec_data'] = $spec_list;
+                }
+                if (isset($value['show_price']) && $value['show_price'] > 0) {
+                    $value['goods_pay_price'] = $value['show_price'];
+                }
+                $value['goods_serial'] = $item_goods_info['goods_serial'];
+                $value['goods_image_url'] = cthumb($value['goods_image']);
+                $order_info['extend_order_goods'][] = $value;
+            }
+        }
+
+        return $order_info;
+    }
+
+    /**
+     * add by zhengyifan 2019-10-17
+     * 订单信息扩展表
+     * @param array $condition
+     * @param string $field
+     * @return array
+     */
+    public function getOrderCommonInfo($condition = array(), $field = '*') {
+        return DB::name('order_common')->where($condition)->find();
+    }
+
+    /**
+     * add by zhengyifan 2019-10-17
+     * 获取订单支付表
+     * @param array $condition
+     * @return array
+     */
+    public function getOrderPayInfo($condition = array()) {
+        return DB::name('order_pay')->where($condition)->find();
+    }
+
+    /**
+     * add by zhengyifan 2019-10-17
+     * 更新订单支付信息
+     * @param $data
+     * @param $condition
+     * @return int|string
+     */
+    public function editOrderPay($data,$condition) {
+        return DB::name('order_pay')->where($condition)->update($data);
+    }
+
+    /**
+     * add by zhengyifan 2019-10-17
+     * 添加订单日志
+     * @param $data
+     * @return int|string
+     */
+    public function addOrderLog($data) {
+        $data['log_role'] = str_replace(array('buyer','seller','system','dian'),array('买家','商家','系统','门店'), $data['log_role']);
+        $data['log_time'] = TIMESTAMP;
+        return DB::name('order_log')->insert($data);
+    }
+
+    /**
+     * add by zhengyifan 2019-10-17
+     * 更改订单信息
+     * @param $data
+     * @param $condition
+     * @return int|string
+     */
+    public function editOrder($data,$condition) {
+        if(Config('distribution') && !(Config("sld_spreader") && Config("spreader_isuse"))){
+            if ($data['order_state'] == ORDER_STATE_PAY) {
+                $order_info = $this->getOrderInfo($condition);
+//                $this->fanli($order_info);
+            }else if($data['order_state']==ORDER_STATE_SUCCESS){
+                $list = DB::name('fenxiao_log')->field('*')->where(array('order_id'=>$condition[order_id],'status'=>0))->select();
+
+                foreach($list as $value){
+                    $bs = 'rebate'.$value['description'];
+
+                    $member_model = new User();
+                    $member_info=$member_model->getMemberInfoByID($value['reciver_member_id']);
+                    $points = new Points();
+                    $points->savePointsLog($bs,array('pl_memberid'=>$value['reciver_member_id'],'pl_membername'=>$member_info['member_name'],'rebate_amount'=>$value['yongjin']),true);
+
+
+//                $model_pd = Model('predeposit');
+
+//                    $data_pd = array();
+//                    $data_pd['member_id'] = $value['reciver_member_id'];
+//                    $data_pd['amount'] = $value['yongjin'];
+//                    $data_pd['order_sn'] = $value['order_sn'];
+//                    //根据用户reciver_member_id获取reciver_member_name
+//                    $member_model = Model('member');
+//                    $member_info=$member_model->getMemberInfoByID($value['reciver_member_id']);
+//                    $data_pd['member_name'] = $member_info['member_name'];
+//                    $model_pd->changePd('cash_rebate',$data_pd);
+                }
+                DB::name('fenxiao_log')->where(array('order_id'=>$condition[order_id],'status'=>0))->update(array('status'=>1));
+            }
+        }
+
+        // 推手系统开启
+        if (Config('spreader_isuse') && Config('sld_spreader')) {
+            if ($data['order_state'] == ORDER_STATE_PAY) {
+                $order_info = $this->getOrderInfo($condition);
+                $par['order_id'] = $order_info['order_id'];
+                $par['order_amount'] = $order_info['order_amount'];
+                // 发送请求 增加分享达成的已付款订单数量
+                // 需要在 推手系统内检查该订单是否为 推手订单
+                con_addons('spreader',$par,'add_up_order_num','api','mobile');
+            }
+        }
+        return DB::name('order')->where($condition)->update($data);
     }
 }
