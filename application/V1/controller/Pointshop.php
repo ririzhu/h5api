@@ -220,4 +220,57 @@ class Pointshop extends  Base
             return json_encode($data,true);			
 		}
 	}
+	/*
+	**个人兑换积分商品列表
+	 */
+	public function exchangeList(){
+		$pointprod=new pointprod();
+		$pointorder=new pointorder();
+		$member_id=input("member_id");
+        if(empty($member_id)){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json($data);
+		}
+		$list=$pointprod->getExchange($member_id);
+		if(!empty($list)){
+			foreach ($list as &$v) {
+				if(!empty($v['point_addtime'])) $v['point_addtime']=date('Y.m.d H:i:s',$v['point_addtime']);
+				if(!empty($v['point_paymenttime'])) $v['point_paymenttime']=date('Y.m.d H:i:s',$v['point_paymenttime']);
+				if(!empty($v['point_shippingtime'])) $v['point_shippingtime']=date('Y.m.d H:i:s',$v['point_shippingtime']);
+				if(!empty($v['point_finnshedtime'])) $v['point_finnshedtime']=date('Y.m.d H:i:s',$v['point_finnshedtime']);
+			}
+			$data['list']=$list;
+		}else{
+			$data['list']=null;
+		}
+		$data['code']=200;
+		$data['message']="请求成功";
+		return json($data);
+	}
+	/*
+	**个人更改订单状况(用于确认收货)
+	 */
+	public function changeState(){
+		$pointprod=new pointprod();
+		$pointorder=new pointorder();
+		$member_id=input("member_id");
+		$orderid=input("orderid");
+		$orderstate=input("orderstate");
+        if(empty($member_id)||empty($orderstate)||empty($orderid)){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json($data);
+		}
+		$update['point_orderstate']=$orderstate;
+		$res=$pointprod->changeState($member_id,$orderid,$update);
+		if($res){
+			$data['code']=200;
+			$data['message']="更改成功";
+		}else{
+			$data['code']=10002;
+			$data['message']="更改失败";
+		}
+		return json($data);
+	}
 }

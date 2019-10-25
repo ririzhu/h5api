@@ -412,4 +412,22 @@ class pointprod extends Model
     	$sql.=" where a.point_buyerid = ".$id." and b.point_goodsid = ".$pgid;
     	return Db::query($sql);
     }
+    /*
+    **个人兑换de积分商品订单表
+     */
+    public function getExchange($id){
+    	//return Db::name("points_order")->where(["point_buyerid"=>$id])->select();
+    	$sql=" select a.*,b.point_goodsid,b.point_goodsname,b.point_goodspoints,b.point_goodsnum,b.point_goodsimage ";
+    	$sql.=" from bbc_points_order a ";
+    	$sql.=" left join bbc_points_ordergoods b on a.point_orderid = b.point_orderid ";
+    	$sql.=" where a.point_buyerid = ".$id." order by a.point_orderid desc ";
+    	return Db::query($sql);
+    }
+    /*
+    **个人更改订单状况
+     */
+    public function changeState($member_id,$orderid,$data){
+    	return Db::name('points_order')->where(['point_buyerid'=>$member_id,'point_orderid'=>$orderid])->update($data);
+    }
+
 }
