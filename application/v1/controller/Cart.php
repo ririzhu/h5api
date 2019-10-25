@@ -804,7 +804,7 @@ class Cart extends Base
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $postData = $_POST;
             // 获取post请求参数
-            $member_id = input("member_id");//isset($postData['memeber_id']) ? $postData['memeber_id'] : '';die;
+            $member_id = input("member_id",0);//isset($postData['memeber_id']) ? $postData['memeber_id'] : '';die;
             $vid = isset($postData['vid']) ? $postData['vid'] : '';
             $storeRedList = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$vid." and red_receive_start<=".TIMESTAMP." and red_receive_end>".TIMESTAMP." and red_delete='0' and red_hasget<red_limit")->select();
             foreach($storeRedList as $kk=>$vv){

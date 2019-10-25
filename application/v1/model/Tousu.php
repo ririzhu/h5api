@@ -2,7 +2,7 @@
 namespace app\v1\model;
 
 use think\Model;
-
+use think\db;
 class Tousu extends Model
 {
     /**
@@ -80,7 +80,7 @@ class Tousu extends Model
      */
     public function saveComplain($param){
 
-        return Db::insert('tousu',$param) ;
+        return db::name("tousu")->insert($param);
 
     }
 

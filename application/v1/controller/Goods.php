@@ -21,6 +21,7 @@ use app\v1\model\VendorGlmb;
 use app\v1\model\VendorInfo;
 use app\v1\model\VendorLabel;
 use app\v1\model\VendorNavigation;
+use Cassandra\Timestamp;
 use think\cache\driver\Redis;
 use think\console\command\make\Model;
 use think\db;
@@ -149,7 +150,7 @@ class Goods extends  Base
         else{
             $goods_detail['goods_info']['specvalue'] = null;
         }
-        $goods_detail['goods_info']['points'] = $goods_detail['goods_info']['goods_price'];
+        $goods_detail['goods_info']['points'] = (int)$goods_detail['goods_info']['goods_price'];
 
         $goods_info = $goods_detail['goods_info'];
         if ($goods_info['goods_type']) {
@@ -431,6 +432,15 @@ class Goods extends  Base
             //http://www.horizou.cn/data/upload/mall/common/06249945949889035.png;
             $goods_info['comments'] = $comments;
         }
+        $red = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$goods_info['vid']." and red_receive_start<=".TIMESTAMP." and red_receive_end>=".TIMESTAMP)->field("redinfo_full,redinfo_money")->find();
+        if(empty($red)){
+            $goods_info['redflag'] = false;
+        }else{
+            $goods_info['redflag']=true;
+            $red['redinfo_full']=(int)$red['redinfo_full'];
+            $red['redinfo_money']=(int)$red['redinfo_money'];
+            $goods_info['red']=$red;
+        }
         $data['goods_info'] =$goods_info;
         return json_encode($data);
         //Template::showpage('goods');
@@ -442,6 +452,7 @@ class Goods extends  Base
         if(empty($store_info)) {
             echo lang('该供应商已关闭');
         }
+        $store_info['store_label']='http://192.168.2.252:9999/data/upload/mall/store/goods/1/'.$store_info['store_label'];
 
         $data['storeinfo']=$this->outputStoreInfo($store_info);
         $nav = cache('nav')?:cache('nav',true);

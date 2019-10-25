@@ -669,4 +669,25 @@ class Index extends Base
         $data['hot_lession'] = $lession;
         return json_encode($data,true);
     }
+    /**
+     *
+     */
+    public function calC(){
+        $m = input("m");
+        $n = input("n");
+        $mresult = 1;
+        $nresult = 1;
+        $mnresult = 1;
+        for($i = 1;$i <= $m;$i++){
+            $mresult *=$i;
+        }
+        for($i = 1;$i <= $n;$i++){
+            $nresult *=$i;
+        }
+        for($i = 1;$i <=$m-$n;$i++){
+            $mnresult *=$i;
+        }
+        echo ($mresult)/($nresult*$mnresult);
+    }
+
 }

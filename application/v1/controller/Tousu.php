@@ -4,10 +4,19 @@
 namespace app\v1\controller;
 
 
+use app\v1\model\TousuGoods;
 use app\v1\model\TousuSubject;
+use app\v1\model\UploadFile;
 
 class Tousu extends Base
 {
+    const STATE_NEW = 10;
+    const STATE_APPEAL = 20;
+    const STATE_TALK = 30;
+    const STATE_HANDLE = 40;
+    const STATE_FINISH = 99;
+    const STATE_UNACTIVE = 1;
+    const STATE_ACTIVE = 2;
     /*
          * 我的投诉页面
          */
@@ -145,16 +154,7 @@ class Tousu extends Base
         }
         list($input['complain_subject_id'],$input['complain_subject_content']) = explode(',',trim(input('input_complain_subject')));
         $input['complain_content'] = trim(input('input_complain_content'));
-        //验证输入的信息
-        $obj_validate = new Validate();
 
-        $obj_validate->validateparam = array(
-            array("input"=>$input['complain_content'], "require"=>"true","validator"=>"Length","min"=>"1","max"=>"255","message"=>Language::get('投诉内容不能为空且必须小于100个字符')),
-        );
-        $error = $obj_validate->validate();
-        if ($error != ''){
-           showValidateError($error);
-        }
         //获取有问题的商品
         $checked_goods = $_POST['input_goods_check'];
         $goods_problem = $_POST['input_goods_problem'];
@@ -173,18 +173,34 @@ class Tousu extends Base
         $complain_pic[1] = 'input_complain_pic1';
         $complain_pic[2] = 'input_complain_pic2';
         $complain_pic[3] = 'input_complain_pic3';
-        $pic_name = $this->upload_pic($complain_pic);
-        $input['complain_pic1'] = $pic_name[1];
-        $input['complain_pic2'] = $pic_name[2];
-        $input['complain_pic3'] = $pic_name[3];
+        //$pic_name = $this->upload_pic($complain_pic);
+        $file1 = request()->file("image1");
+        $file2 = request()->file("image2");
+        $file3 = request()->file("image3");
+
+        $info1 = $file1->move('uploads/feedback');
+        $info2 = $file2->move('uploads/feedback');
+        $info3 = $file3->move('uploads/feedback');
+        if ($info1) {
+            $input['complain_pic1'] = "http://192.168.2.252:7777/".$info1->getPathname();
+        }
+        if ($info2) {
+            $input['complain_pic2'] = "http://192.168.2.252:7777/".$info2->getPathname();
+        }
+        if ($info3) {
+            $input['complain_pic3'] = "http://192.168.2.252:7777/".$info3->getPathname();
+        }else {
+            //上传失败获取错误信息
+            $this->error($file1->getError());
+        }
         $input['complain_datetime'] = time();
         $input['complain_state'] = self::STATE_NEW;
         $input['complain_active'] = self::STATE_UNACTIVE;
         //保存投诉信息
-        $model_complain = Model('tousu');
+        $model_complain = new \app\v1\model\Tousu();
         $complain_id = $model_complain->saveComplain($input);
         //保存被投诉的商品详细信息
-        $model_complain_goods = Model('tousu_goods');
+        $model_complain_goods = new TousuGoods();
         $order_goods_list = $order_info['extend_order_goods'];
         foreach($order_goods_list as $goods) {
             $order_goods_id = $goods['rec_id'];
@@ -203,8 +219,9 @@ class Tousu extends Base
             }
         }
         //商品被投诉发送商户消息
-
-        showDialog(Language::get('投诉提交成功,请等待系统审核'),'index.php?app=tousu','succ');
+        $data['error_code'] = 200;
+        $data['message']=lang('投诉提交成功,请等待系统审核');
+        return json_encode($data,true);
     }
     /*
      * 检查投诉是否已经存在
@@ -273,5 +290,41 @@ class Tousu extends Base
         } else {
             showDialog(Language::get('投诉取消失败'),'','error');
         }
+    }
+    private function upload_pic($complain_pic) {
+        $pic_name = array();
+        $upload = new UploadFile();
+        $uploaddir = ATTACH_PATH.DS.'complain'.DS;
+        $upload->set('default_dir',$uploaddir);
+        $upload->set('allow_type',array('jpg','jpeg','gif','png'));
+        $count = 1;
+        foreach($complain_pic as $pic) {
+            if (!empty($_FILES[$pic]['name'])){
+                $result = $upload->upfile($pic);
+                if ($result){
+                    $pic_name[$count] = $upload->file_name;
+                    $upload->file_name = '';
+                } else {
+                    $pic_name[$count] = '';
+                }
+            }
+            $count++;
+        }
+        return $pic_name;
+    }
+    /*
+ * 获取订单信息
+ */
+    private function get_order_info($order_id) {
+        if(empty($order_id)) {
+            return null;
+        }
+        $model_order = Model('order');
+        $order_info = $model_order->getOrderInfo(array('order_id' => $order_id),array('order_goods'));
+        if($order_info['buyer_id'] != $_SESSION['member_id']) {
+            return null;
+        }
+        $order_info['order_state_text'] = orderState($order_info);
+        return $order_info;
     }
 }
