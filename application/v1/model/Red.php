@@ -268,6 +268,7 @@ class Red extends Model
                 $all_list[$k]['red_type']=$red_user_list[$k]['red_type'];
                 $all_list[$k]['red_status']=$red_user_list[$k]['red_status'];
                 $all_list[$k]['red_id']=$red_user_list[$k]['rid'];
+                $all_list[$k]['red_title']=$v['red_title'];
             }
             return $all_list;
         }

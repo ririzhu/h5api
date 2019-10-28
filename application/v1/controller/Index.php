@@ -720,7 +720,7 @@ class Index extends Base
         //公式 r = (nE(xi*yi)-ExEy)/(开根号（nE（x平方的和）-（Ex的平方））*开根号（nE（y平方的和）-（Ey的平方））);
         //计算x的平均值
         $xavg = array_sum($x_list)/count($x_list);
-        $r = ($count*$xy - $xsum*$ysum)/(sqrt($count*$x2sum-$xsum*$xsum) * sqrt($count*$y2sum-$ysum*$ysum));
+        $r = ($count*$xy - $xsum*$ysum)/(sqrt($count*$x2sum-pow($xsum,2)) * sqrt($count*$y2sum-pow($ysum,2)));
         echo $r;
     }
 
