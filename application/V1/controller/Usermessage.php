@@ -40,6 +40,9 @@ class Usermessage extends  Base
                 $message_array[$key]['message_body'] = html_entity_decode(preg_replace("/<a[^>]*>(.*?)<\/a>/is", "", $value['message_body']));
                 //$message_array[$key]['message_time_str'] = date('Y-m-d H:i:s',$value['message_time']);
                 $message_array[$key]['message_time_str'] = $this->date_before($value['message_time']);
+                if($message_array[$key]['message_type']==0) $message_array[$key]['message_type']="私信";
+                if($message_array[$key]['message_type']==1) $message_array[$key]['message_type']="系统消息";
+                if($message_array[$key]['message_type']==2) $message_array[$key]['message_type']="留言";
                 //是否已读
                 if(strpos($value['read_member_id'],",".input("member_id").",") === false){
                     $message_array[$key]['is_read']=0;
