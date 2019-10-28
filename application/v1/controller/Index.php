@@ -407,10 +407,19 @@ class Index extends Base
             $data['error_code'] = 10016;
             $data['message'] = lang("缺少参数");
         }
+        $vid = input("vid");
+        if($vid==0){
+
+        }
         $memberId = input('member_id');
         $page = input("page",0);
         $model_red = new Red();
         $conditionstr = " 1=1";
+        if($vid==0){
+            $conditionstr .=" and bbc_red.red_vid=0";
+        }else{
+            $conditionstr .=" and bbc_red.red_vid<>0";
+        }
         if (input('red_status')!=='') { //使用状态筛选
             if(input('red_status')=='used'){  //使用过
                 $condition['reduser_use'] = array( 'neq',0);
@@ -688,6 +697,31 @@ class Index extends Base
             $mnresult *=$i;
         }
         echo ($mresult)/($nresult*$mnresult);
+    }
+    /**
+     * 计算相关系数
+     */
+    public function calR(){
+        $x = input("x");
+        $y = input("y");
+        $x_list = explode(",",$x);
+        $y_list = explode(",",$y);
+        $xsum = array_sum($x_list);//x的和
+        $ysum = array_sum($y_list);//y的和
+        $x2sum = 0;//x平方的和
+        $y2sum = 0;//y平方的和
+        $count = count($x_list);//数量
+        $xy = 0;//xy的乘积之和；
+        for($i = 0;$i<count($x_list);$i++){
+            $xy += $x_list[$i]*$y_list[$i];
+            $x2sum +=($x_list[$i])*($x_list[$i]);
+            $y2sum +=($y_list[$i])*($y_list[$i]);
+        }
+        //公式 r = (nE(xi*yi)-ExEy)/(开根号（nE（x平方的和）-（Ex的平方））*开根号（nE（y平方的和）-（Ey的平方））);
+        //计算x的平均值
+        $xavg = array_sum($x_list)/count($x_list);
+        $r = ($count*$xy - $xsum*$ysum)/(sqrt($count*$x2sum-$xsum*$xsum) * sqrt($count*$y2sum-$ysum*$ysum));
+        echo $r;
     }
 
 }
