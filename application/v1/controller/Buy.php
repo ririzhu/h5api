@@ -519,7 +519,7 @@ class Buy extends Base
      * 下单时支付页面
      */
     public function pay() {
-        $pay_sn	= $_GET['pay_sn'];
+        $pay_sn	= input('pay_sn');
         $memberId = input("member_id");
         if (!preg_match('/^\d{18}$/',$pay_sn)){
             lang('该订单不存在');
