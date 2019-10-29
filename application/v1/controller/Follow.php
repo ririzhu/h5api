@@ -97,10 +97,15 @@ class Follow extends Base
                     $insert_arr['fav_id'] = $fav_id;
                     $insert_arr['fav_type'] = 'goods';
                     $insert_arr['fav_time'] = time();
-                    $result = $favorites_model->addFavorites($insert_arr);print_r($result);
+                    $result = $favorites_model->addFavorites($insert_arr);
+                    if(!$result){
+                        $data['error_code'] = 10201;
+                        $data['message'] = "移入收藏夹失败";
+                        return json_encode($data,true);
+                    }
 
 
-                    $fav_id = '';echo 3;
+                    $fav_id = '';
                     //收藏统计记录
                     $stats = new Stats();
                     $stats->put_goods_stats(1,$goods_info['gid'],'favorite',$token,1,input("member_id"));

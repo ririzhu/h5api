@@ -139,6 +139,11 @@ class Favorites extends Model
             $param['member_name'] = $userinfo['member_name'];
             $fields = 'gid,vid,goods_name,goods_image,goods_price,goods_promotion_price';
             $goods = $model_goods->getGoodsInfoByID($gid,$fields);
+            if(empty($goods)){
+                $data['error_code']=10021;
+                $data['message'] = lang("当前商品已经下架");
+                return false;
+            }
             $param['goods_name'] = $goods['goods_name'];
             $param['goods_image'] = $goods['goods_image'];
             $param['log_price'] = $goods['goods_promotion_price'];//商品收藏时价格
@@ -146,7 +151,7 @@ class Favorites extends Model
             if(isset($goods['gc_id']))
             $param['gc_id'] = $goods['gc_id'];
 
-            $vid = intval($goods['vid']);
+            $vid = $goods['vid'];
             $model_store = new VendorInfo();
             $store = $model_store->getStoreInfoByID($vid);
             $param['store_name'] = $store['store_name'];

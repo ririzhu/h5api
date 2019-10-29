@@ -1058,7 +1058,7 @@ class Goods extends  Base
         $order['value'] = false;
         if (in_array(input('key'),array('1','2','3'))) {
             $order['value'] = input('sort') == '1' ? true : false;
-            $order['key'] = str_replace(array('1','2','3'), array('goods_salenum','goods_click','goods_price'), $_GET['key']);
+            $order['key'] = str_replace(array('1','2','3'), array('goods_salenum','goods_click','goods_price'), input('key'));
         }
 
         //取得商品主键等信息
