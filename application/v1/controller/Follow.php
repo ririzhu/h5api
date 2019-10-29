@@ -100,7 +100,7 @@ class Follow extends Base
                     $result = $favorites_model->addFavorites($insert_arr);
                     if(!$result){
                         $data['error_code'] = 10201;
-                        $data['message'] = "移入收藏夹失败";
+                        $data['message'] = "该商品已下线";
                         return json_encode($data,true);
                     }
 
