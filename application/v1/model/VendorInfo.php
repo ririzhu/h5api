@@ -156,12 +156,12 @@ class VendorInfo extends Model
      * @return array
      */
     public function getStoreInfoByID($vid) {
-        $base = new Base();
-        $store_info = $base->rcache($vid, 'store_info');
-        if(empty($store_info)) {
+        //$base = new Base();
+        //$store_info = $base->rcache($vid, 'store_info');
+        //if(empty($store_info)) {
             $store_info = $this->getStoreInfo(array('vid' => $vid));
             //wmemcache($vid, $store_info, 'store_info');
-        }
+        //}
 
 
         if(LANG_TYPE!='zh_cn'){
