@@ -298,6 +298,17 @@ class Order extends Base
         if (empty($order_info)) {
             $data['message'] = lang('该订单不存在');
         }
+        $order_info['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$order_info['goods_image'];
+        $tmp = db::name("goods")->where("gid=".$order_info['gid'])->field("goods_commonid,goods_spec")->find();
+
+        $commonid = $tmp['goods_commonid'];
+        $value = unserialize($tmp['goods_spec']);
+
+        if($value!='')
+            $order_info['goods_spec'] = array_values($value)[0].lang("天");
+        else{
+            $order_info['goods_spec'] = "";
+        }
         $model_refund_return = new Refund();
         $order_list = array();
         $order_list[$order_id] = $order_info;
