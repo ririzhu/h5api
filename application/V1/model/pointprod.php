@@ -430,4 +430,23 @@ class pointprod extends Model
     	return Db::name('points_order')->where(['point_buyerid'=>$member_id,'point_orderid'=>$orderid])->update($data);
     }
 
+    /*
+    **可用优惠卷数量
+     */
+    public function countCoupon($gc_id){
+    	return Db::name('points_coupon')->where(['goods_gc_id'=>$gc_id,'receive_time'=>0])->count();
+    }
+    /*
+    **需要操作的优惠卷
+     */
+    public function getCoupon($gc_id,$goodsnum){
+    	return Db::name('points_coupon')->where(['goods_gc_id'=>$gc_id,'receive_time'=>0])->limit($goodsnum)->select();
+    }
+    /*
+    **更新优惠卷状态
+     */
+    public function updateConpon($id,$coupon_array){
+    	return Db::name('points_coupon')->where(['id'=>$id])->update($coupon_array);
+    }
+
 }

@@ -113,6 +113,18 @@ class Pointshop extends  Base
 		$member_where=" member_id = ".input('member_id');
 		$memberInfo=$pointprod->getMemberInfo($member_where);
 
+		//优惠卷			....暂定,需求不清晰
+		if(!empty($pgInfo['goods_gc_id'])){
+			$goods_gc_id=$pgInfo['goods_gc_id'];
+			$coupon_count=$pointprod->countCoupon($goods_gc_id);
+			if($coupon_count<$goodsnum){
+				$data['code']=10003;
+				$data['message']="库存不足";
+				return json($data);				
+			}
+			$coupon=$pointprod->getCoupon($goods_gc_id,$goodsnum);
+		}
+
 		$order_array=[];
 		$orderaddress_array=[];
 		$ordergoods_array=[];
@@ -154,6 +166,7 @@ class Pointshop extends  Base
 			$order_array['point_paymenttime']=$now;//支付(付款)时间
 			$order_array['point_allpoint']=trim($allpoint);//兑换总积分
 			$order_array['point_orderstate']=20;//订单状态：20确认付款;
+			if(!empty($coupon)) $order_array['point_orderstate']=50;
 
 			$orderaddress_array['point_truename']=$addInfo['true_name'];//收货人姓名
 			$orderaddress_array['point_areaid']=$addInfo['area_id'];//地区id
@@ -198,6 +211,17 @@ class Pointshop extends  Base
 			    $member['member_points']=$memberInfo['member_points']-$allpoint;
 			    $member_res=$pointprod->updateMember($memberInfo['member_id'],$member);
 			    $point_goods['pgoods_storage']=$pgInfo['pgoods_storage']-$goodsnum;
+
+			    //优惠卷
+			    if(!empty($coupon)){
+			    	foreach($coupon as $k1=>$v1){
+			    		$coupon_array['receive_time']=$now;
+			    		$coupon_array['member_id']=$memberInfo['member_id'];
+			    		$coupon_res=$pointprod->updateConpon($v1['id'],$coupon_array);
+			    	}
+			    	$point_goods['pgoods_storage']=$coupon_count-$goodsnum;
+			    }
+
 			    $point_goods['pgoods_salenum']=$pgInfo['pgoods_salenum']+$goodsnum;
 			    $member_res=$pointprod->updatePointGoodsById($pgInfo['pgid'],$point_goods);
 			    $message_res=$pointprod->insertMessage($messagge_array);
