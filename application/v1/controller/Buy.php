@@ -536,7 +536,7 @@ class Buy extends Base
         //取子订单列表
         $condition = "pay_sn=$pay_sn";
         $condition .=" and order_state in ('".ORDER_STATE_NEW."','".ORDER_STATE_PAY."','".ORDER_STATE_SEND."','".ORDER_STATE_SUCCESS."')";
-        $order_list = $model_order->getOrderList($condition,$page,'order_id,order_state,payment_code,order_amount,pd_amount,order_sn,dian_id,pd_points,red_id,vred_id,refund_state',"",10);
+        $order_list = $model_order->getOrderList($condition,$page,'bbc_order.order_id,order_state,payment_code,order_amount,pd_amount,order_sn,dian_id,pd_points,red_id,vred_id,refund_state',"",10);
         if (empty($order_list)) {
             $data['message']=lang('未找到需要支付的订单');
             return json_encode($data);
