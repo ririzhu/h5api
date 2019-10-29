@@ -88,7 +88,7 @@ class Order extends Base
         } else {
             $condition.=" and delete_state= 0";
         }
-         $order_list = $model_order->getOrderList($condition, $page, "bbc_order.*,bbc_order_goods.goods_name,bbc_order_goods.gid", 'order_id desc',10, array('order_common','order_goods','store'));
+         $order_list = $model_order->getOrderList($condition, $page, "bbc_order.*,bbc_order_goods.goods_name,bbc_order_goods.gid,bbc_order_goods.goods_image,bbc_order_goods.goods_num", 'order_id desc',10, array('order_common','order_goods','store'));
 
 //        dd($order_list);
         // 获取订单 活动类型（根据订单商品的 goods_type 进行判断）
@@ -111,8 +111,7 @@ class Order extends Base
         //Language::read('member_member_index');
         //$lang	= Language::getLangContent();
         foreach ($order_list as $order_id => $order) {
-
-
+            $order_list[$order_id]['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$order['goods_image'];
 
 
 
@@ -215,9 +214,14 @@ class Order extends Base
         //取得这些订单下的支付单列表
         $condition = array('pay_sn'=>array('in',arrayToString(array_unique($order_pay_sn_array))));
         $order_pay_list = $model_order->getOrderPayList($condition,'','*','','pay_sn');
+        //print_r($order_pay_list);die;
         if(!empty($order_pay_list)){
+            $kkk = 0;
             foreach ($order_group_list as $pay_sn => $pay_info) {
-                $order_group_list[$pay_sn]['pay_info'] = $order_pay_list[$pay_sn];
+                if(isset($order_pay_list[$kkk])) {
+                    $order_group_list[$kkk]['pay_info'] = $order_pay_list[$kkk];
+                    $kkk++;
+                }
             }
         }
         $memberInfo = $this->get_member_info($memberId);
