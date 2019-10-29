@@ -8,6 +8,7 @@ use app\v1\model\GoodsActivity;
 use app\v1\model\Refund;
 use app\v1\model\UserOrder;
 use app\v1\model\VendorInfo;
+use think\db;
 use think\Lang;
 class Order extends Base
 {
@@ -112,8 +113,16 @@ class Order extends Base
         //$lang	= Language::getLangContent();
         foreach ($order_list as $order_id => $order) {
             $order_list[$order_id]['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$order['goods_image'];
+            $tmp = db::name("goods")->where("gid=".$order['gid'])->field("goods_commonid,goods_spec")->find();
 
+            $commonid = $tmp['goods_commonid'];
+            $value = unserialize($tmp['goods_spec']);
 
+            if($value!='')
+                $order_list[$order_id]['goods_spec'] = array_values($value)[0].lang("天");
+            else{
+                $order_list[$order_id]['goods_spec'] = "";
+            }
 
             //显示取消订单
             $order['if_cancel'] = $model_order->getOrderOperateState('buyer_cancel',$order);
