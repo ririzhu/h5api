@@ -50,7 +50,10 @@ class Goods extends  Base
         }
         $model_grade = new Grade();
 
+        if($memberId==''){
 
+            $goods_detail = $model_goods->getGoodsDetail($gid, $field,0);
+        }else
         $goods_detail = $model_goods->getGoodsDetail($gid, $field,$memberId);
         if(empty($goods_detail)){
             $data['error_code'] = 10101;
@@ -434,13 +437,18 @@ class Goods extends  Base
         }
         $goods_info['con_start']=date("Y-m-d",$goods_info['con_start']);
         $goods_info['con_end']=date("Y-m-d",$goods_info['con_end']);
-        $has_fav = Db::table("bbc_favorites")->where("fav_id = $gid and member_id=$memberId")->count();
-        if($has_fav==0){
+        if($memberId == ''){
             $goods_info['favflag'] = false;
+        }else{
+            $has_fav = Db::table("bbc_favorites")->where("fav_id = $gid and member_id=$memberId")->count();
+            if($has_fav == 0){
+                $goods_info['favflag'] = false;
+            }
+            else{
+                $goods_info['favflag'] = true;
+            }
         }
-        else{
-            $goods_info['favflag'] = true;
-        }
+
         $red = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$goods_info['vid']." and red_receive_start<=".TIMESTAMP." and red_receive_end>=".TIMESTAMP)->field("redinfo_full,redinfo_money")->find();
         if(empty($red)){
             $goods_info['redflag'] = false;
@@ -545,6 +553,11 @@ class Goods extends  Base
     public function getComments() {
         $condition = array();
         $gid = input("gid");
+        if(!input("gid") || $gid = ""){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
         $condition="geval_goodsid =".input("gid");
         $type = input("type");
         $page = input("page")?input("page"):1;
@@ -572,7 +585,7 @@ class Goods extends  Base
         //查询商品评分信息
         $model_evaluate_goods = new EvaluateGoods();
         $goodsevallist = $model_evaluate_goods->getEvaluateGoodsList($condition, $page);
-        $hasImg = db::name("evaluate_goods")->where("geval_goodsid=".$gid." and geval_state=1 and geval_image!=''")->field("geval_addtime,geval_image,cct_user_avatar,geval_content,geval_scores,geval_frommembername,geval_isanonymous")->order("geval_id","desc")->count();
+        $hasImg = db::name("evaluate_goods")->where("geval_goodsid=".input("gid")." and geval_state=1 and geval_image!=''")->field("geval_addtime,geval_image,cct_user_avatar,geval_content,geval_scores,geval_frommembername,geval_isanonymous")->order("geval_id","desc")->count();
         if($goodsevallist==null){
             $data['comments_count'] = 0;
         }else {

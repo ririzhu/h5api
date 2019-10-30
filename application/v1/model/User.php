@@ -86,7 +86,10 @@ class User extends Model
         Db::startTrans();
         try {
             $res = DB::table("bbc_member")->insertGetId(["member_mobile"=>$userData["member_mobile"],"member_name"=>$userData['member_name'],"member_passwd"=>$userData["member_passwd"],"member_email"=>'','member_time'=>time(),'member_login_time'=>time(),'member_old_login_time'=>time(),'member_role'=>0,'inviter_id'=>$userData["inviteCode"],'inviter2_id'=>$userData["inviter2_id"],'inviter3_id'=>$userData["inviter3_id"]]);
-            md5($res."user".time());
+            $insertData['user_name'] = md5($res."user".time());
+            $insertData['in_table_id'] = $res;
+            $insertData['is_up_chain'] = 1;
+            $res = DB::name("blockchain_main")->insert($insertData);
             DB::commit();
             return true;
         } catch (Exception $e) {

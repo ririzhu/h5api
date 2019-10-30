@@ -21,6 +21,11 @@ class Vendor extends Base
         $condition['vid'] = $vid;
         $model_store = new VendorInfo();
         $store_info = $model_store->getStoreOnlineInfoByID($vid);
+        if(empty($store_info)){
+            $data['error_code'] = 10010;
+            $data['message'] = lang("店铺不存在");
+            return json_encode($data,true);
+        }
         $store_info['store_label']="http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
         $data['store_info'] = $store_info;
         $model_goods = new \app\v1\model\Goods(); // 字段

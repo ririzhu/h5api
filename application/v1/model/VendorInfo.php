@@ -140,12 +140,13 @@ class VendorInfo extends Model
             $store_evaluate_info = $model_evaluate_store->getEvaluateStoreInfoByStoreID($store_info['vid'], $store_info['sc_id']);
 
             $store_info = array_merge($store_info, $store_evaluate_info);
+
+            //zz 加入店铺标签***************
+            $model = new VendorLabel();
+            $label_name = $model->table('bbc_vendor_label')->field('label_name')->where(['id'=>$store_info['label_id']])->find();
+            $store_info['label_name'] = $label_name;
         }
 
-        //zz 加入店铺标签***************
-        $model = new VendorLabel();
-        $label_name = $model->table('bbc_vendor_label')->field('label_name')->where(['id'=>$store_info['label_id']])->find();
-        $store_info['label_name'] = $label_name;
         return $store_info;
     }
 
@@ -156,12 +157,15 @@ class VendorInfo extends Model
      * @return array
      */
     public function getStoreInfoByID($vid) {
-        //$base = new Base();
-        //$store_info = $base->rcache($vid, 'store_info');
-        //if(empty($store_info)) {
+        $base = new Base();
+        $store_info = $base->rcache($vid, 'store_info');
+        if(empty($store_info)) {
             $store_info = $this->getStoreInfo(array('vid' => $vid));
+            if(empty($store_info)){
+                return null;
+            }
             //wmemcache($vid, $store_info, 'store_info');
-        //}
+        }
 
 
         if(LANG_TYPE!='zh_cn'){

@@ -379,8 +379,17 @@ class User extends Base
         $return_arr = array();
         $log_list = array();
         $memberId = input("member_id");
-
+        if(!input("member_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
         $eachNum = 10;
+        if(!input("member_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
         if (Config(['app'])['app']['points_isuse'] == 1){
 
             // 校验 该用户 今天是否 签到；已签到用户不能再次签到
