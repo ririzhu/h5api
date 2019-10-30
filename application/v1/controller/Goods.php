@@ -434,6 +434,13 @@ class Goods extends  Base
         }
         $goods_info['con_start']=date("Y-m-d",$goods_info['con_start']);
         $goods_info['con_end']=date("Y-m-d",$goods_info['con_end']);
+        $has_fav = Db::table("bbc_favorites")->where("fav_id = $gid and member_id=$memberId")->count();
+        if($has_fav==0){
+            $goods_info['favflag'] = false;
+        }
+        else{
+            $goods_info['favflag'] = true;
+        }
         $red = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$goods_info['vid']." and red_receive_start<=".TIMESTAMP." and red_receive_end>=".TIMESTAMP)->field("redinfo_full,redinfo_money")->find();
         if(empty($red)){
             $goods_info['redflag'] = false;

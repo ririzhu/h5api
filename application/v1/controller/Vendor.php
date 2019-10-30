@@ -21,6 +21,7 @@ class Vendor extends Base
         $condition['vid'] = $vid;
         $model_store = new VendorInfo();
         $store_info = $model_store->getStoreOnlineInfoByID($vid);
+        $store_info['store_label']="http://www.horizou.cn/data/upload/mall/common/06249945949889035.png";
         $data['store_info'] = $store_info;
         $model_goods = new \app\v1\model\Goods(); // 字段
         $fieldstr = "gid,goods_commonid,goods_name,goods_jingle,vid,store_name,goods_price,goods_marketprice,goods_storage,goods_image,goods_freight,goods_salenum,color_id,evaluation_good_star,evaluation_count";

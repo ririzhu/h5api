@@ -80,7 +80,7 @@ class Order extends Base
             if (input('s') == 'nocomment') {
                 $condition.=" and evaluation_state=0";
                 $condition.=" and order_state = ".ORDER_STATE_SUCCESS;
-                $condition.=" and finnshed_time >".TIMESTAMP - ORDER_EVALUATE_TIME;
+                $condition.=" and finnshed_time >".(TIMESTAMP - (int)ORDER_EVALUATE_TIME);
             }
         }
         //回收站
