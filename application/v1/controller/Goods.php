@@ -562,6 +562,7 @@ class Goods extends  Base
         $type = input("type");
         $page = input("page")?input("page"):1;
         $hasImg = input("has_img",0);
+        $order = "geval_id desc";
         switch ($type) {
             case '1':
                 $condition .= " and geval_scores  <=5 and geval_scores >=3.5";
@@ -580,6 +581,9 @@ class Goods extends  Base
             $condition .=" and geval_image <>''";
         }if($hasImg==0){
             $condition .="";
+        }
+        if($type==0){
+            $order = "geval_addtime desc";
         }
 
         //查询商品评分信息
