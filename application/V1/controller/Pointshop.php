@@ -26,7 +26,17 @@ class Pointshop extends  Base
 		$where='';$order=' order by pgid desc ';$limit=' limit 3 ';
 		//分类商品展示
 		foreach ($point_goods_category as $key => $value) {
-			$where=" and goods_gc_id = ".$value['gc_id'];
+			
+			//因优惠卷做的改变
+			$gc_id_arr=[];
+			$arr_list=$pointprod->getChildClass($value['gc_id']);
+			foreach($arr_list as $k => $v){
+				$gc_id_arr[]=$v['gc_id'];
+			}
+			$gc_id_str=implode(',', $gc_id_arr);
+			$where=" and goods_gc_id in ( ".$gc_id_str." ) ";
+
+			//$where=" and goods_gc_id = ".$value['gc_id'];
 			$point_goods_category[$key]['list']=$pointprod->getlist($field,$where,$order,$limit);
 		}
 		//新品推荐
@@ -54,7 +64,17 @@ class Pointshop extends  Base
         $gc_id=input('gc_id');
         $pointprod=new pointprod();
 		$field=" pgid,pgoods_name,pgoods_points,pgoods_price,pgoods_image ";
-		$where=" and goods_gc_id = ".$gc_id;
+
+		//因优惠卷做的改变
+		$gc_id_arr=[];
+		$arr_list=$pointprod->getChildClass($gc_id);
+		foreach($arr_list as $k => $v){
+			$gc_id_arr[]=$v['gc_id'];
+		}
+		$gc_id_str=implode(',', $gc_id_arr);
+		$where=" and goods_gc_id in ( ".$gc_id_str." ) ";
+
+		//$where=" and goods_gc_id = ".$gc_id;
 		$order=" order by pgoods_commend desc,pgid desc ";
 		$parameter=input('parameter');
 		if($parameter=='desc'){
@@ -113,7 +133,7 @@ class Pointshop extends  Base
 		$member_where=" member_id = ".input('member_id');
 		$memberInfo=$pointprod->getMemberInfo($member_where);
 
-		//优惠卷			....暂定,需求不清晰
+		//优惠卷			....暂定,需求不清晰(后台添加优惠卷时，需保证gc_id唯一性)
 		if(!empty($pgInfo['goods_gc_id'])){
 			$goods_gc_id=$pgInfo['goods_gc_id'];
 			$coupon_count=$pointprod->countCoupon($goods_gc_id);
