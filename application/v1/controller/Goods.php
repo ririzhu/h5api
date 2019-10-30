@@ -432,6 +432,8 @@ class Goods extends  Base
             //http://www.horizou.cn/data/upload/mall/common/06249945949889035.png;
             $goods_info['comments'] = $comments;
         }
+        $goods_info['con_start']=date("Y-m-d",$goods_info['con_start']);
+        $goods_info['con_end']=date("Y-m-d",$goods_info['con_end']);
         $red = db::name("red")->join("bbc_red_info","bbc_red.id=bbc_red_info.red_id")->where("bbc_red.red_vid=".$goods_info['vid']." and red_receive_start<=".TIMESTAMP." and red_receive_end>=".TIMESTAMP)->field("redinfo_full,redinfo_money")->find();
         if(empty($red)){
             $goods_info['redflag'] = false;
