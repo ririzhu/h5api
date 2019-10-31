@@ -478,7 +478,7 @@ class Goods extends Model
      * @return array
      */
     public function getGoodsInfo($condition, $field = '*') {
-        $re=  DB::table('bbc_goods')->field($field)->where($condition)->find();
+        $re=  DB::name('goods')->field($field)->where($condition)->find();
         return $re;
     }
 

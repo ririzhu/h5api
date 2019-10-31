@@ -1,6 +1,7 @@
 <?php
 namespace app\v1\model;
 
+use Exception;
 use think\Model;
 use think\db;
 class Order extends Model
@@ -152,7 +153,8 @@ class Order extends Model
      * @param string $order
      * @param string $group
      */
-    public function getOrderInfo($condition = array(), $extend = array(), $fields = '*', $order = '',$group = '') {
+    public function getOrderInfo($condition = array(), $extend = array(), $fields = '*', $order = '',$group = '')
+    {
         $order_info = DB::name('order')->field($fields)->where($condition)->group($group)->order($order)->find();
         if (empty($order_info)) {
             return array();
@@ -180,18 +182,16 @@ class Order extends Model
         //追加返回商品信息
         if (in_array('order_goods',$extend)) {
             //取商品列表
-            $order_goods_list = $this->getOrderGoodsList(array('order_id'=>$order_info['order_id']));
+            $order_goods_list = db::name('order_goods')->where(['order_id' => $order_info['order_id']])->select();
 
-            // // 获取最终价格
-            // $order_goods_list = Model('goods_activity')->rebuild_goods_data($order_goods_list);
-
-            foreach ($order_goods_list as $value) {
-                $item_goods_info = Model('goods')->getGoodsInfoByID($value['gid'],'goods_commonid,goods_serial');
+            foreach ($order_goods_list as $key => $value) {
+                $model_goods = new Goods();
+                $item_goods_info = $model_goods->getGoodsInfoByID($value['gid'],'goods_commonid,goods_serial');
                 // 获取 多规格商品 多规格相关信息
                 if ($value['has_spec']) {
                     $value['spec_num_arr'] = unserialize($value['spec_num']);
                     // 有规格 (获取规格信息)
-                    $spec_array = Model('goods')->getGoodsList(array('goods_commonid' => $item_goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage');
+                    $spec_array = $model_goods->getGoodsList(array('goods_commonid' => $item_goods_info['goods_commonid']), 'goods_spec,gid,vid,goods_image,color_id,goods_storage');
                     $spec_list = array();       // 各规格商品地址，js使用
                     foreach ($spec_array as $s_key => $s_value) {
                         $s_array = unserialize($s_value['goods_spec']);
@@ -274,37 +274,25 @@ class Order extends Model
      * @return int|string
      */
     public function editOrder($data,$condition) {
-        if(Config('distribution') && !(Config("sld_spreader") && Config("spreader_isuse"))){
+//        if(Config('distribution') && !(Config("sld_spreader") && Config("spreader_isuse"))){
             if ($data['order_state'] == ORDER_STATE_PAY) {
-                $order_info = $this->getOrderInfo($condition);
-//                $this->fanli($order_info);
+                $order_info = $this->getOrderInfo($condition,array(),'order_id,buyer_id,order_amount,order_sn');
+                $this->fanli($order_info);
             }else if($data['order_state']==ORDER_STATE_SUCCESS){
-                $list = DB::name('fenxiao_log')->field('*')->where(array('order_id'=>$condition[order_id],'status'=>0))->select();
+                $list = DB::name('fenxiao_log')->field('*')->where(array('order_id'=>$condition['order_id'],'status'=>0))->select();
 
-                foreach($list as $value){
+                foreach($list as $key => $value){
                     $bs = 'rebate'.$value['description'];
 
                     $member_model = new User();
                     $member_info=$member_model->getMemberInfoByID($value['reciver_member_id']);
                     $points = new Points();
-                    $points->savePointsLog($bs,array('pl_memberid'=>$value['reciver_member_id'],'pl_membername'=>$member_info['member_name'],'rebate_amount'=>$value['yongjin']),true);
+                    $points->savePointsLog($bs,array('pl_memberid'=>$value['reciver_member_id'],'pl_membername'=>$member_info['member_name'],'rebate_amount'=>$value['yongjin']));
 
-
-//                $model_pd = Model('predeposit');
-
-//                    $data_pd = array();
-//                    $data_pd['member_id'] = $value['reciver_member_id'];
-//                    $data_pd['amount'] = $value['yongjin'];
-//                    $data_pd['order_sn'] = $value['order_sn'];
-//                    //根据用户reciver_member_id获取reciver_member_name
-//                    $member_model = Model('member');
-//                    $member_info=$member_model->getMemberInfoByID($value['reciver_member_id']);
-//                    $data_pd['member_name'] = $member_info['member_name'];
-//                    $model_pd->changePd('cash_rebate',$data_pd);
                 }
-                DB::name('fenxiao_log')->where(array('order_id'=>$condition[order_id],'status'=>0))->update(array('status'=>1));
+                DB::name('fenxiao_log')->where(array('order_id'=>$condition['order_id'],'status'=>0))->update(array('status'=>1));
             }
-        }
+//        }
 
         // 推手系统开启
         if (Config('spreader_isuse') && Config('sld_spreader')) {
@@ -318,5 +306,80 @@ class Order extends Model
             }
         }
         return DB::name('order')->where($condition)->update($data);
+    }
+
+    /**
+     * @param $order_info
+     * @throws Exception
+     */
+    private function fanli($order_info)
+    {
+        $model_member = new User();
+        $model_setting = new Setting();
+        $order_id = $order_info['order_id'];
+
+        $list_setting =$model_setting->getListSetting();
+        $points_rebate_grade1 = $list_setting['points_rebate_grade1']/100;
+        $points_rebate_grade2 = $list_setting['points_rebate_grade2']/100;
+        $points_rebate_grade3 = $list_setting['points_rebate_grade3']/100;
+        $points_rebate_set = $list_setting['points_rebate_set'];
+
+        $order_goods_info = $this->getOrderInfo(['order_id' => $order_id],['order_goods']);
+        $order_goods_list = $order_goods_info['extend_order_goods'];
+
+        $commission_total = 0;
+        foreach ($order_goods_list as $key => $value){
+            $commission_total += $value['goods_pay_price'];
+        }
+        $commission_total = $commission_total * $points_rebate_set;
+
+        if ($commission_total > 0){
+            $member_info = $model_member->getMemberInfoByID($order_info['buyer_id']);
+            $inviter_id = $member_info['inviter_id'];
+            if ($inviter_id){
+                $array['contribution_member_id'] = $order_info['buyer_id'];
+                $array['contribution_member_name'] = $member_info['member_name'];
+                $array['reciver_member_id'] = $inviter_id;
+                $array['add_time'] = time();
+                $array['yongjin'] = $commission_total * $points_rebate_grade1;
+                $array['order_id'] = $order_info['order_id'];
+                $array['order_total'] = $order_info['order_amount'];
+                $array['order_sn'] = $order_info['order_sn'];
+                $array['description'] = 1;
+                $array['status'] = 0;
+
+                $model_fenxiao = new Fenxiao();
+                $result = $model_fenxiao->addRecord($array);
+                if (!$result){
+                    throw new Exception('一级返利失败');
+                }
+                
+                $inviter2_id = $member_info['inviter2_id'];
+                if ($inviter2_id){
+                    $array['reciver_member_id'] = $inviter2_id;
+                    $array['add_time'] = time();
+                    $array['yongjin'] = $commission_total * $points_rebate_grade2;
+                    $array['description'] = 2;
+
+                    $result = $model_fenxiao->addRecord($array);
+                    if (!$result){
+                        throw new Exception('二级返利失败');
+                    }
+                    
+                    $inviter3_id = $member_info['inviter3_id'];
+                    if ($inviter3_id){
+                        $array['reciver_member_id'] = $inviter3_id;
+                        $array['add_time'] = time();
+                        $array['yongjin'] = $commission_total * $points_rebate_grade3;
+                        $array['description'] = 3;
+
+                        $result = $model_fenxiao->addRecord($array);
+                        if (!$result){
+                            throw new Exception('三级返利失败');
+                        }
+                    }
+                }
+            }
+        }
     }
 }

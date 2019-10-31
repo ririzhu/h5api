@@ -231,7 +231,7 @@ class Payment extends Model
             'pay_sn' => $out_trade_no,
             'order_state' => ORDER_STATE_NEW,
         ];
-        $order_list = $order->getOrderList($condition);
+        $order_list = $order->getOrderList($condition,'','*','order_id desc',1);
         if (empty($order_list)){
             $data['code'] = 256;
             $data['message'] = '订单不存在或已支付';
@@ -290,7 +290,7 @@ class Payment extends Model
             }
 
             $order_data = [
-                'order_state' => ORDER_STATE_SUCCESS,
+                'order_state' => ORDER_STATE_PAY,
                 'payment_time' => time(),
             ];
             $order_condition = [
@@ -307,7 +307,7 @@ class Payment extends Model
                     'order_id' => $val['order_id'],
                     'log_role' => 'buyer',
                     'log_msg' => '完成了付款(支付平台交易号：'.$out_trade_no,
-                    'log_orderstate' => ORDER_STATE_SUCCESS,
+                    'log_orderstate' => ORDER_STATE_PAY,
                 ];
                 $insert = $order->addOrderLog($log_data);
                 if (!$insert) {

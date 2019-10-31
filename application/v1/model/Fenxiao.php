@@ -18,7 +18,7 @@ class Fenxiao extends Model {
         if(empty($param)) {
             return false;
         }
-        $result	= Db::insert('fenxiao_log',$param);
+        $result	= Db::name('fenxiao_log')->insert($param);
         return $result;
     }
 
@@ -38,7 +38,7 @@ class Fenxiao extends Model {
      */
     public function editStatus($condition)
     {
-        return $this->table('fenxiao_log')->where($condition)->update(array('status'=>1));
+        return Db::name('fenxiao_log')->where($condition)->update(array('status'=>1));
     }
 
     /**
@@ -47,7 +47,7 @@ class Fenxiao extends Model {
      */
     public function getTotalFreeze($param)
     {
-        $freeze_list = $this->table('fenxiao_log')->field('yongjin')->where($param)->select();
+        $freeze_list = Db::name('fenxiao_log')->field('yongjin')->where($param)->select();
         return array_sum($freeze_list);
 
     }
