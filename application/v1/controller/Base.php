@@ -447,7 +447,7 @@ function date_before($time, $unit = null) {
     }
     public function curl($method,$url,$data){
         $curl = curl_init();
-
+        $SSL = substr($url, 0, 8) == "https://" ? true : false;
         //$data['timestamp']=time();
         curl_setopt($curl, CURLOPT_URL, $url);//登陆后要从哪个页面获取信息
         curl_setopt($curl, CURLOPT_HEADER, 0);//获取头部
@@ -459,13 +459,20 @@ function date_before($time, $unit = null) {
             curl_setopt ($curl, CURLOPT_POSTFIELDS, $data );
 
         }
+        if ($SSL) {
+
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // 信任任何证书
+
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0); // 检查证书中是否设置域名
+
+        }
         $html = curl_exec($curl);//获取html页面
         curl_close($curl);
         $re1=$html;
-        if (substr($re1, 0,3) == pack("CCC",0xef,0xbb,0xbf)) {
-            $re1 = substr($re1, 3);
-        }
-        echo $re1;
+//        if (substr($re1, 0,3) == pack("CCC",0xef,0xbb,0xbf)) {
+//            $re1 = substr($re1, 3);
+//        }
+        echo $html;
 
 
     }

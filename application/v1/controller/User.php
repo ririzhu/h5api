@@ -649,7 +649,7 @@ class User extends Base
             }else{
                 $uri = MASTER_PAY_URI;
             }
-            $url = "https://test.allinpaygd.com/apiweb/qpay/agreeapply";
+            $url = "http://test.allinpaygd.com/apiweb/qpay/agreeapply";//"https://vsp.allinpay.com/apiweb/qpay/agreeapply";
             $str = "";
             $randomstr = "HORIZOU".time();
             if(input("card_type")=="02") {
@@ -670,15 +670,15 @@ class User extends Base
             $requestData['acctno']=input("card_num");
             $requestData['accttype']=input("card_type");
             $requestData['appid']=TLAPPID;
-            $requestData['idno']=input("identity_name");
+            $requestData['idno']=$idno;
             $requestData['meruserid']=input("member_id");
             $requestData['mobile']=input("mobile");
-            echo $requestData['randomstr']=$randomstr," ";
+            $requestData['cusid']=TLCUID;
+            $requestData['randomstr']=$randomstr;
             $requestData['reqip']=$_SERVER['SERVER_ADDR'];
             $base = new Base();
-            echo $requestData['sign']=self::SignArray($requestData,TLCUID);
-            $requestData['cusid']=TLCUID;
-            print_r($base->curl("POST",$url,$requestData));
+            $requestData['sign']=strtoupper(self::SignArray($requestData,"15202156609"));
+            echo $base->curl("POST",$url,$requestData);
         }
     }
     /**
