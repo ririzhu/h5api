@@ -117,8 +117,12 @@ $config['jpush_open'] = true;
 $config['jpush_appkey'] = 'b660716da4a05e0dc4c4904e';
 $config['jpush_secret'] = 'e20e956981b0dca619a73f70';
 //define("dev",true);
-define("DEV_PAY_URI","https://test.allinpaygd.com");//测试环境通联支付uri;
-define("MASTER_PAY_URI","https://vsp.allinpay.com");//生产环境通联支付uri;
+define("TLCUID","56058104816HDSQ");//通联支付cuid
+define("TLAPPID","00178859");//通联支付appid
+define("TLPUBLICKEY","MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC2EXv2c0m6kBb3UBJRvwOHDp1f4UooNL4VVYl9pDsykZgYzHuM8/INyjtteLvZ84oiHKvg4kLZ9gfioYNbJFnzxQ0tS3tvJfwTrAy/Xz7CGA/JxUKwfjan7XX86TTBlcBwyLh4ZThTDW8oHQQP5irSLUMNr8SHf+wv+KPpU/mkWQIDAQAB");
+define("TLPRIVATEKEY","MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBALYRe/ZzSbqQFvdQElG/A4cOnV/hSig0vhVViX2kOzKRmBjMe4zz8g3KO214u9nziiIcq+DiQtn2B+Khg1skWfPFDS1Le28l/BOsDL9fPsIYD8nFQrB+NqftdfzpNMGVwHDIuHhlOFMNbygdBA/mKtItQw2vxId/7C/4o+lT+aRZAgMBAAECfwZGaQO/qA15SsRlg28b6g7SikkhhO8wkQUHcjloNzAdJi9jeCzdFNKUXbDWljDjX01CmUqhCvCbsH2SUW5DQWPWoS41NIIcrAlwMK0GUWvAcdN/nT+Dl1VCZ1Qw5CowWGnytwDnh4Q8cSylp3p0iNC1eX7slbrrtZ709uDoMFsCQQDe0u2T1HwS2oiytwU3xImKruYUQnUOoNf4VOQSTd6t7adVvJRaP+OnbZaH6nQ6j8vkXgQcz/ynJ2zilUvQH5t7AkEA0S0hO4XzNSQXZM79XVctKeJnRTFORNM77n1DfdgCofUvwdg3hOka6Oxa2eUXq8eMLnumy6BIiB85kAjzwIW9OwJAJkNmVLpqS/qG+tl+5eK0E8KQ8+2tmEN6ksRRHeuNT6S91XU6rHzIJRomfVR/fQbwZljWr/PvWOzmP8qPaD/lPQJBALbevJH8Pi60OduA9pI2154pd91PCL006s1KJ8oKIesTnsfaTlddL5B4qcia90HPd6dfpOeaXi7bFYjtuqQSh+cCQQDFnCTcKoGeKsvlp4l5fDnPmVbWnTC45XSaHXSSrMpvqZibY2+JRmqDKMJx4BPTlEXkdvxY6pzQEjC5Ti8hO2pJ");
+define("DEV_PAY_URI",'https://test.allinpaygd.com');//测试环境通联支付uri;
+define("MASTER_PAY_URI",'https://vsp.allinpay.com');//生产环境通联支付uri;
 define('BASE_ROOT_PATH',str_replace('\\','/',dirname(__FILE__)));
 define('TIMESTAMP',time());
 define('DS','/');

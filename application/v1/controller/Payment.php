@@ -766,4 +766,7 @@ class Payment extends Base
             exit(json_encode(array('state'=>($info['pdr_payment_state'] == '1'),'pay_sn'=>$info['pdr_sn'],'type'=>'p')));
         }
     }
+    /**
+     * 申请通联支付签约
+     */
 }

@@ -933,6 +933,9 @@ class Goods extends  Base
                     $data_attr['brand_array'] = $this->_model_search->delInvalidBrand($data_attr['brand_array']);
                     $data_attr['attr_array'] = $this->_model_search->delInvalidAttr($data_attr['attr_array']);
                 }
+                $data['error_code']=200;
+                $data['goods_list']=array();
+                return json_encode($data,true);
             }
 
             //抛出搜索属性

@@ -445,4 +445,57 @@ function date_before($time, $unit = null) {
             exit;
         };
     }
+    public function curl($method,$url,$data){
+        $curl = curl_init();
+
+        //$data['timestamp']=time();
+        curl_setopt($curl, CURLOPT_URL, $url);//登陆后要从哪个页面获取信息
+        curl_setopt($curl, CURLOPT_HEADER, 0);//获取头部
+        curl_setopt ($curl, CURLOPT_POST, 1 );
+        curl_setopt($curl, CURLOPT_USERAGENT, 'MQQBrowser/Mini3.1 (Nokia3050/07.42) Via: MQQBrowser');
+        // curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1); 这里要不要都没用
+        if(strtoupper($method)=="POST"){
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt ($curl, CURLOPT_POSTFIELDS, $data );
+
+        }
+        $html = curl_exec($curl);//获取html页面
+        curl_close($curl);
+        $re1=$html;
+        if (substr($re1, 0,3) == pack("CCC",0xef,0xbb,0xbf)) {
+            $re1 = substr($re1, 3);
+        }
+        echo $re1;
+
+
+    }
+    /**
+     * 参数排序
+     *
+     * @param array $param
+     * @return string
+     */
+    public static function _getSortParams($param = [])
+    {
+        unset($param['sign']);
+        ksort($param);
+        $signstr = '';
+        if (is_array($param)) {
+            foreach ($param as $key => $value) {
+                if ($value == '') {
+                    continue;
+                }
+                $signstr .= $key . '=' . $value . '&';
+            }
+            $signstr = rtrim($signstr, '&');
+        }
+        return $signstr;
+    }
+    public static function getBytes($string) {
+        $bytes = array();
+        for($i = 0; $i < strlen($string); $i++){
+            $bytes[] = ord($string[$i]);
+        }
+        return $bytes;
+    }
 }

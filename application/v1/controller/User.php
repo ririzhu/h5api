@@ -452,7 +452,7 @@ class User extends Base
             $data['message'] = lang("成功");
         }else{
             $data['error_code'] = 200;
-            $data['message'] = lang("保存成功");
+            $data['message'] = lang("成功");
         }
         $data['data'] = DB::name("address")->where("member_id=$memberId")->order("is_default","desc")->select();
 
@@ -620,6 +620,11 @@ class User extends Base
             return json_encode($data,true);
         }
     }
+
+    /**
+     * 申请签约
+     * @return false|string
+     */
     public function getBankMessage(){
         if(!input("member_id") || !input("card_num") || !input("card_type") || !input("identity_num") || !input("mobile") || !input("name") ||!input("code")){
             $data['error_code'] = 10016;
@@ -644,8 +649,59 @@ class User extends Base
             }else{
                 $uri = MASTER_PAY_URI;
             }
-            $url = $uri."/apiweb/qpay/agreeapply";
+            $url = "https://test.allinpaygd.com/apiweb/qpay/agreeapply";
+            $str = "";
+            $randomstr = "HORIZOU".time();
+            if(input("card_type")=="02") {
+                if(!input("validdate") || !input("cvv2")){
+                    $data['error_code'] = 10010;
+                    $data['message'] = lang("缺少参数");
+                    return json_encode($data,true);
+                }
+                $str .= "acctname=" . input("name") . "&acctno=" . input("card_num") . "&accttype=" . input("card_type") . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&idno=" . input("identity_num") . "&meruserid=" . input("member_id") . "&mobile=" . input("mobile") . "&randomstr=" . $randomstr;
+            }else{
+                $str .= "acctname=" . input("name") . "&acctno=" . input("card_num") . "&accttype=" . input("card_type") . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&cvv2=".input("cvv2")."&idno=" . input("identity_num") . "&meruserid=" . input("member_id") . "&mobile=" . input("mobile") . "&randomstr=" . $randomstr;
+                $str .= "&reqip=" . $_SERVER['SERVER_ADDR']."&validdate=".input("validdate");
+                $requestData['cvv2']=input("cvv2");
+                $requestData['validdate']=input("validdate");
+            }
+            $sign = md5(strtoupper($str));
+            $requestData['acctname']=input("name");
+            $requestData['acctno']=input("card_num");
+            $requestData['accttype']=input("card_type");
+            $requestData['appid']=TLAPPID;
+            $requestData['idno']=input("identity_name");
+            $requestData['meruserid']=input("member_id");
+            $requestData['mobile']=input("mobile");
+            echo $requestData['randomstr']=$randomstr," ";
+            $requestData['reqip']=$_SERVER['SERVER_ADDR'];
+            $base = new Base();
+            echo $requestData['sign']=self::SignArray($requestData,TLCUID);
+            $requestData['cusid']=TLCUID;
+            print_r($base->curl("POST",$url,$requestData));
         }
     }
+    /**
+     * 将参数数组签名
+     */
+    public static function SignArray(array $array,$appkey){
+        $array['key'] = $appkey;// 将key放到数组中一起进行排序和组装
+        ksort($array);
+        $blankStr = self::ToUrlParams($array);
+        $sign = md5($blankStr);
+        return $sign;
+    }
+    public static function ToUrlParams(array $array)
+    {
+        $buff = "";
+        foreach ($array as $k => $v)
+        {
+            if($v != "" && !is_array($v)){
+                $buff .= $k . "=" . $v . "&";
+            }
+        }
 
+        $buff = trim($buff, "&");
+        return $buff;
+    }
 }
