@@ -338,8 +338,15 @@ class pointprod extends Model
     	$sql="select ";
     	$sql.=" gc_id,gc_name,gc_sld_pc_picture ";
     	$sql.=" from bbc_goods_class ";
-    	$sql.=" where is_points = 1 and gc_show = 1 ";
+    	$sql.=" where is_points = 1 and gc_show = 1 and gc_parent_id = 0 ";
     	return Db::query($sql);
+    }
+    /*
+    **获取自身及子分类id
+     */
+    public function getChildClass($id){
+    	$where='gc_id ='.$id.' or gc_parent_id = '.$id;
+    	return Db::name('goods_class')->field('gc_id')->where($where)->select();
     }
     /*
     **获取收获地址
