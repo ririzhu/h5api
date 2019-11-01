@@ -276,7 +276,7 @@ class Order extends Model
     public function editOrder($data,$condition) {
 //        if(Config('distribution') && !(Config("sld_spreader") && Config("spreader_isuse"))){
             if ($data['order_state'] == ORDER_STATE_PAY) {
-                $order_info = $this->getOrderInfo($condition,array(),'order_id,buyer_id,order_amount,order_sn');
+                $order_info = $this->getOrderInfo($condition,array(),'order_id,buyer_id,order_amount,order_sn,order_state,payment_code');
                 $this->fanli($order_info);
             }else if($data['order_state']==ORDER_STATE_SUCCESS){
                 $list = DB::name('fenxiao_log')->field('*')->where(array('order_id'=>$condition['order_id'],'status'=>0))->select();
@@ -309,6 +309,7 @@ class Order extends Model
     }
 
     /**
+     * 佣金返利
      * @param $order_info
      * @throws Exception
      */
@@ -322,10 +323,12 @@ class Order extends Model
         $points_rebate_grade1 = $list_setting['points_rebate_grade1']/100;
         $points_rebate_grade2 = $list_setting['points_rebate_grade2']/100;
         $points_rebate_grade3 = $list_setting['points_rebate_grade3']/100;
-        $points_rebate_set = $list_setting['points_rebate_set'];
+        $points_rebate_set = $list_setting['points_rebate_set']/100;
 
-        $order_goods_info = $this->getOrderInfo(['order_id' => $order_id],['order_goods']);
-        $order_goods_list = $order_goods_info['extend_order_goods'];
+        /*$order_goods_info = $this->getOrderInfo(['order_id' => $order_id],['order_goods']);
+        $order_goods_list = $order_goods_info['extend_order_goods'];*/
+
+        $order_goods_list = db::name('order_goods')->where(['order_id' => $order_id])->select();
 
         $commission_total = 0;
         foreach ($order_goods_list as $key => $value){

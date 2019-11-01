@@ -225,13 +225,15 @@ class Payment extends Model
      */
     public function notifyProcess($out_trade_no)
     {
-        $order = new Order();
+        $model_order = new Order();
 
-        $condition = [
+        $order_condition = [
             'pay_sn' => $out_trade_no,
             'order_state' => ORDER_STATE_NEW,
         ];
-        $order_list = $order->getOrderList($condition,'','*','order_id desc',1);
+//        $order_list = $model_order->getOrderList($order_condition,'','*','order_id desc',1);
+        $order_list = Db::name('order')->field('order_id')->where($order_condition)->select();
+
         if (empty($order_list)){
             $data['code'] = 256;
             $data['message'] = '订单不存在或已支付';
@@ -241,7 +243,7 @@ class Payment extends Model
         $pay_condition = [
             'pay_sn' => $out_trade_no,
         ];
-        $order_pay_info =$order->getOrderPayInfo($pay_condition);
+        $order_pay_info =$model_order->getOrderPayInfo($pay_condition);
         if (empty($order_pay_info)){
             $data['code'] = 256;
             $data['message'] = '订单不存在';
@@ -274,7 +276,7 @@ class Payment extends Model
     public function updateBuy($out_trade_no,$order_list)
     {
         try{
-            $order = new Order();
+            $model_order = new Order();
 
             DB::startTrans();
 
@@ -284,7 +286,7 @@ class Payment extends Model
             $order_pay_condition = [
                 'pay_sn' => $out_trade_no,
             ];
-            $update =$order->editOrderPay($order_pay_data,$order_pay_condition);
+            $update =$model_order->editOrderPay($order_pay_data,$order_pay_condition);
             if (!$update){
                 throw new Exception('更新订单状态失败');
             }
@@ -297,7 +299,7 @@ class Payment extends Model
                 'pay_sn' => $out_trade_no,
                 'order_state' => ORDER_STATE_NEW,
             ];
-            $order_update = $order->editOrder($order_data,$order_condition);
+            $order_update = $model_order->editOrder($order_data,$order_condition);
             if (!$order_update){
                 throw new Exception('更新订单状态失败');
             }
@@ -309,7 +311,7 @@ class Payment extends Model
                     'log_msg' => '完成了付款(支付平台交易号：'.$out_trade_no,
                     'log_orderstate' => ORDER_STATE_PAY,
                 ];
-                $insert = $order->addOrderLog($log_data);
+                $insert = $model_order->addOrderLog($log_data);
                 if (!$insert) {
                     throw new Exception('记录订单日志出现错误');
                 }
