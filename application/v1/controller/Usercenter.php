@@ -334,8 +334,8 @@ class Usercenter extends Base {
         $data['list'] = $list;
         $data['count'] = $count;
 //        $data['available_yj'] = floatval($member_info['available_predeposit']);
-        $data['available_yj'] = $account;
-        $data['total_income'] = $total_income;
+        $data['available_yj'] = floatval($account);
+        $data['total_income'] = floatval($total_income);
         return json_encode($data,true);
     }
 
