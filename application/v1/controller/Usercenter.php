@@ -25,7 +25,7 @@ class Usercenter extends Base {
 		parent::__construct();
 	}
 
-    /**
+	/**
      * 个人中心
      * @return false|string
      */
@@ -294,8 +294,8 @@ class Usercenter extends Base {
                 $arr['add_time'] = $val['add_time'];
                 $arr['status'] = $val['status'];
                 if ($val['status'] == 1) {
-                    $total_income += $val['yongjin'];
-                    $account += $val['yongjin'];
+                    $total_income += floatval($val['yongjin']);
+                    $account += floatval($val['yongjin']);
                 }
                 $list[] = $arr;
             }
@@ -315,7 +315,7 @@ class Usercenter extends Base {
                 $arr['add_time'] = $val['pdc_add_time'];
                 $arr['status'] = $val['pdc_payment_state'];
                 if ($val['pdc_payment_state'] == 1){
-                    $account -= $val['pdc_amount'];
+                    $account -= floatval($val['pdc_amount']);
                 }
                 $list[] = $arr;
             }
