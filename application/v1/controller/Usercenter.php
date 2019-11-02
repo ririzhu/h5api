@@ -9,6 +9,7 @@ use app\v1\model\Points;
 use app\v1\model\Predeposit;
 use app\v1\model\Goods;
 use app\v1\model\Red;
+use app\v1\model\SsysYj;
 use app\v1\model\User;
 use app\v1\model\Sms;
 use think\db;
@@ -73,26 +74,6 @@ class Usercenter extends Base {
 		$data['message'] = '请求成功';
 		$data['member_info'] = $member_info;
         echo json_encode($data,true);
-	}
-
-	private function formatDate($time)
-    {
-		$handle_date = @date('Y-m-d',$time);//需要格式化的时间
-		$reference_date = @date('Y-m-d',time());//参照时间
-		$handle_date_time = strtotime($handle_date);//需要格式化的时间戳
-		$reference_date_time = strtotime($reference_date);//参照时间戳
-		if ($reference_date_time == $handle_date_time){
-			$timetext = @date('H:i',$time);//今天访问的显示具体的时间点
-		}elseif (($reference_date_time-$handle_date_time)==60*60*24){
-			$timetext = Lang('昨天');
-		}elseif ($reference_date_time-$handle_date_time==60*60*48){
-			$timetext = Lang('前天');
-		}else {
-			$month_text = Lang('月');
-			$day_text = Lang('日');
-			$timetext = @date("m{$month_text}d{$day_text}",$time);
-		}
-		return $timetext;
 	}
 
     /**
@@ -295,76 +276,65 @@ class Usercenter extends Base {
         $team = $member->getChildMember($member_condition,$member_field);
         $count = count($team);
 
-        /*$fenxiao = new Fenxiao();
+        $model_fenxiao = new Fenxiao();
         $fenxiao_condition = [
             'reciver_member_id' =>$member_id,
         ];
         $fenxiao_field = 'yongjin,add_time,status';
-        $fenxiao_list = $fenxiao->getCommissionInfo($fenxiao_condition,$fenxiao_field);
+        $fenxiao_list = $model_fenxiao->getCommissionInfo($fenxiao_condition,$fenxiao_field);
 
         $total_income = 0;
         $account = 0;
         $list = [];
         if (!empty($fenxiao_list)) {
             foreach ($fenxiao_list as $key => $val) {
-                $list1['type'] = 1;
-                $list1['amount'] = $val['yongjin'];
-                $list1['add_time'] = $val['add_time'];
-                $list1['status'] = $val['status'];
+                $arr['type'] = 1;
+                $arr['des'] = date('Ym').'月佣金';
+                $arr['amount'] = $val['yongjin'];
+                $arr['add_time'] = $val['add_time'];
+                $arr['status'] = $val['status'];
                 if ($val['status'] == 1) {
                     $total_income += $val['yongjin'];
                     $account += $val['yongjin'];
                 }
-                $list[] = $list1;
+                $list[] = $arr;
             }
         }
 
-        $predepoist = new Predeposit();
-        $predepoist_codition = [
+        $model_yj = new SsysYj();
+        $cash_codition = [
             'pdc_member_id' => $member_id,
         ];
-        $predepoist_field = 'pdc_amount,pdc_add_time,pdc_payment_state';
-        $pdcash_list = $predepoist->getPdCashList($predepoist_codition,$predepoist_field);
-        if (!empty($pdcash_list)){
-            foreach ($pdcash_list as $key => $val) {
-                $list1['type'] = 2;
-                $list1['amount'] = -$val['pdc_amount'];
-                $list1['add_time'] = $val['pdc_add_time'];
-                $list1['status'] = $val['pdc_payment_state'];
-                if ($val['pdc_payment_state'] == 1) {
+        $cash_field = 'pdc_amount,pdc_add_time,pdc_payment_state';
+        $yj_cash_list = $model_yj->getPdCashList($cash_codition,$cash_field);
+        if (!empty($yj_cash_list)){
+            foreach ($yj_cash_list as $key => $val){
+                $arr['type'] = 2;
+                $arr['des'] = date('Ym').'月提现';
+                $arr['amount'] = -$val['pdc_amount'];
+                $arr['add_time'] = $val['pdc_add_time'];
+                $arr['status'] = $val['pdc_payment_state'];
+                if ($val['pdc_payment_state'] == 1){
                     $account -= $val['pdc_amount'];
                 }
-                $list[] = $list1;
+                $list[] = $arr;
             }
         }
+
         //根据时间排序
         $add_time = array_column($list,'add_time');
         array_multisort($add_time,SORT_DESC,$list);
 
         foreach ($list as $key => $val){
-            $list[$key]['add_time'] = date('m-d H:i:s',$val['add_time']);
-        }*/
-        $predeposit = new Predeposit();
-        $arr = ['cash_pay','cash_rebate','order_pay'];
-        $condition = [
-            'lg_member_id' =>$member_id,
-            'lg_type' => $arr,
-        ];
-        $field = 'lg_id,lg_type,lg_av_amount,lg_freeze_amount,lg_add_time,lg_desc';
-        $pd_log = $predeposit->getPdLog($condition,$field,'lg_add_time desc');
-        $total_income = 0;
-        foreach ($pd_log as $key => $val){
-            if ($val['lg_type'] == 'order_pay'){
-                $total_income += $val['lg_av_amount'];
-            }
-            $pd_log[$key]['lg_add_time'] = date('m-d H:i',$val['lg_add_time']);
+            $list[$key]['add_time'] = date('m-d H:i',$val['add_time']);
         }
 
         $data['code'] = 200;
         $data['message'] = '请求成功';
-        $data['list'] = $pd_log;
+        $data['list'] = $list;
         $data['count'] = $count;
-        $data['available_predeposit'] = floatval($member_info['available_predeposit']);
+//        $data['available_yj'] = floatval($member_info['available_predeposit']);
+        $data['available_yj'] = $account;
         $data['total_income'] = $total_income;
         return json_encode($data,true);
     }
@@ -420,19 +390,30 @@ class Usercenter extends Base {
      */
     public function userTree()
     {
-        if(!input("member_id")){
+        if(!input('member_id')){
             $data['code'] = 10001;
-            $data['message'] = lang("缺少参数");
+            $data['message'] = lang('缺少参数');
             return json_encode($data,true);
         }
-        $member_id = input("member_id");
+        $member_id = input('member_id');
 
         $member = new User();
-        $condition = [
-            'inviter_id' => $member_id,
-            'inviter2_id' => $member_id,
-            'inviter3_id' => $member_id,
-        ];
+        if (input('type') == 1){
+            $condition = [
+                'inviter_id' => $member_id,
+            ];
+        }elseif (input('type') == 2){
+            $condition = [
+                'inviter2_id' => $member_id,
+                'inviter3_id' => $member_id,
+            ];
+        }else {
+            $condition = [
+                'inviter_id' => $member_id,
+                'inviter2_id' => $member_id,
+                'inviter3_id' => $member_id,
+            ];
+        }
         $field= 'member_id,member_name,member_avatar,member_mobile,member_time';
         $child_member = $member->getChildMember($condition,$field);
         foreach ($child_member as $k => $v){
