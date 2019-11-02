@@ -294,8 +294,8 @@ class Usercenter extends Base {
                 $arr['add_time'] = $val['add_time'];
                 $arr['status'] = $val['status'];
                 if ($val['status'] == 1) {
-                    $total_income += number_format($val['yongjin']);
-                    $account += number_format($val['yongjin']);
+                    $total_income += $val['yongjin'] * 100;
+                    $account += $val['yongjin'] * 100;
                 }
                 $list[] = $arr;
             }
@@ -315,7 +315,7 @@ class Usercenter extends Base {
                 $arr['add_time'] = $val['pdc_add_time'];
                 $arr['status'] = $val['pdc_payment_state'];
                 if ($val['pdc_payment_state'] == 1){
-                    $account -= number_format($val['pdc_amount']);
+                    $account -= $val['pdc_amount'] * 100;
                 }
                 $list[] = $arr;
             }
@@ -334,8 +334,8 @@ class Usercenter extends Base {
         $data['list'] = $list;
         $data['count'] = $count;
 //        $data['available_yj'] = floatval($member_info['available_predeposit']);
-        $data['available_yj'] = $account;
-        $data['total_income'] = $total_income;
+        $data['available_yj'] = $account/100;
+        $data['total_income'] = $total_income/100;
         return json_encode($data,true);
     }
 
