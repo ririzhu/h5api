@@ -20,7 +20,11 @@ class Login extends Base {
         $member_password = input("member_password");
         $member = new User();
         $field = "member_id,member_name,member_state,member_login_num,member_login_time,member_email,is_buy,member_avatar,member_qqopenid,member_sinaopenid,member_login_ip";
-        $member_info = $member->getMemberInfo(array('member_name'=>$member_name,'member_passwd'=>md5($member_password)),$field);
+        $member_condition = [
+            ['member_name|member_mobile','=',$member_name],
+            ['member_passwd','=',md5($member_password)]
+        ];
+        $member_info = $member->getMemberInfo($member_condition,$field);
         if (empty($member_info)){
             $data['code'] = 10002;
             $data['message'] = lang("用户名或者密码错误");
