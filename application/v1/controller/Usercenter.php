@@ -19,12 +19,8 @@ use think\db;
  *
  */
 
-class Usercenter extends Base {
-
-	public function __construct(){
-		parent::__construct();
-	}
-
+class Usercenter extends Base
+{
 	/**
      * 个人中心
      * @return false|string
@@ -88,7 +84,7 @@ class Usercenter extends Base {
             return json_encode($data,true);
         }
         $member_id = input("member_id");
-        $field = 'member_name,member_avatar,member_sex,member_birthday,member_areaid,member_cityid,member_provinceid,member_countryid,member_areainfo,member_area_detail';
+        $field = 'member_name,member_avatar,member_sex,member_birthday,member_countryid';
         $member = new User();
         $param = [
             'member_id' =>$member_id,
