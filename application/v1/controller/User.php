@@ -625,13 +625,13 @@ class User extends Base
      * 申请签约
      * @return false|string
      */
-    public function getBankMessage(){
+    public function applySignStep1(){
         if(!input("member_id") || !input("card_num") || !input("card_type") || !input("identity_num") || !input("mobile") || !input("name") ||!input("code")){
             $data['error_code'] = 10016;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }else{
-            if(input("card_type")==2){
+            if(input("card_type")=='02'){
                 if(!input("cvv2") || !input("validdate")){
                     $data['error_code'] = 10016;
                     $data['message'] = lang("缺少参数");
@@ -676,9 +676,82 @@ class User extends Base
             $requestData['cusid']=TLCUID;
             $requestData['randomstr']=$randomstr;
             $requestData['reqip']=$_SERVER['SERVER_ADDR'];
+            $card = substr($requestData['acctno'],-4);
+            $redis = new Redis();
+            $redisname = time().$card;
+            $redis->set($redisname,$requestData);
             $base = new Base();
             $requestData['sign']=strtoupper(self::SignArray($requestData,"15202156609"));
-            echo $base->curl("POST",$url,$requestData);
+            $res = $base->curl("POST",$url,$requestData);
+            unset($requestData['sign']);
+            $res = json_decode($res,true);
+            if($res['retcode'] == "SUCCESS"){
+                $data['error_code'] = 200;
+                $data['message'] = "验证码已经发送到尾号".substr($requestData['mobile'],4)."的手机上，请注意查收。";
+                $data['redisname'] = $redisname;
+            }else{
+                $data['error_code'] = $res['trxstatus'];
+                $data['error_code'] = $res['errmsg'];
+                $data['thpinfo'] = $res['thpinfo'];
+            }
+            if($res['thpinfo']!=''){
+                $redis->set($redisname."thpinfo",$res['thpinfo']);
+            }
+            return json_encode($data,true);
+            //TODO
+        }
+    }
+
+    /**
+     * 通联支付签约第二步
+     * @return false|string
+     */
+    public function applySignStep2(){
+        if(!input("member_id") || !input("smscode") || !input("redisname")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        else{
+            $redis = new Redis();
+            $base = new Base();
+            $url = "http://test.allinpaygd.com/apiweb/qpay/agreeconfirm";
+            $requestData = $redis->get(input("redisname"));
+            $requestData['smscode'] = input("smscode");
+            if(input("thpinfo")){
+                $requestData['smscode'] = input("thpinfo");
+            }
+            $str = "";
+            $randomstr = "HORIZOU".time();
+            if($requestData["card_type"]=="02") {
+                $str .= "acctname=" . $requestData["name"] . "&acctno=" . $requestData["card_num"] . "&accttype=" . $requestData["card_type"] . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&idno=" . $requestData["identity_num"] . "&meruserid=" . $requestData["member_id"] . "&mobile=" . $requestData["mobile"] . "&randomstr=" . $randomstr;
+            }else{
+                $str .= "acctname=" . $requestData["name"] . "&acctno=" . $requestData["card_num"] . "&accttype=" . $requestData["card_type"] . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&cvv2=".$requestData["cvv2"]."&idno=" . $requestData["identity_num"] . "&meruserid=" . $requestData["member_id"] . "&mobile=" . $requestData["mobile"] . "&randomstr=" . $randomstr;
+                $str .= "&reqip=" . $_SERVER['SERVER_ADDR']."&validdate=".$requestData["validdate"];
+            }
+            $requestData['sign']=strtoupper(self::SignArray($requestData,"15202156609"));
+            $res = $base->curl("POST",$url,$requestData);
+            if($res['retcode'] == "SUCCESS"){
+                if($res['trxstatus'] == '0000'){
+                    $dat['member_id'] = input("member_id");
+                    $dat['agreeid'] = $res['agreeid'];
+                    $dat['bankcode'] = $res['bankcode'];
+                    $dat['bankname'] = $res['bankname'];
+                    if($requestData['card_type'] == '02')
+                    $dat['type'] = 1;
+                    else{
+                        $dat['type'] = 2;
+                    }
+                    db::name("member_bank")->insert($dat);
+                }
+                $data['error_code'] = 200;
+                $data['message'] = "签约成功";
+            }else{
+                $data['error_code'] = $res['errmsg'];
+                $data['thpinfo'] = $res['thpinfo'];
+            }
+            return json_encode($data,true);
+
         }
     }
     /**
