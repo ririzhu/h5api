@@ -626,7 +626,7 @@ class User extends Model
      */
     public function getChildMember($condition,$field)
     {
-        return Db::name('member')->field($field)->whereOr($condition)->select();
+        return Db::name('member')->field($field)->where($condition)->select();
     }
 
     /**

@@ -19,12 +19,8 @@ use think\db;
  *
  */
 
-class Usercenter extends Base {
-
-	public function __construct(){
-		parent::__construct();
-	}
-
+class Usercenter extends Base
+{
 	/**
      * 个人中心
      * @return false|string
@@ -88,7 +84,7 @@ class Usercenter extends Base {
             return json_encode($data,true);
         }
         $member_id = input("member_id");
-        $field = 'member_name,member_avatar,member_sex,member_birthday,member_areaid,member_cityid,member_provinceid,member_countryid,member_areainfo,member_area_detail';
+        $field = 'member_name,member_avatar,member_sex,member_birthday,member_countryid';
         $member = new User();
         $param = [
             'member_id' =>$member_id,
@@ -248,7 +244,7 @@ class Usercenter extends Base {
     }
 
     /**
-     * 我的收益(应该要改)
+     * 我的收益
      * @return false|string
      */
     public function memberIncome()
@@ -268,9 +264,7 @@ class Usercenter extends Base {
         $member_info = $member->getMemberInfo($condition,'available_predeposit');
 
         $member_condition = [
-            'inviter_id' => $member_id,
-            'inviter2_id' => $member_id,
-            'inviter3_id' => $member_id,
+            ['inviter_id|inviter2_id|inviter3_id','=',$member_id]
         ];
         $member_field = 'member_id';
         $team = $member->getChildMember($member_condition,$member_field);
@@ -400,27 +394,22 @@ class Usercenter extends Base {
         $member = new User();
         if (input('type') == 1){
             $condition = [
-                'inviter_id' => $member_id,
+                ['inviter_id','=',$member_id]
             ];
         }elseif (input('type') == 2){
             $condition = [
-                'inviter2_id' => $member_id,
-                'inviter3_id' => $member_id,
+                ['inviter2_id|inviter3_id','=',$member_id]
             ];
         }else {
             $condition = [
-                'inviter_id' => $member_id,
-                'inviter2_id' => $member_id,
-                'inviter3_id' => $member_id,
+                ['inviter_id|inviter2_id|inviter3_id','=',$member_id]
             ];
         }
         $field= 'member_id,member_name,member_avatar,member_mobile,member_time';
         $child_member = $member->getChildMember($condition,$field);
         foreach ($child_member as $k => $v){
             $new_condition = [
-                'inviter_id' => $v['member_id'],
-                'inviter2_id' => $v['member_id'],
-                'inviter3_id' => $v['member_id'],
+                ['inviter_id|inviter2_id|inviter3_id','=',$v['member_id']]
             ];
             $new_child = $member->getChildMember($new_condition,$field);
             $child_member[$k]['num'] = count($new_child);
@@ -487,20 +476,8 @@ class Usercenter extends Base {
         if (input('member_sex')) {
             $member_array['member_sex'] = input('member_sex');
         }
-        if (input('member_areaid')) {
-            $member_array['member_areaid'] = input('area_id');
-        }
-        if (input('member_cityid')) {
-            $member_array['member_cityid'] = input('city_id');
-        }
-        if (input('member_provinceid')) {
-            $member_array['member_provinceid'] = input('province_id');
-        }
         if (input('member_countryid')) {
             $member_array['member_countryid'] = input('country_id');
-        }
-        if (input('member_areainfo')) {
-            $member_array['member_areainfo'] = input('area_info');
         }
 
         $update = $member->updateMember($member_array,input('member_id'));
