@@ -16,6 +16,7 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\LabelAlignment;
 use Endroid\QrCode\QrCode;
 use ImageOCR;
+use think\swoole\command\Swoole;
 
 class Index extends Base
 {
@@ -722,6 +723,22 @@ class Index extends Base
         $xavg = array_sum($x_list)/count($x_list);
         $r = ($count*$xy - $xsum*$ysum)/(sqrt($count*$x2sum-pow($xsum,2)) * sqrt($count*$y2sum-pow($ysum,2)));
         echo $r;
+    }
+    /**
+     * 测试swoole
+     */
+    function testswoole(){
+        $client = new swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_SYNC);
+        $ret = $client->connect("localhost", 9502);
+        if(empty($ret)) {
+            echo 'error!connect to swoole_server failed';
+        } else {
+            dump('ccc');
+            $client->send('blue');//这里只是简单的实现了发送的内容
+        }
+
+        echo 'success';
+
     }
 
 }

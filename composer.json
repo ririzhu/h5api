@@ -26,7 +26,8 @@
         "yunpian/yunpian-php-sdk" : "~1.0",
         "firebase/php-jwt": "^5.0",
         "endroid/qrcode": "^2.5",
-        "mohuishou/image-ocr": "^0.1.2"
+        "mohuishou/image-ocr": "^0.1.2",
+        "topthink/think-swoole": "2.0.10"
     },
     "autoload": {
         "psr-4": {

@@ -103,11 +103,11 @@ class Bapply extends Base
             $param['legal_licence_number'] = $_POST['legal_licence_number'];
             //$param['legal_licence_start'] = $_POST['legal_licence_start'];
             //$param['legal_licence_end'] = $_POST['legal_licence_end'];
-            $param['legal_licence_zheng_electronic'] = $this->upload_image('legal_licence_zheng_electronic');
-            $param['legal_licence_fan_electronic'] = $this->upload_image('legal_licence_fan_electronic');
+            $param['legal_licence_zheng_electronic'] = $this->upload_base64('legal_licence_zheng_electronic',BASE_UPLOAD_PATH.DS.$this->save_path.DS);
+            $param['legal_licence_fan_electronic'] = $this->upload_base64('legal_licence_fan_electronic',BASE_UPLOAD_PATH.DS.$this->save_path.DS);
             //法人信息-end
 
-            $param['business_licence_number_electronic'] = $this->upload_image('business_licence_number_electronic');//营业执照电子版
+            $param['business_licence_number_electronic'] = $this->upload_base64('business_licence_number_electronic',BASE_UPLOAD_PATH.DS.$this->save_path.DS);//营业执照电子版
             //$param['vendor_add_img1'] = $this->upload_image('vendor_add_img1');
             //$param['vendor_add_img2'] = $this->upload_image('vendor_add_img2');
             //$param['vendor_add_img3'] = $this->upload_image('vendor_add_img3');
@@ -516,6 +516,26 @@ class Bapply extends Base
             }
         }
         return $pic_name;
+    }
+    private function upload_base64($base64_image_content,$path){
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64_image_content, $result)){
+            $type = $result[2];
+            $new_file = $path."/".date('Ymd',time())."/";
+            if(!file_exists($new_file)){
+                //检查是否有该文件夹，如果没有就创建，并给予最高权限
+                mkdir($new_file, 0700);
+            }
+            $new_file = $new_file.time().".{$type}";
+            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))){
+                return '/'.$new_file;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+
+        //$re=@move_uploaded_file($this->upload_file['tmp_name'],BASE_UPLOAD_PATH.DS.$this->save_path.DS.$this->file_name);
     }
 
     /**

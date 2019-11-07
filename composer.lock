@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6332368615439cb3f8099057aead601c",
+    "content-hash": "bd72c7021bed4c12f9de44285a420c2a",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -1174,6 +1174,59 @@
             ],
             "description": "The ThinkPHP5 Queue Package",
             "time": "2018-05-04T05:29:53+00:00"
+        },
+        {
+            "name": "topthink/think-swoole",
+            "version": "v2.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/top-think/think-swoole.git",
+                "reference": "84e6f5741c24b6051f07fe932807e4acaa39737f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/top-think/think-swoole/zipball/84e6f5741c24b6051f07fe932807e4acaa39737f",
+                "reference": "84e6f5741c24b6051f07fe932807e4acaa39737f",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "ext-swoole": ">=1.9.5",
+                "topthink/framework": "5.1.*",
+                "topthink/think-installer": "^2.0"
+            },
+            "type": "think-extend",
+            "extra": {
+                "think-config": {
+                    "swoole": "src/config.php",
+                    "swoole_server": "src/server_config.php"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "think\\swoole\\": "src"
+                },
+                "files": [
+                    "src/command.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "liu21st",
+                    "email": "liu21st@gmail.com"
+                }
+            ],
+            "description": "Swoole extend for thinkphp5.1",
+            "time": "2018-07-18T02:43:55+00:00"
         },
         {
             "name": "yunpian/yunpian-php-sdk",

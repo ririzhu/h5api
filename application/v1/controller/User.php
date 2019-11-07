@@ -179,7 +179,7 @@ class User extends Base
             }
             $userData["inviteCode"] = input("inviteCode","");
             $res = $userModel->insertMemberWithMobile($userData);
-            if ($res==1) {
+            if ($res>0) {
                 $member = $userModel->getMemberInfo(array('member_mobile'=> $phone));//检查手机号是否已被注册
                 //$this->createSession($member);
                 $data['error_code'] = 200;
@@ -462,22 +462,37 @@ class User extends Base
      * 新增，修改收货地址
      */
     public function updateAddress(){
-        if(!input("member_id") || !input("true_name") || !input("area_id") || !input("city_id") || !input("area_info") || !input("mob_phone") || !input("address")){
+        if(!input("member_id") || !input("true_name") ||!input("area_info") || !input("mob_phone") || !input("address")){
             $data['error_code'] = 10016;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
         }
         $param['member_id'] = input("member_id");
         $param['true_name'] = input("true_name");
-        $param['area_id'] = input("area_id");
-        $param['city_id'] = input("city_id");
+        $param['area_id'] = input("area_id",0);
+        $param['city_id'] = input("city_id",0);
         $param['area_info'] = input("area_info");
         $param['address'] = input("address");
         $param['tag'] = input("tag");
         $param['mob_phone'] = input("mob_phone");
+        if(isset($_POST['is_default'])){
+            $param['is_default'] = $_POST['is_default'];
+        }
+        else {
+            $param['is_default'] = false;
+        }
+        if($param['is_default'] === true){
+            $param['is_default'] = 1;
+        }
+        if($param['is_default'] === false){
+            $param['is_default'] = 0;
+        }
         //编辑地址
         if(input("address_id")){
             $address_id = input("address_id");
+            if($param['is_default'] == 1){
+                db::name("address")->where("member_id=".$param["member_id"])->update(array("is_default"=>0));
+            }
             $res = db::name("address")->where("member_id=".$param["member_id"] ." and address_id=$address_id")->update($param);
             if($res){
                 $data['error_code'] = 200;
@@ -494,7 +509,7 @@ class User extends Base
             $param['is_default'] = 1;
         }
         else {
-            $param['is_default'] = input("is_default");
+            //$param['is_default'] = input("is_default",0);
             if($param['is_default'] == 1){
                 db::name("address")->where("member_id=".$param["member_id"])->update(array("is_default"=>0));
             }
@@ -511,6 +526,32 @@ class User extends Base
 
     }
     /**
+     * 修改默认收货地址
+     */
+    public function updateDefaultAddress(){
+        if(!input("member_id") || !input("address_id")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        if(input("address_id")){
+            $address_id = input("address_id");
+            db::name("address")->where("member_id=".input("member_id"))->update(array("is_default"=>0));
+            $res = db::name("address")->where("member_id=".input("member_id") ." and address_id=$address_id")->update(array("is_default"=>1));
+            if($res){
+                $data['error_code'] = 200;
+                $data['message'] = lang("保存成功");
+            }
+            else{
+                $data['error_code']=10200;
+                $data['message'] = lang("保存失败");
+            }
+            return json_encode($data,true);
+        }
+
+
+    }
+    /**
      * 删除地址
      */
     public function delAddress(){
@@ -523,6 +564,8 @@ class User extends Base
             $param['member_id'] = input("member_id");
             $res = db::name("address")->delete($param);
             if($res){
+                $lastid = (db::name("address")->where("member_id=".$param['member_id']."")->find())['address_id'];
+                db::name("address")->where("member_id=".input("member_id")." and address_id=$lastid")->update(array("is_default"=>1));
                 $data['error_code'] = 200;
                 $data['message'] = lang("删除成功");
             }
@@ -545,7 +588,7 @@ class User extends Base
             $param['address_id']=input("address_id");
             $param['member_id'] = input("member_id");
             $res = db::name("address")->where($param)->find();
-            if(count($res)>0){
+            if(!empty($res)){
                 $data['error_code'] = 200;
                 $data['data'] = $res;
                 $data['message'] = lang("操作成功");
@@ -776,5 +819,11 @@ class User extends Base
 
         $buff = trim($buff, "&");
         return $buff;
+    }
+    /**
+     * 注册会员上链
+     */
+    public function insertToChain(){
+
     }
 }
