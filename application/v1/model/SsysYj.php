@@ -9,7 +9,8 @@ use think\Model;
 use Exception;
 use think\Db;
 
-class SsysYj extends Model {
+class SsysYj extends Model
+{
     /**
      * 生成充值编号
      * @return string
@@ -49,20 +50,21 @@ class SsysYj extends Model {
     }
 
     /**
-     * 变更预存款
-     * @param unknown $change_type
-     * @param unknown $data
+     * 变更佣金
+     * @param string $change_type
+     * @param array $data
      * @throws Exception
      * @return unknown
      */
-    public function changePd($change_type,$data = array()) {
+    public function changeYj($change_type,$data)
+    {
         $data_log = array();
-        $data_pd = array();
+        $data_yj = array();
         $data_statistics = array();
         // $data_msg = array();
         $data_log['lg_member_id'] = $data['member_id'];
         $data_log['lg_member_name'] = $data['member_name'];
-        $data_log['lg_add_time'] = TIMESTAMP;
+        $data_log['lg_add_time'] = time();
         $data_log['lg_type'] = $change_type;
 
         // $data_msg['time'] = date('Y-m-d H:i:s');
@@ -70,8 +72,8 @@ class SsysYj extends Model {
         switch ($change_type){
             case 'order_pay':
                 $data_log['lg_freeze_amount'] = $data['amount'];
-                $data_log['lg_desc'] = '下单，获得冻结佣金，订单号: '.$data['order_sn']."，商品ID：".$data['gid'];
-                $data_pd['freeze_yongjin'] = array('exp','freeze_yongjin+'.$data['amount']);
+                $data_log['lg_desc'] = '下单，获得冻结佣金，订单号: '.$data['order_sn'];
+                $data_yj['freeze_yongjin'] = array('inc',$data['amount']);
 
                 $data_statistics['yj_freeze_amount'] = $data['amount'];
 
@@ -82,9 +84,9 @@ class SsysYj extends Model {
             case 'order_cancel':
                 $data_log['lg_disable_amount'] = $data['amount'];
                 $data_log['lg_freeze_amount'] = -$data['amount'];
-                $data_log['lg_desc'] = '取消订单，订单号: '.$data['order_sn']."，商品ID：".$data['gid'];
-                $data_pd['freeze_yongjin'] = array('exp','freeze_yongjin-'.$data['amount']);
-                $data_pd['disable_yongjin'] = array('exp','disable_yongjin+'.$data['amount']);
+                $data_log['lg_desc'] = '取消订单，订单号: '.$data['order_sn'];
+                $data_yj['freeze_yongjin'] = array('dec',$data['amount']);
+//                $data_pd['disable_yongjin'] = array('inc',$data['amount']);
 
                 $data_statistics['yj_freeze_amount_minus'] = $data['amount'];
 
@@ -95,9 +97,9 @@ class SsysYj extends Model {
             case 'order_over':
                 $data_log['lg_av_amount'] = $data['amount'];
                 $data_log['lg_freeze_amount'] = -$data['amount'];
-                $data_log['lg_desc'] = '订单完成，订单号: '.$data['order_sn']."，商品ID：".$data['gid'];
-                $data_pd['freeze_yongjin'] = array('exp','freeze_yongjin-'.$data['amount']);
-                $data_pd['available_yongjin'] = array('exp','available_yongjin+'.$data['amount']);
+                $data_log['lg_desc'] = '订单完成，订单号: '.$data['order_sn'];
+                $data_yj['freeze_yongjin'] = array('dec',$data['amount']);
+                $data_yj['available_yongjin'] = array('inc',$data['amount']);
 
                 $data_statistics['yj_freeze_amount_minus'] = $data['amount'];
                 $data_statistics['yj_av_amount'] = $data['amount'];
@@ -105,10 +107,10 @@ class SsysYj extends Model {
                 break;
         	case 'refund':
                 $data_log['lg_disable_amount'] = $data['amount'];
-        	    $data_log['lg_freeze_amount'] = $data['amount'];
-        	    $data_log['lg_desc'] = '确认退款，订单号: '.$data['order_sn']."，商品ID：".$data['gid'];
-                $data_pd['freeze_yongjin'] = array('exp','freeze_yongjin-'.$data['amount']);
-                $data_pd['disable_yongjin'] = array('exp','disable_yongjin+'.$data['amount']);
+        	    $data_log['lg_freeze_amount'] = -$data['amount'];
+        	    $data_log['lg_desc'] = '确认退款，订单号: '.$data['order_sn'];
+                $data_yj['freeze_yongjin'] = array('dec',$data['amount']);
+                $data_yj['disable_yongjin'] = array('inc',$data['amount']);
 
                 $data_statistics['yj_freeze_amount_minus'] = $data['amount'];
 
@@ -120,8 +122,8 @@ class SsysYj extends Model {
         	    $data_log['lg_av_amount'] = -$data['amount'];
         	    $data_log['lg_freeze_amount'] = $data['amount'];
         	    $data_log['lg_desc'] = '申请提现，冻结佣金，提现单号: '.$data['order_sn'];
-        	    $data_pd['available_yongjin'] = array('exp','available_yongjin-'.$data['amount']);
-        	    $data_pd['freeze_yongjin'] = array('exp','freeze_yongjin+'.$data['amount']);
+        	    $data_yj['available_yongjin'] = array('dec',$data['amount']);
+        	    $data_yj['freeze_yongjin'] = array('inc',$data['amount']);
 
                 $data_statistics['yj_freeze_amount'] = $data['amount'];
                 $data_statistics['yj_av_amount_minus'] = $data['amount'];
@@ -134,7 +136,7 @@ class SsysYj extends Model {
     	        $data_log['lg_freeze_amount'] = -$data['amount'];
     	        $data_log['lg_desc'] = '提现成功，提现单号: '.$data['order_sn'];
     	        $data_log['lg_admin_name'] = $data['admin_name'];
-    	        $data_pd['freeze_yongjin'] = array('exp','freeze_yongjin-'.$data['amount']);
+    	        $data_yj['freeze_yongjin'] = array('dec',$data['amount']);
 
                 $data_statistics['yj_freeze_amount_minus'] = $data['amount'];
 
@@ -147,8 +149,8 @@ class SsysYj extends Model {
 	            $data_log['lg_freeze_amount'] = -$data['amount'];
 	            $data_log['lg_desc'] = '取消提现申请，解冻预存款，提现单号: '.$data['order_sn'];
 	            $data_log['lg_admin_name'] = $data['admin_name'];
-	            $data_pd['available_yongjin'] = array('exp','available_yongjin+'.$data['amount']);
-	            $data_pd['freeze_yongjin'] = array('exp','freeze_yongjin-'.$data['amount']);
+	            $data_yj['available_yongjin'] = array('inc',$data['amount']);
+	            $data_yj['freeze_yongjin'] = array('dec',$data['amount']);
 
                 $data_statistics['yj_freeze_amount_minus'] = $data['amount'];
                 $data_statistics['yj_av_amount'] = $data['amount'];
@@ -162,7 +164,8 @@ class SsysYj extends Model {
         	    break;
         }
 
-        $update = Db::name('ssys_member')->where(array('member_id'=>$data['member_id']))->update($data_pd);
+//        $update = Db::name('ssys_member')->where(array('member_id'=>$data['member_id']))->update($data_yj);
+        $update = Db::name('member')->where(array('member_id'=>$data['member_id']))->update($data_yj);
         if (!$update) {
             throw new Exception('操作失败');
         }
@@ -170,8 +173,10 @@ class SsysYj extends Model {
         if (!$insert) {
             throw new Exception('操作失败');
         }
-        if (!empty($data_statistics)) {
-            M('ssys_statistics_log','spreader')->save_statistics_log($data_statistics);
+        $statistics_log = new SsysStatisticsLog();
+        $log_save = $statistics_log->saveStatisticsLog($data_statistics);
+        if (!$log_save){
+            throw new Exception('操作失败');
         }
         // 支付成功发送买家消息
         // $param = array();
@@ -183,7 +188,7 @@ class SsysYj extends Model {
         // QueueClient::push('addConsume', array('member_id'=>$data['member_id'],'member_name'=>$data['member_name'],
         //     'consume_amount'=>$data['amount'],'consume_time'=>time(),'consume_remark'=>$data_log['lg_desc']));
         // QueueClient::push('sendMemberMsg', $param);
-        return $insert;
+//        return true;
     }
 
     /**
@@ -287,7 +292,7 @@ class SsysYj extends Model {
     // 更新多条 佣金记录
     public function updateMemberYj($change_type,$data = array()){
         foreach ($data as $key => $value) {
-            $this->changePd($change_type,$value);
+            $this->changeYj($change_type,$value);
         }
     }
 

@@ -232,7 +232,7 @@ class Payment extends Model
             'order_state' => ORDER_STATE_NEW,
         ];
 //        $order_list = $model_order->getOrderList($order_condition,'','*','order_id desc',1);
-        $order_list = Db::name('order')->field('order_id')->where($order_condition)->select();
+        $order_list = Db::name('order')->field('order_id,buyer_id,order_amount,order_sn,order_state,payment_code')->where($order_condition)->select();
 
         if (empty($order_list)){
             $data['code'] = 256;
@@ -299,7 +299,7 @@ class Payment extends Model
                 'pay_sn' => $out_trade_no,
                 'order_state' => ORDER_STATE_NEW,
             ];
-            $order_update = $model_order->editOrder($order_data,$order_condition);
+            $order_update = $model_order->editOrder($order_data,$order_condition,$order_list);
             if (!$order_update){
                 throw new Exception('更新订单状态失败');
             }
