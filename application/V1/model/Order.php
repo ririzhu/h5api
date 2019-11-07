@@ -271,13 +271,16 @@ class Order extends Model
      * 更改订单信息
      * @param $data
      * @param $condition
+     * @param $order_list
      * @return int|string
      */
-    public function editOrder($data,$condition) {
+    public function editOrder($data,$condition,$order_list = [])  {
 //        if(Config('distribution') && !(Config("sld_spreader") && Config("spreader_isuse"))){
             if ($data['order_state'] == ORDER_STATE_PAY) {
-                $order_info = $this->getOrderInfo($condition,array(),'order_id,buyer_id,order_amount,order_sn,order_state,payment_code');
-                $this->fanli($order_info);
+//                $order_info = $this->getOrderInfo($condition,array(),'order_id,buyer_id,order_amount,order_sn,order_state,payment_code');
+                foreach ($order_list as $key => $value) {
+                    $this->fanli($value);
+                }
             }else if($data['order_state']==ORDER_STATE_SUCCESS){
                 $list = DB::name('fenxiao_log')->field('*')->where(array('order_id'=>$condition['order_id'],'status'=>0))->select();
 
@@ -339,7 +342,8 @@ class Order extends Model
         if ($commission_total > 0){
             $member_info = $model_member->getMemberInfoByID($order_info['buyer_id']);
             $inviter_id = $member_info['inviter_id'];
-            if ($inviter_id){
+            $member_info1 = $model_member->getMemberInfoByID($inviter_id,'member_name');
+            if ($inviter_id && $member_info1){
                 $array['contribution_member_id'] = $order_info['buyer_id'];
                 $array['contribution_member_name'] = $member_info['member_name'];
                 $array['reciver_member_id'] = $inviter_id;
@@ -356,9 +360,17 @@ class Order extends Model
                 if (!$result){
                     throw new Exception('一级返利失败');
                 }
-                
+
+                $model_yj = new SsysYj();
+                $yj_data['member_id'] = $inviter_id;
+                $yj_data['member_name'] = $member_info1['member_name'];
+                $yj_data['amount'] = $array['yongjin'];
+                $yj_data['order_sn'] = $order_info['order_sn'];
+                $model_yj->changeYj('order_pay',$yj_data);
+
                 $inviter2_id = $member_info['inviter2_id'];
-                if ($inviter2_id){
+                $member_info2 = $model_member->getMemberInfoByID($inviter2_id,'member_name');
+                if ($inviter2_id && $member_info2){
                     $array['reciver_member_id'] = $inviter2_id;
                     $array['add_time'] = time();
                     $array['yongjin'] = $commission_total * $points_rebate_grade2;
@@ -368,9 +380,15 @@ class Order extends Model
                     if (!$result){
                         throw new Exception('二级返利失败');
                     }
+
+                    $yj_data['member_id'] = $inviter2_id;
+                    $yj_data['member_name'] = $member_info2['member_name'];
+                    $yj_data['amount'] = $array['yongjin'];
+                    $model_yj->changeYj('order_pay',$yj_data);
                     
                     $inviter3_id = $member_info['inviter3_id'];
-                    if ($inviter3_id){
+                    $member_info3 = $model_member->getMemberInfoByID($inviter3_id,'member_name');
+                    if ($inviter3_id && $member_info3){
                         $array['reciver_member_id'] = $inviter3_id;
                         $array['add_time'] = time();
                         $array['yongjin'] = $commission_total * $points_rebate_grade3;
@@ -380,6 +398,11 @@ class Order extends Model
                         if (!$result){
                             throw new Exception('三级返利失败');
                         }
+
+                        $yj_data['member_id'] = $inviter3_id;
+                        $yj_data['member_name'] = $member_info3['member_name'];
+                        $yj_data['amount'] = $array['yongjin'];
+                        $model_yj->changeYj('order_pay',$yj_data);
                     }
                 }
             }
