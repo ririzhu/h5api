@@ -216,7 +216,11 @@ class Bapply extends Base
 
 
             $model_store_joinin = new VendorJoinIn();
-            $model_store_joinin->modify($param, array('member_id'=>input("member_id")));
+            db::name("vendor_join")->insert($param);
+            $data['error_code']=200;
+            $data['message']=lang("申请成功，请等待平台审核");
+            return json_encode($data,true);
+            //$model_store_joinin->modify($param, array('member_id'=>input("member_id")));
         }
         exit;
     }
