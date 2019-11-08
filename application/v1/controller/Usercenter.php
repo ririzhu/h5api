@@ -84,17 +84,26 @@ class Usercenter extends Base
             return json_encode($data,true);
         }
         $member_id = input("member_id");
-        $field = 'member_name,member_avatar,member_sex,member_birthday,member_countryid as area_id';
+        $member_field = 'member_name,member_avatar,member_sex,member_birthday,member_countryid as area_id';
         $member = new User();
-        $param = [
+        $member_condition = [
             'member_id' =>$member_id,
         ];
-        $member_info = $member->getMemberInfo($param,$field);
+        $member_info = $member->getMemberInfo($member_condition,$member_field);
         if (empty($member_info)){
             $data['code'] = 10002;
             $data['message'] = "用户不存在";
             return json_encode($data,true);
         }
+
+        $area = new Area();
+        $area_field = 'name';
+        $area_condition = [
+            'area_id' => $member_info['area_id']
+        ];
+        $area_info = $area->getAreaInfo($area_condition,$area_field);
+        $member_info['area_name'] = $area_info['name'];
+
         $data['code'] = 200;
         $data['message'] = '请求成功';
         $data['member_info'] = $member_info;
@@ -445,7 +454,7 @@ class Usercenter extends Base
         $area = new Area();
 
         $condition['area_parent_id'] = 0;
-        $field = 'area_id,name';
+        $field = 'area_id,name as area_name';
         $area_list = $area->getWorldAreaList($condition,$field);
         return json_encode($area_list,true);
     }

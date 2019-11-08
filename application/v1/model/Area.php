@@ -32,7 +32,7 @@ class Area extends Model
      * @return mixed
      */
     public function getAreaInfo($condition = array(), $fileds = '*') {
-        return $this->where($condition)->field($fileds)->find();
+        return DB::name('world_area')->where($condition)->field($fileds)->find();
     }
 
     /**
