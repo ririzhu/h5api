@@ -339,7 +339,7 @@ class Usercenter extends Base
      */
     public function memberPoints()
     {
-        if(!input('member_id') || !input('points_type')){
+        if(!input('member_id')){
             $data['code'] = 10001;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
