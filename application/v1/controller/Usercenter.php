@@ -476,8 +476,8 @@ class Usercenter extends Base
         if (input('member_sex')) {
             $member_array['member_sex'] = input('member_sex');
         }
-        if (input('member_countryid')) {
-            $member_array['member_countryid'] = input('country_id');
+        if (input('area_id')) {
+            $member_array['member_countryid'] = input('area_id');
         }
 
         $update = $member->updateMember($member_array,input('member_id'));
