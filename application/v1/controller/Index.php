@@ -727,18 +727,89 @@ class Index extends Base
     /**
      * 测试swoole
      */
-    function testswoole(){
-        $client = new swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_SYNC);
-        $ret = $client->connect("localhost", 9502);
-        if(empty($ret)) {
-            echo 'error!connect to swoole_server failed';
-        } else {
-            dump('ccc');
+    public function testswoole($url,$methods,$param){
+        $client = new \swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_SYNC);
+        $ret = $client->connect("127.0.0.1", 9501);
+        $client->send("error", function(swoole_client $cli,$methods,$param,$url){
+                $curl = curl_init();
+                $datas = array();
+                $datas['methods'] = $methods;
+                $datas['data'] = $param;
+                $SSL = substr($url, 0, 8) == "https://" ? true : false;
+                //$data['timestamp']=time();
+                curl_setopt($curl, CURLOPT_URL, $url);//登陆后要从哪个页面获取信息
+                curl_setopt($curl, CURLOPT_HEADER, 0);//获取头部
+                curl_setopt ($curl, CURLOPT_POST, 1 );
+                curl_setopt($curl, CURLOPT_USERAGENT, 'MQQBrowser/Mini3.1 (Nokia3050/07.42) Via: MQQBrowser');
+                // curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1); 这里要不要都没用
+                //if(strtoupper($method)=="POST"){
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt ($curl, CURLOPT_POSTFIELDS, http_build_query($datas));
+
+                //}
+                //if ($SSL) {
+
+                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // 信任任何证书
+
+                curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0); // 检查证书中是否设置域名
+
+                //}
+                $html = curl_exec($curl);//获取html页面
+                curl_close($curl);
+                $re1=$html;
+//        if (substr($re1, 0,3) == pack("CCC",0xef,0xbb,0xbf)) {
+//            $re1 = substr($re1, 3);
+//        }
+                echo $html;
+            });
+
             $client->send('blue');//这里只是简单的实现了发送的内容
-        }
+
 
         echo 'success';
 
     }
+    public  function testweixin(){
+        $url = "https://test.allinpaygd.com/apiweb/h5unionpay/unionorder";
+        $param['cusid'] = TLCUID;
+        $param['appid'] = TLAPPID;
+        $param['version'] = 12;
+        $param['trxamt'] = 1;
+        $param['reqsn'] = 433;
+        $param['charset'] = "UTF-8";
+        $param['returnurl'] = "http://www.baidu.com";
+        $param['notify_url'] = "http://www.baidu.com";
+        $param['body'] = "订单";
+        $param['remark'] = "支付";
+        $param['randomstr'] = "HORIZOU";
+        $param['validtime'] = 10;
+        //$param['limit_pay'] = TLAPPID;
+        //$param['asinfo'] = TLCUID;
+        $param['sign'] = self::SignArray($param,TLPUBLICKEY);
+        $base = new \app\v1\controller\Base();
+        print_r($base->curl("POST",$url,$param));
+    }
+    /**
+     * 将参数数组签名
+     */
+    public static function SignArray(array $array,$appkey){
+        $array['key'] = $appkey;// 将key放到数组中一起进行排序和组装
+        ksort($array);
+        $blankStr = self::ToUrlParams($array);
+        $sign = md5($blankStr);
+        return $sign;
+    }
+    public static function ToUrlParams(array $array)
+    {
+        $buff = "";
+        foreach ($array as $k => $v)
+        {
+            if($v != "" && !is_array($v)){
+                $buff .= $k . "=" . $v . "&";
+            }
+        }
 
+        $buff = trim($buff, "&");
+        return $buff;
+    }
 }

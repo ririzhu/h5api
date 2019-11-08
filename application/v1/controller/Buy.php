@@ -157,10 +157,10 @@ class Buy extends Base
     public function submitorder() {
         $model_buy = new UserBuy();
         //处理优惠券
-        $_POST['red'] = $_POST['red_id'];
+        $_POST['red'] = input('red_id');
         $_POST['order_from'] = 1;
 
-        $_POST['vred'] = array_filter($_POST['vred']);
+        $_POST['vred'] = input('vred');
         $memberId = input("member_id");
         $extends_data = array();
 
@@ -750,7 +750,7 @@ class Buy extends Base
         $returns['error_code'] = 200;
         $memberId = input("member_id");
         $condition = array();
-        $vat_hash = input("vat_hash");
+        $vat_hash = input("vat_hash",null);
         /*if ($model_buy->buyDecrypt($vat_hash, $memberId) == 'allow_vat') {
         } else {*/
             $returns['vat_deny']=true;

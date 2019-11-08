@@ -22,7 +22,7 @@ class TousuGoods extends Model
      * @return bool
      */
     public function saveComplainGoods($param){
-        QueueClient::push('sendStoreMsg', array('code' => 'tousu', 'vid' => $param['vid'], 'param' => array('complain_id'=>$param['complain_id'])));
+        //QueueClient::push('sendStoreMsg', array('code' => 'tousu', 'vid' => $param['vid'], 'param' => array('complain_id'=>$param['complain_id'])));
 
         return db::name("tousu_goods")->insert($param);
 

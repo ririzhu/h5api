@@ -125,7 +125,7 @@ class Tousu extends Model
         $param['where'] = $this->getCondition($condition);
         $param['order'] = $condition['order'] ? $condition['order']: ' complain_id desc ';
 
-        return Db::select($param,$page);
+        return db::name("tousu")->join("bbc_goods","bbc_tousu.order_gid=bbc_goods.gid")->where("1=1 ". $param['where'])->order($param['order'])->select();
     }
 
     /*
@@ -139,7 +139,7 @@ class Tousu extends Model
         $param = array() ;
         $param['table'] = 'tousu' ;
         $param['where'] = $this->getCondition($condition);
-        $list = Db::select($param);
+        $list = Db::name("tousu")->where("1=1 ". $param['where'])->select();
         if(empty($list)) {
             return false;
         }

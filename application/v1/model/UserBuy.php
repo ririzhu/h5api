@@ -1669,43 +1669,45 @@ class UserBuy extends Model {
             //取得商品ID和购买数量
             $input_buy_items = $this->_parseItems($post['cart_id']);
         }
-
-        //是否开增值税发票
-        $input_if_vat = $this->buyDecrypt($post['vat_hash'], $member_id);
-        if (!in_array($input_if_vat,array('allow_vat','deny_vat'))) {
-            return array('error' => '订单保存出现异常，请重试');
+        $input_if_vat = false;
+        if(isset($post['vat_hash'])) {
+            //是否开增值税发票
+            $input_if_vat = $this->buyDecrypt($post['vat_hash'], $member_id);
+            if (!in_array($input_if_vat, array('allow_vat', 'deny_vat'))) {
+                return array('error' => '订单保存出现异常，请重试');
+            }
+            $input_if_vat = ($input_if_vat == 'allow_vat') ? true : false;
         }
-        $input_if_vat = ($input_if_vat == 'allow_vat') ? true : false;
-        //是否支持货到付款
+            //是否支持货到付款
 //        $input_if_offpay = $this->buyDecrypt($post['offpay_hash'], $member_id);
 //        if (!in_array($input_if_offpay,array('allow_offpay','deny_offpay'))) {
 //            return array('error' => '订单保存出现异常，请重试');
 //        }
 //        $input_if_offpay = ($input_if_offpay == 'allow_offpay') ? true : false;
-        if(Config('cash_on_delivery')){
-            $input_if_offpay = true;
-        }else{
-            $input_if_offpay = false;
-        }
-        if(!$input_if_offpay && $post['pay_name'] == 'offline'){
-            return array('error' => '付款方式错误，请重新选择1');
-        }
-        //付款方式:在线支付/货到付款(online/offline)
-        if (!in_array($post['pay_name'],array('online','offline'))) {
-            return array('error' => '付款方式错误，请重新选择2');
-        }
-        $input_pay_name = $post['pay_name'];
-        //验证发票信息
-        if (!empty($post['invoice_id'])) {
-            $input_invoice_id = intval($post['invoice_id']);
-            if ($input_invoice_id > 0) {
-                $invoiceModel = new Invoice();
-                $input_invoice_info = $invoiceModel->getinvInfo(array('inv_id'=>$input_invoice_id));
-                if ($input_invoice_info['member_id'] != $member_id) {
-                    return array('error' => '请正确填写发票信息');
+            if (Config('cash_on_delivery')) {
+                $input_if_offpay = true;
+            } else {
+                $input_if_offpay = false;
+            }
+            if (!$input_if_offpay && $post['pay_name'] == 'offline') {
+                return array('error' => '付款方式错误，请重新选择1');
+            }
+            //付款方式:在线支付/货到付款(online/offline)
+            if (!in_array($post['pay_name'], array('online', 'offline'))) {
+                return array('error' => '付款方式错误，请重新选择2');
+            }
+            $input_pay_name = $post['pay_name'];
+            //验证发票信息
+            if (!empty($post['invoice_id'])) {
+                $input_invoice_id = intval($post['invoice_id']);
+                if ($input_invoice_id > 0) {
+                    $invoiceModel = new Invoice();
+                    $input_invoice_info = $invoiceModel->getinvInfo(array('inv_id' => $input_invoice_id));
+                    if ($input_invoice_info['member_id'] != $member_id) {
+                        return array('error' => '请正确填写发票信息');
+                    }
                 }
             }
-        }
 
 
         if ($post['ifcart']) {

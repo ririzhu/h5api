@@ -82,9 +82,11 @@ class Bapply extends Base
             $param = array();
             $param['member_name'] = input('member_name');
             $param['company_name'] = $_POST['company_name'];
-            $param['company_province_id'] = intval($_POST['province_id']);
-            $param['company_city_id'] = $_POST['city_id'];
-            $param['company_area_id'] = $_POST['area_id'];
+            if(isset($_POST['province_id'])) {
+                $param['company_province_id'] = intval($_POST['province_id']);
+                $param['company_city_id'] = $_POST['city_id'];
+                $param['company_area_id'] = $_POST['area_id'];
+            }
             $param['company_address'] = $_POST['company_address_detail'];
             $param['company_address_detail'] = $_POST['company_address_detail'];
             //$param['company_phone'] = $_POST['company_phone'];
@@ -103,11 +105,11 @@ class Bapply extends Base
             $param['legal_licence_number'] = $_POST['legal_licence_number'];
             //$param['legal_licence_start'] = $_POST['legal_licence_start'];
             //$param['legal_licence_end'] = $_POST['legal_licence_end'];
-            $param['legal_licence_zheng_electronic'] = $this->upload_base64('legal_licence_zheng_electronic',BASE_UPLOAD_PATH.DS.$this->save_path.DS);
-            $param['legal_licence_fan_electronic'] = $this->upload_base64('legal_licence_fan_electronic',BASE_UPLOAD_PATH.DS.$this->save_path.DS);
+            $param['legal_licence_zheng_electronic'] = $this->upload_base64(input('legal_licence_zheng_electronic'),BASE_UPLOAD_PATH.DS.$this->save_path.DS);
+            $param['legal_licence_fan_electronic'] = $this->upload_base64(input('legal_licence_fan_electronic'),BASE_UPLOAD_PATH.DS.$this->save_path.DS);
             //法人信息-end
 
-            $param['business_licence_number_electronic'] = $this->upload_base64('business_licence_number_electronic',BASE_UPLOAD_PATH.DS.$this->save_path.DS);//营业执照电子版
+            $param['business_licence_number_electronic'] = $this->upload_base64(input('business_licence_number_electronic'),BASE_UPLOAD_PATH.DS.$this->save_path.DS);//营业执照电子版
             //$param['vendor_add_img1'] = $this->upload_image('vendor_add_img1');
             //$param['vendor_add_img2'] = $this->upload_image('vendor_add_img2');
             //$param['vendor_add_img3'] = $this->upload_image('vendor_add_img3');
@@ -200,18 +202,18 @@ class Bapply extends Base
             $param['joinin_year'] = 9999;//intval($_POST['joinin_year']);
             $param['joinin_state'] = STORE_JOIN_STATE_NEW;
             $param['store_class_commis_rates'] = implode(',', $store_class_commis_rates);
-//        $param['sg_id'] = $_POST['sg_id'];
-            $param['sg_id'] = $sc_id;
+            $param['sg_id'] = 1;//$_POST['sg_id'];
+            $param['sg_id'] = 1;//$sc_id;
 //        $param['sc_name'] = $_POST['sc_name'];
             $param['sc_name'] = $sc_name;
             $param['sc_id'] = $_POST['sc_id'];
             $param['joinin_state'] = STORE_JOIN_STATE_NEW;
             //取店铺等级信息
-            $grade_list = BASE::rkcache('bbc_store_grade',true);
-            if (!empty($grade_list[$_POST['sg_id']])) {
-                $param['sg_id'] = $_POST['sg_id'];
-                $param['sg_name'] = $grade_list[$_POST['sg_id']]['sg_name'];
-                $param['sg_info'] = serialize(array('sg_price' => $grade_list[$_POST['sg_id']]['sg_price']));
+            $grade_list = db::name("store_grade")->select();
+            if (!empty($grade_list[1])) {
+                $param['sg_id'] = 1;
+                $param['sg_name'] = $grade_list[1]['sg_name'];
+                $param['sg_info'] = serialize(array('sg_price' => $grade_list[1]['sg_price']));
             }
 
 
@@ -531,7 +533,7 @@ class Bapply extends Base
             }
             $new_file = $new_file.time().".{$type}";
             if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))){
-                return '/'.$new_file;
+                return $path.'/'.$new_file;
             }else{
                 return false;
             }

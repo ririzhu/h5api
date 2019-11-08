@@ -9,4 +9,6 @@
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
 
-return ['app\v1\operate\swooles'];
+return [
+    'app\v1\operate\swooles',
+    'test' => 'app\command\test'];

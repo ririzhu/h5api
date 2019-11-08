@@ -14,11 +14,16 @@ use app\v1\model\Points;
 use app\v1\model\Red;
 use think\cache\driver\Redis;
 use think\Config;
+use think\console\Command;
+use think\console\Input;
+use think\console\Output;
 use think\Request;
 use app\v1\model\User as Users;
 use app\v1\model\Sms;
 use app\v1\model\UserToken;
 use think\db;
+use think\Console;
+use think\Controller;
 class User extends Base
 {
     protected $member_info = array();
@@ -824,6 +829,12 @@ class User extends Base
      * 注册会员上链
      */
     public function insertToChain(){
-
+        $data =array();
+        $index = new Index();
+        $url = "http://192.168.2.252:8021/v1/index/blockChain";
+        $data['account'] = "lybjx".rand(1,1000);
+        $methods = "createaccount";
+        $index->testswoole($url,$methods,$data);
+        //$swoeleServe->onReceive();
     }
 }

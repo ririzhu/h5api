@@ -29,7 +29,7 @@ class Tousu extends Base
         $condition = array();
         $condition['order']        = 'complain_state asc,complain_id desc';
         $condition['accuser_id'] = input("member_id");
-        switch(intval($_GET['select_complain_state'])) {
+        switch(input('select_complain_state')) {
             case 1:
                 $condition['progressing'] = 'true';
                 break;
@@ -145,25 +145,26 @@ class Tousu extends Base
     public function savetousu() {
         //获取输入的投诉信息
         $input = array();
-        $input['order_id'] = input('input_order_id');
+        $input['order_id'] = input('order_id');
         //检查是不是正在进行投诉
-        if($this->check_complain_exist($input['order_id'])) {
+        if($this->check_complain_exist($input['order_id'],input("member_id"))) {
             $data['error_code']=10201;
             $data['message']=lang('您已经投诉了该订单请等待处理');
             return json_encode($data,true);
         }
-        list($input['complain_subject_id'],$input['complain_subject_content']) = explode(',',trim(input('input_complain_subject')));
-        $input['complain_content'] = trim(input('input_complain_content'));
+        $input['complain_subject_id'] =input('complain_subject_id');
+        $input['complain_subject_content'] = input('complain_subject_content');
+        $input['complain_content'] = trim(input('complain_content'));
 
         //获取有问题的商品
-        $checked_goods = $_POST['input_goods_check'];
-        $goods_problem = $_POST['input_goods_problem'];
-        if(empty($checked_goods)) {
+        //$checked_goods = $_POST['input_goods_check'];
+        //$goods_problem = $_POST['input_goods_problem'];
+        /*if(empty($checked_goods)) {
             $data['error_code']=10201;
             $data['message']=lang('参数错误');
             return json_encode($data,true);
-        }
-        $order_info = $this->get_order_info($input['order_id']);
+        }*/
+        $order_info = $this->get_order_info($input['order_id'],input("member_id"));
         $input['accuser_id'] = $order_info['buyer_id'];
         $input['accuser_name'] = $order_info['buyer_name'];
         $input['accused_id'] = $order_info['vid'];
@@ -177,8 +178,10 @@ class Tousu extends Base
         $file1 = request()->file("image1");
         $file2 = request()->file("image2");
         $file3 = request()->file("image3");
-
-        $info1 = $file1->move('uploads/feedback');
+        $input['complain_pic1'] = $this->upload_image(input("complain_pic1"));
+        $input['complain_pic2'] = $this->upload_image(input("complain_pic2"));
+        $input['complain_pic3'] = $this->upload_image(input("complain_pic3"));
+        /*$info1 = $file1->move('uploads/feedback');
         $info2 = $file2->move('uploads/feedback');
         $info3 = $file3->move('uploads/feedback');
         if ($info1) {
@@ -192,10 +195,14 @@ class Tousu extends Base
         }else {
             //上传失败获取错误信息
             $this->error($file1->getError());
-        }
+        }*/
         $input['complain_datetime'] = time();
+        $input['complain_handle_datetime'] = time();
         $input['complain_state'] = self::STATE_NEW;
         $input['complain_active'] = self::STATE_UNACTIVE;
+        $input['contect_name'] = input("contect_name");
+        $input['contect_mobile'] = input("contect_mobile");
+        $input['is_anonymous'] = input("is_anonymous");
         //保存投诉信息
         $model_complain = new \app\v1\model\Tousu();
         $complain_id = $model_complain->saveComplain($input);
@@ -204,7 +211,7 @@ class Tousu extends Base
         $order_goods_list = $order_info['extend_order_goods'];
         foreach($order_goods_list as $goods) {
             $order_goods_id = $goods['rec_id'];
-            if (array_key_exists($order_goods_id,$checked_goods)) {//验证提交的商品属于订单
+            //if (array_key_exists($order_goods_id,$checked_goods)) {//验证提交的商品属于订单
                 $input_checked_goods['complain_id'] = $complain_id;
                 $input_checked_goods['order_gid'] = $order_goods_id;
                 $input_checked_goods['order_goods_type'] = $goods['goods_type'];
@@ -214,9 +221,9 @@ class Tousu extends Base
                 $input_checked_goods['goods_price'] = $goods['goods_price'];
                 $input_checked_goods['goods_num'] = $goods['goods_num'];
                 $input_checked_goods['goods_image'] = $goods['goods_image'];
-                $input_checked_goods['complain_message'] = $goods_problem[$order_goods_id];
+                $input_checked_goods['complain_message'] = "";//$goods_problem[$order_goods_id];
                 $model_complain_goods->saveComplainGoods($input_checked_goods);
-            }
+            //}
         }
         //商品被投诉发送商户消息
         $data['error_code'] = 200;
@@ -226,11 +233,11 @@ class Tousu extends Base
     /*
      * 检查投诉是否已经存在
      */
-    private function check_complain_exist($order_id) {
+    private function check_complain_exist($order_id,$member_id) {
         $model_complain = Model('tousu');
         $param = array();
         $param['order_id'] = $order_id;
-        $param['accuser_id'] = $_SESSION['member_id'];
+        $param['accuser_id'] = $member_id;
         $param['progressing'] = 'ture';
         return $model_complain->isExist($param);
     }
@@ -315,16 +322,31 @@ class Tousu extends Base
     /*
  * 获取订单信息
  */
-    private function get_order_info($order_id) {
+    private function get_order_info($order_id,$member_id) {
         if(empty($order_id)) {
             return null;
         }
-        $model_order = Model('order');
+        $model_order = new \app\v1\model\Order();
         $order_info = $model_order->getOrderInfo(array('order_id' => $order_id),array('order_goods'));
-        if($order_info['buyer_id'] != $_SESSION['member_id']) {
+        if($order_info['buyer_id'] != $member_id) {
             return null;
         }
         $order_info['order_state_text'] = orderState($order_info);
         return $order_info;
+    }
+    private function upload_image($file) {
+        $pic_name = '';
+        $upload = new UploadFile();
+        $uploaddir = ATTACH_PATH.DS.'store_joinin'.DS;
+        $upload->set('default_dir',$uploaddir);
+        $upload->set('allow_type',array('jpg','jpeg','gif','png'));
+        if (!empty($_FILES[$file]['name'])){
+            $result = $upload->upfile($file);
+            if ($result){
+                $pic_name = $upload->file_name;
+                $upload->file_name = '';
+            }
+        }
+        return $pic_name;
     }
 }
