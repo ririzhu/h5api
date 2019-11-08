@@ -84,7 +84,7 @@ class Usercenter extends Base
             return json_encode($data,true);
         }
         $member_id = input("member_id");
-        $field = 'member_name,member_avatar,member_sex,member_birthday,member_countryid';
+        $field = 'member_name,member_avatar,member_sex,member_birthday,member_countryid as area_id';
         $member = new User();
         $param = [
             'member_id' =>$member_id,
