@@ -2,8 +2,8 @@
 namespace app\v1\controller;
 
 use app\v1\model\Predeposit;
-include("../extend/pay/alipay/AopSdk.php");
-include("../extend/pay/allinpay/Allinpay.php");
+//include("../extend/pay/alipay/AopSdk.php");
+//include("../extend/pay/allinpay/Allinpay.php");
 class Payment extends Base
 {
     public function __construct()
@@ -766,6 +766,10 @@ class Payment extends Base
             exit(json_encode(array('state'=>($info['pdr_payment_state'] == '1'),'pay_sn'=>$info['pdr_sn'],'type'=>'p')));
         }
     }
+
+    /**
+     * H5支付签名
+     */
     public function h5Sign(){
         $param['cusid'] = TLCUID;
         $param['appid'] = TLAPPID;
@@ -773,8 +777,8 @@ class Payment extends Base
         $param['trxamt'] = input('trxamt');
         $param['reqsn'] = input('reqsn');
         $param['charset'] = input('charset');
-        $param['returl'] = "http://www.baidu.com";
-        $param['notify_url'] = "http://www.baidu.com";
+        $param['returl'] = input('returl');
+        $param['notify_url'] = input('notify_url');
         $param['body'] = input('body');
         $param['remark'] = input('remark');
         $param['randomstr'] =input('randomstr');
@@ -782,6 +786,26 @@ class Payment extends Base
         //$param['limit_pay'] = TLAPPID;
         //$param['asinfo'] = TLCUID;
         $param['sign'] = self::SignArray($param,15202156609);
-        echo $param['sign'];
+        return json_encode($param['sign']);
+    }
+    public static function ToUrlParams(array $array)
+    {
+        $buff = "";
+        foreach ($array as $k => $v)
+        {
+            if($v != "" && !is_array($v)){
+                $buff .= $k . "=" . $v . "&";
+            }
+        }
+
+        $buff = trim($buff, "&");
+        return $buff;
+    }
+    public static function SignArray(array $array,$appkey){
+        $array['key'] = $appkey;// 将key放到数组中一起进行排序和组装
+        ksort($array);
+        $blankStr = self::ToUrlParams($array);
+        $sign = md5($blankStr);
+        return $sign;
     }
 }

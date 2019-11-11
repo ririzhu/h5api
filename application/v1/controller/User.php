@@ -674,7 +674,7 @@ class User extends Base
      * @return false|string
      */
     public function applySignStep1(){
-        if(!input("member_id") || !input("card_num") || !input("card_type") || !input("identity_num") || !input("mobile") || !input("name") ||!input("code")){
+        if(!input("member_id") || !input("card_num") || !input("card_type") || !input("identity_num") || !input("mobile") || !input("name") ||!input("code")|| !input("banktype")){
             $data['error_code'] = 10016;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
@@ -731,6 +731,7 @@ class User extends Base
             $base = new Base();
             $requestData['sign']=strtoupper(self::SignArray($requestData,"15202156609"));
             $res = $base->curl("POST",$url,$requestData);
+            $requestData['banktype'] = input("banktype");
             unset($requestData['sign']);
             $res = json_decode($res,true);
             if($res['retcode'] == "SUCCESS"){
@@ -770,6 +771,8 @@ class User extends Base
                 $requestData['smscode'] = input("thpinfo");
             }
             $str = "";
+            $banktype = $requestData['banktype'] ;
+            unset($requestData['banktype']);
             $randomstr = "HORIZOU".time();
             if($requestData["card_type"]=="02") {
                 $str .= "acctname=" . $requestData["name"] . "&acctno=" . $requestData["card_num"] . "&accttype=" . $requestData["card_type"] . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&idno=" . $requestData["identity_num"] . "&meruserid=" . $requestData["member_id"] . "&mobile=" . $requestData["mobile"] . "&randomstr=" . $randomstr;
@@ -785,6 +788,7 @@ class User extends Base
                     $dat['agreeid'] = $res['agreeid'];
                     $dat['bankcode'] = $res['bankcode'];
                     $dat['bankname'] = $res['bankname'];
+                    $dat['bankimg'] = "https://apimg.alipay.com/combo.png?d=cashier&t=".$banktype;
                     if($requestData['card_type'] == '02')
                     $dat['type'] = 1;
                     else{
@@ -836,5 +840,86 @@ class User extends Base
         $methods = "createaccount";
         $index->testswoole($url,$methods,$data);
         //$swoeleServe->onReceive();
+    }
+    /**
+     * 设置初始支付密码
+     */
+    public function setPaypwd(){
+        if(!input("member_id") ||  !input("pay_pwd")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        //检测是表中pay_pwd是否为空
+        $user = new \app\v1\model\User();
+        $condition = array();
+        $condition['member_id'] = input("member_id");
+        $userinfo = $user->getMemberInfo($condition,"member_paypwd");db::name("member")->field("member_paypwd")->where($condition)->find();
+        if(empty($userinfo)){
+            //$param['member_id'] = input("member_id");
+            $param['member_paypwd'] = md5(input("pay_pwd"));
+            $res = $user->updateMember($param,input("member_id"));
+            if($res){
+                $data['error_code'] = 200;
+                $data['message'] = lang("操作成功");
+                return json_encode($data,true);
+            }
+        }else{
+            $data['error_code'] = 10010;
+            $data['message'] = "设置失败。请前往修改支付密码解密修改或者找回支付密码";
+            return json_encode($data,true);
+        }
+    }
+    /**
+     * 验证原支付密码以及检测新密码是否和老密码相同 修改支付密码时使用
+     */
+    public function checkOldPaypwd(){
+        if(!input("member_id") ||  !input("pay_pwd")){
+            $data['error_code'] = 10016;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        //检测是表中pay_pwd是否为空
+        $user = new \app\v1\model\User();
+        $condition = array();
+        $condition['member_id'] = input("member_id");
+        $userinfo = $user->getMemberInfo($condition,"member_paypwd");db::name("member")->field("member_paypwd")->where($condition)->find();
+        if(!empty($userinfo)){
+            //$param['member_id'] = input("member_id");
+            $param['member_paypwd'] = md5(input("pay_pwd"));
+
+            if($userinfo['member_paypwd'] == $param['member_paypwd']){
+                $data['error_code'] = 200;
+                $data['message'] = lang("操作成功");
+                $data['result'] = true;
+                return json_encode($data,true);
+            }else{
+                $data['error_code'] = 200;
+                $data['message'] = lang("操作成功");
+                $data['result'] = false;
+                return json_encode($data,true);
+            }
+        }else{
+            $data['error_code'] = 10010;
+            $data['message'] = "检测失败";
+            return json_encode($data,true);
+        }
+    }
+    /**
+     * 验证身份
+     */
+    public function checkname(){
+        if(!input("member_id") || !input("idcard")){
+            $data['error_code'] = 10100;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }else{
+            $user = new \app\v1\model\User();
+            $condition['member_id'] = input("member_id");
+            $memberinfo = $user->getMemberInfo($condition,'member_truename');
+            if(empty($memberinfo['member_truename'])){
+
+            }
+        }
     }
 }

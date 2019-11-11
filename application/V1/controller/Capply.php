@@ -31,7 +31,7 @@ class Capply extends Base
             $inviteCode = input("invite_code",0);
             //$param['settlement_bank_account_name'] = $_POST['settlement_bank_account_name'];
             //$param['settlement_bank_account_number'] = $_POST['settlement_bank_account_number'];
-            if (!empty($_POST['store_class_ids'])) {
+            /*if (!empty($_POST['store_class_ids'])) {
                 foreach ($_POST['store_class_ids'] as $value) {
                     $store_class_ids[] = $value;
                 }
@@ -40,12 +40,12 @@ class Capply extends Base
                 foreach ($_POST['store_class_names'] as $value) {
                     $store_class_names[] = $value;
                 }
-            }
+            }*/
             //$param = array();
             $param['seller_name'] = $_POST['member_name'];
             $param['store_name'] = $_POST['company_name'];//店铺名称
-            $param['store_class_ids'] = serialize($store_class_ids);//经营类目ids
-            $param['store_class_names'] = serialize($store_class_names);//经营类目名称列表
+            //$param['store_class_ids'] = serialize($store_class_ids);//经营类目ids
+            //$param['store_class_names'] = serialize($store_class_names);//经营类目名称列表
             $param['joinin_year'] = 9999;//intval($_POST['joinin_year']);
             $param['joinin_state'] = STORE_JOIN_STATE_NEW;
             $param['paying_amount'] = floatval(0) * 1;

@@ -36,6 +36,7 @@ class Index extends Base
     const BACKGROUND_COLOR = ['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0];    // 背景色
     public function index()
     {
+        header('Content-type: text/html');
         return $this->fetch();
     }
 
@@ -789,7 +790,7 @@ class Index extends Base
         //$param['key'] = TLPUBLICKEY;
         ksort($param);
         $base = new \app\v1\controller\Base();
-        echo $base->curl("POST",$url,$param);
+        return response($base->curl("POST",$url,$param));
     }
     /**
      * 将参数数组签名

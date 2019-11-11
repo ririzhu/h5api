@@ -164,10 +164,10 @@ class Buy extends Base
     public function submitorder() {
         $model_buy = new UserBuy();
         //处理优惠券
-        $_POST['red'] = input('red_id');
+        $_POST['red'] = input('red_id',0);
         $_POST['order_from'] = 1;
 
-        $_POST['vred'] = input('vred');
+        $_POST['vred'] = input('vred',0);
         $memberId = input("member_id");
         $extends_data = array();
 

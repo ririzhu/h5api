@@ -147,7 +147,7 @@ class Bapply extends Base
             }
             $store_class_ids = array();
             $store_class_names = array();
-            if(!empty($_POST['store_class_ids'])) {
+            /*if(!empty($_POST['store_class_ids'])) {
                 foreach ($_POST['store_class_ids'] as $value) {
                     $store_class_ids[] = $value;
                 }
@@ -156,7 +156,7 @@ class Bapply extends Base
                 foreach ($_POST['store_class_names'] as $value) {
                     $store_class_names[] = $value;
                 }
-            }
+            }*/
             //取最小级分类最新分佣比例
             $sc_ids = array();
             foreach ($store_class_ids as $v) {
