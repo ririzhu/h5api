@@ -15,7 +15,7 @@ use app\v1\model\Sms;
 use think\db;
 
 /**
- * SNS首页
+ * 用户个人中心
  *
  */
 
@@ -522,13 +522,13 @@ class Usercenter extends Base
 
         if (trim(input('password')) == trim(input('new_password'))){
             $data['code'] = 10002;
-            $data['message'] = lang("密码不能与原密码重复");
+            $data['message'] = "密码不能与原密码重复";
             return json_encode($data,true);
         }
 
         if (trim(input('new_password')) != trim(input('new_confirm_password'))){
             $data['code'] = 10003;
-            $data['message'] = lang("两次输入的密码不一致");
+            $data['message'] = "两次输入的密码不一致";
             return json_encode($data,true);
         }
 
