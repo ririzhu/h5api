@@ -728,7 +728,7 @@ class Index extends Base
      * 测试swoole
      */
     public function testswoole($url,$methods,$param){
-        $client = new \swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_SYNC);
+        $client = new \swoole_client(SWOOLE_SOCK_TCP, SWOOLE_SOCK_ASYNC);
         $ret = $client->connect("127.0.0.1", 9501);
         $client->send("error", function(swoole_client $cli,$methods,$param,$url){
                 $curl = curl_init();
@@ -770,14 +770,14 @@ class Index extends Base
 
     }
     public  function testweixin(){
-        $url = "https://test.allinpaygd.com/apiweb/h5unionpay/unionorder";
+        $url = "https://syb.allinpay.com/apiweb/h5unionpay/unionorder";
         $param['cusid'] = TLCUID;
         $param['appid'] = TLAPPID;
         $param['version'] = 12;
         $param['trxamt'] = 1;
         $param['reqsn'] = 433;
         $param['charset'] = "UTF-8";
-        $param['returnurl'] = "http://www.baidu.com";
+        $param['returl'] = "http://www.baidu.com";
         $param['notify_url'] = "http://www.baidu.com";
         $param['body'] = "订单";
         $param['remark'] = "支付";
@@ -785,9 +785,11 @@ class Index extends Base
         $param['validtime'] = 10;
         //$param['limit_pay'] = TLAPPID;
         //$param['asinfo'] = TLCUID;
-        $param['sign'] = self::SignArray($param,TLPUBLICKEY);
+        $param['sign'] = self::SignArray($param,15202156609);
+        //$param['key'] = TLPUBLICKEY;
+        ksort($param);
         $base = new \app\v1\controller\Base();
-        print_r($base->curl("POST",$url,$param));
+        echo $base->curl("POST",$url,$param);
     }
     /**
      * 将参数数组签名
@@ -812,4 +814,17 @@ class Index extends Base
         $buff = trim($buff, "&");
         return $buff;
     }
+    /**
+     * 校验签名
+     * @param array 参数
+     * @param unknown_type appkey
+     */
+    public static function ValidSign(array $array,$appkey){
+        $sign = $array['sign'];
+        unset($array['sign']);
+        $array['key'] = $appkey;
+        $mySign = self::SignArray($array, $appkey);
+        return strtolower($sign) == strtolower($mySign);
+    }
+
 }

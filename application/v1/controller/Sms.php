@@ -48,8 +48,16 @@ class Sms extends Base
             $log_array = array();
             $model_member = new User();
             $member = $model_member->getMemberInfo(array('member_mobile'=> $mobile));
-            $captcha = rand(100000, 999999);
-            $log_msg = str_replace('#code#',$captcha,"【海云舟】感谢您选择海云舟，您的注册验证码是#code#。海云舟，您的培训服务交易平台。");
+            $captcha = rand(1000, 9999);
+            if($type==1)
+                $log_msg = str_replace('#code#',$captcha,"【海云舟】感谢您选择海云舟，您的注册验证码是#code#。海云舟，您的培训服务交易平台。");
+            else{
+                $log_msg = str_replace('#code#',$captcha,"【海云舟】亲爱的#name#，您的验证码是#code#。有效期为#hour#，请尽快验证");
+                $log_msg = str_replace('#name#',"用户",$log_msg);
+                $log_msg = str_replace('#hour#',"30分钟",$log_msg);
+                //$log_msg = str_replace("#tel#","",$log_msg);
+//echo $log_msg;die;
+            }
             $log_msg = str_replace('#add#',Config('site_name'),$log_msg);
             switch ($type) {
                 case '1':

@@ -29,6 +29,9 @@ class Buy extends Base
      * 购物车、直接购买第一步:选择收获地址和配置方式
      */
     public function confirm() {
+        if (!$this->request->isPost()) {
+            return null;
+        }
         $model_buy = new UserBuy();
 
         $is_supplier = isset($_POST['is_supplier'] )? intval($_POST['is_supplier']) : 0;
@@ -54,6 +57,10 @@ class Buy extends Base
         //if(!Config('sld_red') && !Config('red_isuse')) {
             $red=con_addons('red', $result + ['member' => array('member_id'=>$memberId)],'confirm','buy');
             $returns['red'] = $red['red'];
+            foreach($returns['red'] as $k=>$v){
+                $returns['red'][$k]['redinfo_start'] = date("Y.m.d",$returns['red'][$k]['redinfo_start']);
+                $returns['red'][$k]['redinfo_end'] = date("Y.m.d",$returns['red'][$k]['redinfo_end']);
+            }
             $returns['vred'] = $red['vred'];
         //}
         $newstorecartlist = array();
@@ -63,8 +70,8 @@ class Buy extends Base
             $newstorecartlist["store_vid$a"] = $v[0]["vid"];
             $newstorecartlist["store_total$a"] = $result['store_goods_total'][$k];
             $newstorecartlist["goods$a"]=$v;
-            if(!empty($result['store_mansong_rule_list']))
-            $newstorecartlist["store_mansong_rule_list$a"] = $result['store_mansong_rule_list'][$k];
+            if(!empty($result['store_mansong_rule_list']) && isset($result['store_mansong_rule_list'][$v[0]["vid"]]))
+            $newstorecartlist["store_mansong_rule_list$a"] = $result['store_mansong_rule_list'][$v[0]["vid"]];
             $a++;
         }
         //print_r($newstorecartlist);die;
@@ -791,6 +798,9 @@ class Buy extends Base
      *
      */
     public function addinvoice(){
+        if (!$this->request->isPost()) {
+            return null;
+        }
         $model_inv = new Invoice();
         if(!input("member_id")){
             $data['error_code'] = 10016;

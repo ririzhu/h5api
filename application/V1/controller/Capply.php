@@ -13,22 +13,22 @@ class Capply extends Base
             $param['company_name'] = $_POST['company_name'];//店铺名称
             $param['company_intro'] = input("company_intro");
             $param['company_address'] = $_POST['company_address_detail'];//详细地址
-            $param['company_country_id'] = $_POST['country_id'];//国家
-            $param['company_province_id'] = $_POST['province_id'];//省份
-            $param['company_city_id'] = $_POST['city_id'];//城市
-            $param['company_area_id'] = $_POST['area_id'];//区
+            $param['company_country_id'] = input("country_id","86");//国家
+            $param['company_province_id'] = input('province_id',0);//省份
+            $param['company_city_id'] = input('city_id',0);//城市
+            $param['company_area_id'] = input('area_id',0);//区
             $param['company_address_detail'] = $_POST['company_address_detail'];
             $param['contacts_name'] = $_POST['contacts_name'];//联系人
             $param['contacts_phone'] = $_POST['contacts_phone'];//手机号
             $param['contacts_email'] = $_POST['contacts_email'];
             $param['business_licence_number'] = $_POST['business_licence_number'];//身份证号码
             $param['business_sphere'] = $param['contacts_name'];//$_POST['business_sphere'];//真实姓名
-            $param['legal_licence_zheng_electronic'] = $this->upload_image('business_licence_number_electronic');//身份证正面
-            $param['legal_licence_fan_electronic'] = $this->upload_image('business_licence_number_electronic_back');//身份证反面
+            $param['legal_licence_zheng_electronic'] = $this->upload_base64('business_licence_number_electronic',BASE_UPLOAD_PATH.DS.$this->save_path.DS);//身份证正面
+            $param['legal_licence_fan_electronic'] = $this->upload_base64('business_licence_number_electronic_back',BASE_UPLOAD_PATH.DS.$this->save_path.DS);//身份证反面
            // $param['general_taxpayer'] = $this->upload_image('general_taxpayer');
             $param['store_label'] = $this->upload_image("store_label");//logo
-            $code = input("code");
-            $inviteCode = input("invite_code");
+            $code = input("code",0);
+            $inviteCode = input("invite_code",0);
             //$param['settlement_bank_account_name'] = $_POST['settlement_bank_account_name'];
             //$param['settlement_bank_account_number'] = $_POST['settlement_bank_account_number'];
             if (!empty($_POST['store_class_ids'])) {
@@ -78,5 +78,25 @@ class Capply extends Base
             }
         }
         return $pic_name;
+    }
+    private function upload_base64($base64_image_content,$path){
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64_image_content, $result)){
+            $type = $result[2];
+            $new_file = $path."/".date('Ymd',time())."/";
+            if(!file_exists($new_file)){
+                //检查是否有该文件夹，如果没有就创建，并给予最高权限
+                mkdir($new_file, 0700);
+            }
+            $new_file = $new_file.time().".{$type}";
+            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))){
+                return $path.'/'.$new_file;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+
+        //$re=@move_uploaded_file($this->upload_file['tmp_name'],BASE_UPLOAD_PATH.DS.$this->save_path.DS.$this->file_name);
     }
 }

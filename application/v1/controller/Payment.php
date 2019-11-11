@@ -766,7 +766,22 @@ class Payment extends Base
             exit(json_encode(array('state'=>($info['pdr_payment_state'] == '1'),'pay_sn'=>$info['pdr_sn'],'type'=>'p')));
         }
     }
-    /**
-     * 申请通联支付签约
-     */
+    public function h5Sign(){
+        $param['cusid'] = TLCUID;
+        $param['appid'] = TLAPPID;
+        $param['version'] = 12;
+        $param['trxamt'] = input('trxamt');
+        $param['reqsn'] = input('reqsn');
+        $param['charset'] = input('charset');
+        $param['returl'] = "http://www.baidu.com";
+        $param['notify_url'] = "http://www.baidu.com";
+        $param['body'] = input('body');
+        $param['remark'] = input('remark');
+        $param['randomstr'] =input('randomstr');
+        $param['validtime'] = input('validtime');
+        //$param['limit_pay'] = TLAPPID;
+        //$param['asinfo'] = TLCUID;
+        $param['sign'] = self::SignArray($param,15202156609);
+        echo $param['sign'];
+    }
 }
