@@ -331,4 +331,16 @@ class Message extends Model
         $array['link']  = !empty($param['system_type'])?$param['link']:0;
         return $this->name('message')->insert($array);
     }
+    /*
+    **消息中心改
+     */
+    public function message_type($where){
+        return Db::name('message')->distinct(true)->field('message_type')->where($where)->select();
+    }
+    public function get_last_type_message($where){
+        return Db::name('message')->field('message_body,message_time')->where($where)->order('message_id desc')->limit(1)->find();
+    }
+    public function get_type_list($field,$where){
+        return Db::name('message')->field($field)->where($where)->order('message_id desc')->select();
+    }
 }

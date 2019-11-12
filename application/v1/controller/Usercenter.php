@@ -613,7 +613,7 @@ class Usercenter extends Base
         $condition = array();
         $condition['log_phone'] = $phone;
         $condition['log_captcha'] = $captcha;
-        $condition['log_type'] = 2;
+        $condition['log_type'] = 3;
         $model_sms_log = new Sms();
         $sms_log = $model_sms_log->getSmsInfo($condition);
         if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效
@@ -649,7 +649,7 @@ class Usercenter extends Base
         $condition = array();
         $condition['log_phone'] = $phone;
         $condition['log_captcha'] = $captcha;
-        $condition['log_type'] = 2;
+        $condition['log_type'] = 3;
         $model_sms_log = new Sms();
         $sms_log = $model_sms_log->getSmsInfo($condition);
         if(empty($sms_log) || ($sms_log['add_time'] < TIMESTAMP-1800)) {//半小时内进行验证为有效

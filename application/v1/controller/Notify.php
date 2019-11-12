@@ -1,8 +1,9 @@
 <?php
 namespace app\v1\controller;
 
+use app\v1\api\payment\qpay\AppConfig;
+use app\v1\api\payment\qpay\AppUtil;
 use app\v1\model\Payment;
-
 
 /**
  * 回调
@@ -25,7 +26,7 @@ class Notify extends Base
             echo 'error';
             exit();
         }
-        if (!\AppUtil::ValidSign($params,\AppConfig::APPKEY)){
+        if (!AppUtil::ValidSign($params,AppConfig::APPKEY)){
             echo 'Sign 错误';
             exit();
         }
