@@ -129,6 +129,7 @@ class User extends Base
                 return json_encode($data, true);
             }
             if ($userModel->insertMemberWithOutMobile($userData)) {
+                self::insertToChain($userModel);
                 $data['error_code'] = 200;
                 $data['message'] = "注册成功";
                 return json_encode($data, true);
@@ -186,6 +187,7 @@ class User extends Base
             $res = $userModel->insertMemberWithMobile($userData);
             if ($res>0) {
                 $member = $userModel->getMemberInfo(array('member_mobile'=> $phone));//检查手机号是否已被注册
+                self::insertToChain($res);
                 //$this->createSession($member);
                 $data['error_code'] = 200;
                 $data['message'] = '注册成功';
@@ -238,10 +240,11 @@ class User extends Base
             $userinfo = $user->getMemberInfo(array("member_mobile"=>$phone));
             if($userModel->checkMobile($userData["member_mobile"])==0){
                 $res = $userModel->insertMemberWithMobile($userData);
+                self::insertToChain($res);
             }
             else{
                 $field = "member_id,member_name,member_state,member_login_num,member_login_time,member_email,is_buy,member_avatar,member_qqopenid,member_sinaopenid,member_login_ip";
-                $member_info = $user->getMemberInfo(array('member_name'=>$phone),$field);
+                $member_info = $user->getMemberInfo(array('member_mobile'=>$phone),$field);
                 $user->updateMember(array('member_login_num'=> ($member_info['member_login_num']+1)),$member_info['member_id']);
 
                 //添加会员积分
@@ -738,12 +741,12 @@ class User extends Base
                 $data['error_code'] = 200;
                 $data['message'] = "验证码已经发送到尾号".substr($requestData['mobile'],4)."的手机上，请注意查收。";
                 $data['redisname'] = $redisname;
+                $data['thpinfo'] = $res['thpinfo'];
             }else{
                 $data['error_code'] = $res['trxstatus'];
-                $data['error_code'] = $res['errmsg'];
-                $data['thpinfo'] = $res['thpinfo'];
+                $data['message'] = $res['errmsg'];
             }
-            if($res['thpinfo']!=''){
+            if(isset($res['thpinfo']) && $res['thpinfo']!=''){
                 $redis->set($redisname."thpinfo",$res['thpinfo']);
             }
             return json_encode($data,true);
@@ -768,7 +771,7 @@ class User extends Base
             $requestData = $redis->get(input("redisname"));
             $requestData['smscode'] = input("smscode");
             if(input("thpinfo")){
-                $requestData['smscode'] = input("thpinfo");
+                $requestData['thpinfo'] = input("thpinfo");
             }
             $str = "";
             $banktype = $requestData['banktype'] ;
@@ -790,7 +793,7 @@ class User extends Base
                     $dat['bankname'] = $res['bankname'];
                     $dat['bankimg'] = "https://apimg.alipay.com/combo.png?d=cashier&t=".$banktype;
                     if($requestData['card_type'] == '02')
-                    $dat['type'] = 1;
+                        $dat['type'] = 1;
                     else{
                         $dat['type'] = 2;
                     }
@@ -805,6 +808,12 @@ class User extends Base
             return json_encode($data,true);
 
         }
+    }
+    /**
+     * 重新获得通联的短信验证码
+     */
+    public function applySignStep1Again(){
+
     }
     /**
      * 将参数数组签名
@@ -832,11 +841,12 @@ class User extends Base
     /**
      * 注册会员上链
      */
-    public function insertToChain(){
+    public function insertToChain($memberId){
         $data =array();
         $index = new Index();
         $url = "http://192.168.2.252:8021/v1/index/blockChain";
-        $data['account'] = "lybjx".rand(1,1000);
+        $data['account'] = $memberId."user";
+        $data['id'] = $memberId;
         $methods = "createaccount";
         $index->testswoole($url,$methods,$data);
         //$swoeleServe->onReceive();

@@ -42,6 +42,9 @@ class Buy extends Base
         if(isset($_POST['invalid_cart']))
         $invalid_cart= input("invalid_cart");
         else $invalid_cart = "";
+        if(!isset($_POST['ifcart'])){
+            $_POST['ifcart']=1;
+        }
         $result = $model_buy->buyStep1($_POST['cart_id'], $_POST['ifcart'], $invalid_cart, input("member_id"), null,$is_supplier,$extends_data);
         $memberId = input("member_id");
 

@@ -16,7 +16,6 @@ class Points extends Model
      */
     function savePointsLog($stage,$insertarr,$if_repeat = true){
         if (!$insertarr['pl_memberid']){
-            echo 2;
 
             return false;
         }
