@@ -162,6 +162,7 @@ class Index extends Base
                         $goods_list[$k] = $a[0];
                     }
                     $goods_list[$k]['gid'] = $gid;
+                    //$goods_list[$k]['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$goods_list[$k]['goods_image'];
                     $new_goods_list[$k]=$goods_list[$k];
                     if($k==2){
                         break;
@@ -174,7 +175,7 @@ class Index extends Base
                     $lession[$k]['goods_name'] = $v['goods_name'];
                     $lession[$k]['gid'] = $v['gid'];
                     $lession[$k]['goods_price'] = $v['goods_price'];
-                    $lession[$k]['goods_image'] = $v['goods_image'];
+                    $lession[$k]['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$v['goods_image'];
                     //}
                 }
                 $data['hot_lession'] = $lession;
@@ -215,7 +216,7 @@ class Index extends Base
                             if (isset($goods_list[$kk]['goods_promotion_type']) && $goods_list[$k]['goods_promotion_type'] == 2) {
                                 $goods_list[$kk]['tag'][0] = "限时优惠";
                             }
-                            $goods_list[$kk]['goods_image'] = $vv['goods_image'];
+                            $goods_list[$kk]['goods_image'] = "http://192.168.2.252:9999/data/upload/mall/store/goods/1/".$vv['goods_image'];
                         }
                     }
 

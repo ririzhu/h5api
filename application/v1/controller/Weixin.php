@@ -59,8 +59,8 @@ class Weixin extends  Base
      * 分享后增加积分
      */
     public function addPoints(){
-        $gid = input("gid");
-        $aid = input("aid");
+        $gid = input("gid",0);
+        $aid = input("aid",0);
         if($gid&&$aid){
             $gid=$aid;
         }else{
@@ -92,7 +92,12 @@ class Weixin extends  Base
             $e_time = $s_time + 86400;
             $condition['pl_stage'] = $checkin_stage;
             $has_checked_flag = $points_model->getPointsInfo($condition,'pl_id');
-            $count = (db::name("points_log")->where("(pl_stage='goods_share' or pl_stage='article_share' ) and pl_member_id=$memberid and saddtime>=$s_time and eaddtime<=$e_time")->count());
+            $user = new \app\v1\model\User();
+            $member_info = $user->getMemberInfoByID(input("member_id",123));
+                //$this->member_info['client_type'] = $mb_user_token_info['client_type'];
+                //$this->member_info['openid'] = $mb_user_token_info['openid'];
+                //$this->member_info['token'] = $mb_user_token_info['token'];
+            $count = (db::name("points_log")->where("(pl_stage='goods_share' or pl_stage='article_share' ) and pl_memberid=$memberid and pl_addtime>=$s_time and pl_addtime<=$e_time")->count());
             if($count>=5){
                 $data['error_code'] = 200;
                 $data['message'] = '每日只可分享5次';
@@ -100,7 +105,7 @@ class Weixin extends  Base
             }
             else {
                 //添加会员积分
-                $points_model->savePointsLog($checkin_stage,array('pl_memberid'=>$this->member_info['member_id'],'pl_membername'=>$this->member_info['member_name'],'pl_points'=>Config($points_type)));
+                $points_model->savePointsLog($checkin_stage,array('pl_memberid'=>$member_info['member_id'],'pl_membername'=>$member_info['member_name'],'pl_points'=>Config($points_type)));
                 $data['error_code'] = 200;
                 $data['message'] = '分享成功';
                 return json_encode($data,true);
