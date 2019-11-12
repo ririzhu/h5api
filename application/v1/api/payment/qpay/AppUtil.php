@@ -1,4 +1,6 @@
 <?php
+namespace app\v1\api\payment\qpay;
+
 class AppUtil{
 	/**
 	 * 将参数数组签名
