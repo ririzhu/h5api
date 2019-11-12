@@ -23,8 +23,11 @@ class Capply extends Base
             $param['contacts_email'] = $_POST['contacts_email'];
             $param['business_licence_number'] = $_POST['business_licence_number'];//身份证号码
             $param['business_sphere'] = $param['contacts_name'];//$_POST['business_sphere'];//真实姓名
-            $param['legal_licence_zheng_electronic'] = $this->upload_base64('business_licence_number_electronic',BASE_UPLOAD_PATH.DS.$this->save_path.DS);//身份证正面
-            $param['legal_licence_fan_electronic'] = $this->upload_base64('business_licence_number_electronic_back',BASE_UPLOAD_PATH.DS.$this->save_path.DS);//身份证反面
+            $base = new Base();
+            $save_path = rtrim($base->setPath(),DS);
+
+            $param['legal_licence_zheng_electronic'] = $this->upload_base64('business_licence_number_electronic',BASE_UPLOAD_PATH.DS.$save_path.DS);//身份证正面
+            $param['legal_licence_fan_electronic'] = $this->upload_base64('business_licence_number_electronic_back',BASE_UPLOAD_PATH.DS.$save_path.DS);//身份证反面
            // $param['general_taxpayer'] = $this->upload_image('general_taxpayer');
             $param['store_label'] = $this->upload_image("store_label");//logo
             $code = input("code",0);

@@ -105,11 +105,13 @@ class Bapply extends Base
             $param['legal_licence_number'] = $_POST['legal_licence_number'];
             //$param['legal_licence_start'] = $_POST['legal_licence_start'];
             //$param['legal_licence_end'] = $_POST['legal_licence_end'];
-            $param['legal_licence_zheng_electronic'] = $this->upload_base64(input('legal_licence_zheng_electronic'),BASE_UPLOAD_PATH.DS.$this->save_path.DS);
-            $param['legal_licence_fan_electronic'] = $this->upload_base64(input('legal_licence_fan_electronic'),BASE_UPLOAD_PATH.DS.$this->save_path.DS);
+            $base = new Base();
+            $save_path = rtrim($base->setPath(),DS);
+            $param['legal_licence_zheng_electronic'] = $this->upload_base64(input('legal_licence_zheng_electronic'),BASE_UPLOAD_PATH.DS.$save_path.DS);
+            $param['legal_licence_fan_electronic'] = $this->upload_base64(input('legal_licence_fan_electronic'),BASE_UPLOAD_PATH.DS.$save_path.DS);
             //法人信息-end
 
-            $param['business_licence_number_electronic'] = $this->upload_base64(input('business_licence_number_electronic'),BASE_UPLOAD_PATH.DS.$this->save_path.DS);//营业执照电子版
+            $param['business_licence_number_electronic'] = $this->upload_base64(input('business_licence_number_electronic'),BASE_UPLOAD_PATH.DS.$save_path.DS);//营业执照电子版
             //$param['vendor_add_img1'] = $this->upload_image('vendor_add_img1');
             //$param['vendor_add_img2'] = $this->upload_image('vendor_add_img2');
             //$param['vendor_add_img3'] = $this->upload_image('vendor_add_img3');

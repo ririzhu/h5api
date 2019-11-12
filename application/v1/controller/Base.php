@@ -10,6 +10,7 @@ use Firebase\JWT\JWT;
 use think\db;
 class Base extends Controller
 {
+    private $default_dir = ATTACH_PATH;
     protected $request;
     /**
      * init
@@ -504,5 +505,44 @@ function date_before($time, $unit = null) {
             $bytes[] = ord($string[$i]);
         }
         return $bytes;
+    }
+    /**
+     * 设置存储路径
+     *
+     * @return string 字符串形式的返回结果
+     */
+    public function setPath(){
+
+        if(!OSS_ENABLE) {
+            /**
+             * 判断目录是否存在，如果不存在 则生成
+             */
+
+            if (!is_dir(BASE_UPLOAD_PATH . DS . $this->default_dir)) {
+                $dir = $this->default_dir;
+                $dir_array = explode(DS, $dir);
+                $tmp_base_path = BASE_UPLOAD_PATH;
+                foreach ($dir_array as $k => $v) {
+                    $tmp_base_path = $tmp_base_path . DS . $v;
+                    if (!is_dir($tmp_base_path)) {
+                        if (!@mkdir($tmp_base_path, 0755,true)) {
+                            //$this->setError(Language::get('创建目录(') . $tmp_base_path . Language::get(')失败'));
+                            return false;
+                        }
+                    }
+                }
+                unset($dir, $dir_array, $tmp_base_path);
+            }
+
+            //设置权限
+            @chmod(BASE_UPLOAD_PATH . DS . $this->default_dir, 0755);
+
+            //判断文件夹是否可写
+            if (!is_writable(BASE_UPLOAD_PATH . DS . $this->default_dir)) {
+                //$this->setError(Language::get('目录(') . $this->default_dir . Language::get(')不能创建文件，请修改权限后再进行上传'));
+                return false;
+            }
+        }
+        return $this->default_dir;
     }
 }

@@ -565,15 +565,17 @@ class Index extends Base
         $data['contactname'] = input("contactname");
         $data['mobile'] = input("mobile");
         $data['content'] = input("content");
-        $file = request()->file("images");
-
-        $info = $file->move('uploads/feedback');
-        if ($info) {
-            $data['image'] = "http://192.168.2.252:7777/".$info->getPathname();
-        } else {
+        $base = new \app\v1\controller\Base();
+        $save_path = rtrim($base->setPath(),DS);
+        //$file = request()->file("images");
+        $data['image'] = $this->upload_base64(input('images'),BASE_UPLOAD_PATH.DS.$save_path.DS);
+        //$info = $file->move('uploads/feedback');
+        //if ($info) {
+            //$data['image'] = "http://192.168.2.252:7777/".$info->getPathname();
+        //} else {
             //上传失败获取错误信息
-            $this->error($file->getError());
-        }
+            //$this->error($file->getError());
+        //}
         $res = db::name("feedback")->insert($data);
         if($res){
             $datas['error_code'] = 200;
@@ -584,6 +586,26 @@ class Index extends Base
             $datas['message'] = lang("操作失败");
             return json_encode($datas,true);
         }
+    }
+    private function upload_base64($base64_image_content,$path){
+        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64_image_content, $result)){
+            $type = $result[2];
+            $new_file = $path."/".date('Ymd',time())."/";
+            if(!file_exists($new_file)){
+                //检查是否有该文件夹，如果没有就创建，并给予最高权限
+                mkdir($new_file, 0700);
+            }
+            $new_file = $new_file.time().".{$type}";
+            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))){
+                return $path.'/'.$new_file;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+
+        //$re=@move_uploaded_file($this->upload_file['tmp_name'],BASE_UPLOAD_PATH.DS.$this->save_path.DS.$this->file_name);
     }
 
     /**
