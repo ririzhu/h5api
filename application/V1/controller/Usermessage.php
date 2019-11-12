@@ -106,4 +106,102 @@ class Usermessage extends  Base
         $data['mesInfo']=$message;
         return json_encode($data,true);
     }
+    /*
+    **消息中心改
+     */
+    public function  messageType(){
+        if(empty(input("member_id"))){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $member_id=input("member_id");
+        $model_message  = new Message();
+        $where=" to_member_id = ".$member_id." or to_member_id = 'all' ";
+        $type=$model_message->message_type($where);
+        if(!empty($type)){
+            foreach ($type as &$v1) {
+                if($v1['message_type']==0) $v1['message_type1']="私信";
+                if($v1['message_type']==1) $v1['message_type1']="系统消息";
+                if($v1['message_type']==2) $v1['message_type1']="留言";
+                $where=" (to_member_id = ".$member_id." or to_member_id = 'all') and message_type = ".$v1['message_type'];
+                $lastOne=$model_message->get_last_type_message($where);
+                $v1['message_body']=$lastOne['message_body'];
+                $v1['message_time']=$this->date_before($lastOne['message_time']);
+            }           
+        }else{
+            $type=null;
+        }
+        $data['code']=200;
+        $data['message']='请求成功';
+        $data['data']=$type;
+        return json($data);
+    }
+    public function messageTypeList(){
+        if(empty(input("member_id"))||is_null(input('message_type'))){
+            $data['code'] = 10001;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $member_id=input("member_id");
+        $message_type=input("message_type");
+        $model_message  = new Message();
+        $field=" message_id,to_member_id,message_title,message_body,message_time,read_member_id,system_type,from_member_id";
+        $where=" (to_member_id = ".$member_id." or to_member_id = 'all') and message_type = ".$message_type;
+        $list=$model_message->get_type_list($field,$where);
+        if(!empty($list)){
+            foreach ($list as $k2 => $v2) {
+                if(strpos($v2['read_member_id'],",".input("member_id").",") === false){
+                    $list[$k2]['is_read']=0;
+                }else{
+                    $list[$k2]['is_read']=1;
+                }
+                switch ($v2['system_type']) {
+                    case '0':
+                        $list[$k2]['system_type1']='系统通知';
+                        break;
+                    case '1':
+                        $list[$k2]['system_type1']='发货提醒';
+                        break;
+                    case '2':
+                        $list[$k2]['system_type1']='付款成功';
+                        break;
+                    case '3':
+                        $list[$k2]['system_type1']='余额变动';
+                        break;
+                    case '4':
+                        $list[$k2]['system_type1']='退货退款';
+                        break;
+                    case '5':
+                        $list[$k2]['system_type1']='积分变化';
+                        break;                   
+                }                
+                $list[$k2]['message_time'] = $this->date_before($v2['message_time']);              
+            }
+        }else{
+            $list=null;
+        }
+
+        //标记为已读
+        if(!empty($list)){
+            $list_c=$list;
+            foreach ($list_c as $k3 => $v3) {
+                if(strpos($v3['read_member_id'],",".$member_id.",") === false){
+                    $condition['message_id']=$v3['message_id'];
+                    //更新状态
+                    $updata['read_member_id']=$v3['read_member_id'];
+                    $updata['read_member_id'].=",".$member_id.",";
+                    $updataMessage=$model_message->updateMessage($condition,$updata);
+                }                
+            }            
+        }
+
+        $data['code']=200;
+        $data['message']='请求成功';
+        if($message_type==0) $data['message_type']="私信";
+        if($message_type==1) $data['message_type']="系统消息";
+        if($message_type==2) $data['message_type']="留言";
+        $data['data']=$list;
+        return json($data);
+    }
 }
