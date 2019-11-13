@@ -559,7 +559,7 @@ class Index extends Base
             $datas['message'] = lang("缺少参数");
             return json_encode($datas,true);exit();
         }
-        $data['member_id'] = input("member_id");
+        //$data['member_id'] = input("member_id");
         $data['reason'] = input("reason");
         $data['isanonymous'] = input("isanonymous",0);
         $data['contactname'] = input("contactname");

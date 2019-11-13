@@ -473,7 +473,7 @@ function date_before($time, $unit = null) {
 //        if (substr($re1, 0,3) == pack("CCC",0xef,0xbb,0xbf)) {
 //            $re1 = substr($re1, 3);
 //        }
-        echo $html;
+        return $html;
 
 
     }

@@ -700,7 +700,7 @@ class User extends Base
             }else{
                 $uri = MASTER_PAY_URI;
             }
-            $url = "http://test.allinpaygd.com/apiweb/qpay/agreeapply";//"https://vsp.allinpay.com/apiweb/qpay/agreeapply";
+            $url = "https://vsp.allinpay.com/apiweb/qpay/agreeapply";//"https://vsp.allinpay.com/apiweb/qpay/agreeapply";
             $str = "";
             $randomstr = "HORIZOU".time();
             if(input("card_type")=="02") {
@@ -730,21 +730,26 @@ class User extends Base
             $card = substr($requestData['acctno'],-4);
             $redis = new Redis();
             $redisname = time().$card;
-            $redis->set($redisname,$requestData);
             $base = new Base();
             $requestData['sign']=strtoupper(self::SignArray($requestData,"15202156609"));
+            $redis->set($redisname,$requestData);
             $res = $base->curl("POST",$url,$requestData);
             $requestData['banktype'] = input("banktype");
+            $requestData['card_type'] = input("card_type");
             unset($requestData['sign']);
             $res = json_decode($res,true);
-            if($res['retcode'] == "SUCCESS"){
+            if($res['retcode'] == "SUCCESS" && $res['trxstatus'] == "1999"){
                 $data['error_code'] = 200;
                 $data['message'] = "验证码已经发送到尾号".substr($requestData['mobile'],4)."的手机上，请注意查收。";
                 $data['redisname'] = $redisname;
                 $data['thpinfo'] = $res['thpinfo'];
-            }else{
+            }else if($res['retcode'] == "SUCCESS" && $res['trxstatus'] == 3004){
                 $data['error_code'] = $res['trxstatus'];
-                $data['message'] = $res['errmsg'];
+                $data['message'] = "卡号错误";
+            }
+            else if($res['retcode'] == "SUCCESS" && $res['trxstatus'] == 3051){
+                $data['error_code'] = $res['trxstatus'];
+                $data['message'] = "请勿重复签约";
             }
             if(isset($res['thpinfo']) && $res['thpinfo']!=''){
                 $redis->set($redisname."thpinfo",$res['thpinfo']);
@@ -767,24 +772,36 @@ class User extends Base
         else{
             $redis = new Redis();
             $base = new Base();
-            $url = "http://test.allinpaygd.com/apiweb/qpay/agreeconfirm";
+            $url = "https://vsp.allinpay.com/apiweb/qpay/agreeconfirm";
             $requestData = $redis->get(input("redisname"));
+            $requestData["card_type"]= "00";
             $requestData['smscode'] = input("smscode");
             if(input("thpinfo")){
-                $requestData['thpinfo'] = input("thpinfo");
+                $requestData['thpinfo'] = stripslashes(input("thpinfo"));
             }
             $str = "";
             $banktype = $requestData['banktype'] ;
             unset($requestData['banktype']);
-            $randomstr = "HORIZOU".time();
+            $randomstr = $requestData['randomstr'];
+            //print_r($requestData);die;
             if($requestData["card_type"]=="02") {
-                $str .= "acctname=" . $requestData["name"] . "&acctno=" . $requestData["card_num"] . "&accttype=" . $requestData["card_type"] . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&idno=" . $requestData["identity_num"] . "&meruserid=" . $requestData["member_id"] . "&mobile=" . $requestData["mobile"] . "&randomstr=" . $randomstr;
+                $str .= "acctname=" . $requestData["acctname"] . "&acctno=" . $requestData["acctno"] . "&accttype=" . $requestData["card_type"] . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&idno=" . $requestData["idno"] . "&meruserid=" . $requestData["meruserid"] . "&mobile=" . $requestData["mobile"] . "&randomstr=" . $randomstr;
             }else{
-                $str .= "acctname=" . $requestData["name"] . "&acctno=" . $requestData["card_num"] . "&accttype=" . $requestData["card_type"] . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&cvv2=".$requestData["cvv2"]."&idno=" . $requestData["identity_num"] . "&meruserid=" . $requestData["member_id"] . "&mobile=" . $requestData["mobile"] . "&randomstr=" . $randomstr;
-                $str .= "&reqip=" . $_SERVER['SERVER_ADDR']."&validdate=".$requestData["validdate"];
+                $str .= "acctname=" . $requestData["acctname"] . "&acctno=" . $requestData["acctno"] . "&accttype=" . $requestData["card_type"] . "&appid=" . TLAPPID . "&cusid=" . TLCUID . "&cvv2=".$requestData["cvv2"]."&idno=" . $requestData["idno"] . "&meruserid=" . $requestData["meruserid"] . "&mobile=" . $requestData["mobile"] . "&randomstr=" . $randomstr;
+                $str .= "&reqip=" . $requestData['reqip']."&validdate=".$requestData["validdate"];
             }
+            if(isset($requestData["cvv2"]) && empty($requestData["cvv2"])) {
+                unset($requestData["cvv2"]);
+                unset($requestData['validdate']);
+            }
+            unset($requestData['sign']);
+            $cardType = $requestData['card_type'];
+            unset($requestData['card_type']);
+            //print_r($requestData);die;
             $requestData['sign']=strtoupper(self::SignArray($requestData,"15202156609"));
             $res = $base->curl("POST",$url,$requestData);
+            //$res = "Array ( [agreeid] => eN5ed5zrTgqY0ZA2gE [appid] => 00178859 [bankcode] => 01020000 [bankname] => 工商银行 [cusid] => 56058104816HDSQ [errmsg] => 签约成功 [randomstr] => 035845861918 [retcode] => SUCCESS [sign] => 1E8D88D7B0A7A8E04F772ADC460E22E2 [trxstatus] => 0000 )";
+            $res = json_decode($res,true);
             if($res['retcode'] == "SUCCESS"){
                 if($res['trxstatus'] == '0000'){
                     $dat['member_id'] = input("member_id");
