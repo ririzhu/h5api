@@ -128,6 +128,16 @@ class Usermessage extends  Base
                 $lastOne=$model_message->get_last_type_message($where);
                 $v1['message_body']=$lastOne['message_body'];
                 $v1['message_time']=$this->date_before($lastOne['message_time']);
+                if(!empty($lastOne['from_member_id'])){
+                    $where1=" member_id = ".$lastOne['from_member_id'];
+                    $fromWho=$model_message->getMemberInfo($where1);
+                    $v1['from_member_name']=$fromWho['member_name'];
+                    if(empty($fromWho['member_avatar'])) $v1['from_member_avatar']="http://192.168.2.141/static/defualt_img/sld_pc_dian_topleft_logo.png";
+                     else $v1['from_member_avatar']="http://192.168.2.141/data/upload/mall/avatar/".$fromWho['member_avatar'];
+                }else{
+                    $v1['from_member_name']="系统";
+                    $v1['from_member_avatar']="http://192.168.2.141/static/defualt_img/sld_pc_dian_topleft_logo.png";                    
+                }
             }           
         }else{
             $type=null;
