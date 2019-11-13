@@ -700,7 +700,7 @@ class User extends Base
             }else{
                 $uri = MASTER_PAY_URI;
             }
-            $url = "https://vsp.allinpay.com/apiweb/qpay/agreeapply";//"https://vsp.allinpay.com/apiweb/qpay/agreeapply";
+            $url = "https://vsp.allinpay.com/apiweb/qpay/agreeapply"; //"https://vsp.allinpay.com/apiweb/qpay/agreeapply";
             $str = "";
             $randomstr = "HORIZOU".time();
             if(input("card_type")=="02") {
