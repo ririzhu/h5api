@@ -23,7 +23,7 @@
 <script>
     $.ajax({
         url:"http://192.168.2.252:7777/v1/payment/h5sign",
-        data:{"cusid":"56058104816HDSQ","appid":"00178859","version":12,"trxamt":1,"reqsn":650620920758559123,"charset":"UTF-8","returl":"http://www.baidu.com","notify_url":"http://utools.club:41214/v1/payment/notify","body":"ceshi","remark":"beizhu","randomstr":"HORIZOU","validtime":10},
+        data:{"cusid":"56058104816HDSQ","appid":"00178859","version":12,"trxamt":1,"reqsn":"650620920758559123","charset":"UTF-8","returl":"http://www.baidu.com","notify_url":"http://utools.club:41214/v1/payment/notify","body":"ceshi","remark":"beizhu","randomstr":"HORIZOU","validtime":10},
         type:"post",
         success:function($result){
             console.log($result);

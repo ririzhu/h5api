@@ -677,7 +677,7 @@ class User extends Base
      * @return false|string
      */
     public function applySignStep1(){
-        if(!input("member_id") || !input("card_num") || !input("card_type") || !input("identity_num") || !input("mobile") || !input("name") ||!input("code")|| !input("banktype")){
+        if(!input("member_id") || !input("card_num") || !input("card_type") || !input("identity_num") || !input("mobile") || !input("name") || !input("banktype")){
             $data['error_code'] = 10016;
             $data['message'] = lang("缺少参数");
             return json_encode($data,true);
@@ -750,6 +750,9 @@ class User extends Base
             else if($res['retcode'] == "SUCCESS" && $res['trxstatus'] == 3051){
                 $data['error_code'] = $res['trxstatus'];
                 $data['message'] = "请勿重复签约";
+            }
+            else{
+                return json_encode($res,true);
             }
             if(isset($res['thpinfo']) && $res['thpinfo']!=''){
                 $redis->set($redisname."thpinfo",$res['thpinfo']);

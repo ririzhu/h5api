@@ -2,6 +2,7 @@
 namespace app\v1\controller;
 
 use app\v1\model\Predeposit;
+use think\db;
 //include("../extend/pay/alipay/AopSdk.php");
 //include("../extend/pay/allinpay/Allinpay.php");
 class Payment extends Base
@@ -847,5 +848,36 @@ class Payment extends Base
         $array['key'] = $appkey;
         $mySign = self::SignArray($array, $appkey);
         return strtolower($sign) == strtolower($mySign);
+    }
+    public function methodList(){
+        if(!input("member_id")){
+            return false;
+        }
+        $user = new \app\v1\model\User();
+        $info = $user->getMemberInfo(input("member_id"),"available_predeposit");
+        $card = db::name("member_bankcard")->where("member_id=".input("member_id"))->field("card,type,bankname,bankimg")->find();
+        if(empty(($card))){
+            $data['cardflag'] = false;
+        }
+        else{
+            $data['cardflag'] = true;
+            if($card['type']==1){
+                $card['type'] = "储蓄卡";
+            }
+            if($card['type']==2){
+                $card['type'] = "信用卡";
+            }
+            $data['card'] = $card;
+        }
+        $data['money'] = $info["available_predeposit"];
+        $data['list'][0]['name'] = "余额支付";
+        $data['list'][0]['status'] = false;
+        $data['list'][1]['name'] = "快捷支付";
+        $data['list'][1]['status'] = true;
+        $data['list'][2]['name'] = "微信支付";
+        $data['list'][2]['status'] = true;
+        $data['list'][3]['name'] = "支付宝";
+        $data['list'][3]['status'] = false;
+        return json_encode($data,true);
     }
 }
