@@ -480,7 +480,7 @@ class Usercenter extends Base
             $member_array['member_name'] = input('member_name');
         }
         if (input('member_birthday')) {
-            $member_array['member_birthday'] = input('birthday');
+            $member_array['member_birthday'] = input('member_birthday');
         }
         if (input('member_sex')) {
             $member_array['member_sex'] = input('member_sex');
