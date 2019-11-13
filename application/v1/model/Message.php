@@ -338,9 +338,12 @@ class Message extends Model
         return Db::name('message')->distinct(true)->field('message_type')->where($where)->select();
     }
     public function get_last_type_message($where){
-        return Db::name('message')->field('message_body,message_time')->where($where)->order('message_id desc')->limit(1)->find();
+        return Db::name('message')->field('from_member_id,message_body,message_time')->where($where)->order('message_id desc')->limit(1)->find();
     }
     public function get_type_list($field,$where){
         return Db::name('message')->field($field)->where($where)->order('message_id desc')->select();
+    }
+    public function getMemberInfo($where){
+        return Db::name('member')->field('*')->where($where)->find();
     }
 }
