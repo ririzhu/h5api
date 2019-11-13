@@ -9,11 +9,11 @@
     <input type="hidden" name="cusid" value="56058104816HDSQ"/>
     <input type="hidden" name="appid" value="00178859"/>
     <input type="hidden" name="version" value="12"/>
-    <input type="hidden" name="reqsn" value="434"/>
+    <input type="hidden" name="reqsn" value="650620920758559123"/>
     <input type="hidden" name="trxamt" value="1"/>
     <input type="hidden" name="charset" value="UTF-8"/>
     <input type="hidden" name="returl" value="http://www.baidu.com"/>
-    <input type="hidden" name="notify_url" value="http://www.baidu.com"/>
+    <input type="hidden" name="notify_url" value="http://utools.club:41214/v1/payment/notify"/>
     <input type="hidden" name="body" value="ceshi"/>
     <input type="hidden" name="remark" value="beizhu"/>
     <input type="hidden" name="randomstr" value="HORIZOU"/>
@@ -23,7 +23,7 @@
 <script>
     $.ajax({
         url:"http://192.168.2.252:7777/v1/payment/h5sign",
-        data:{"cusid":"56058104816HDSQ","appid":"00178859","version":12,"trxamt":1,"reqsn":434,"charset":"UTF-8","returl":"http://www.baidu.com","notify_url":"http://www.baidu.com","body":"ceshi","remark":"beizhu","randomstr":"HORIZOU","validtime":10},
+        data:{"cusid":"56058104816HDSQ","appid":"00178859","version":12,"trxamt":1,"reqsn":650620920758559123,"charset":"UTF-8","returl":"http://www.baidu.com","notify_url":"http://utools.club:41214/v1/payment/notify","body":"ceshi","remark":"beizhu","randomstr":"HORIZOU","validtime":10},
         type:"post",
         success:function($result){
             console.log($result);

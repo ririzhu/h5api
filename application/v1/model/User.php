@@ -679,6 +679,6 @@ class User extends Model
 
         $model_mb_user_token->addMbUserToken($mb_user_token_info);
         $_SESSION['token_key'] 	= $token;
-
+        return $token;
     }
 }

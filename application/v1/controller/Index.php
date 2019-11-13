@@ -501,7 +501,7 @@ class Index extends Base
 
         // 直接输出
         //$qr_url = 'http://www.baidu.com?id=' . rand(1000, 9999);
-        $qr_url ="http://www.horizou.com";
+        $qr_url ="http://192.168.2.252:7779/#/Password_register?inviteCode=1111";
         //$qr_code = new QrcodeServer($config);
         //$qr_img = $qr_code->createServer($qr_url);
         $this->_qr = new QrCode($qr_url);

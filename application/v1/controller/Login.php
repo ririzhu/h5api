@@ -36,7 +36,7 @@ class Login extends Base {
             return json_encode($data,true);
         }
 
-        $member->createSession($member_info);
+        $token = $member->createSession($member_info);
         //更新登录次数
         $member->updateMember(array('member_login_num'=> ($member_info['member_login_num']+1)),$member_info['member_id']);
 
@@ -65,6 +65,7 @@ class Login extends Base {
         $data['code'] = 200;
         $data['message'] = lang("登录成功");
         $data['member_info'] = $member_info;
+        $data['token'] = $token;
         return json_encode($data,true);
 	}
 

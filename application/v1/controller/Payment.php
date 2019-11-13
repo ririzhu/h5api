@@ -808,4 +808,44 @@ class Payment extends Base
         $sign = md5($blankStr);
         return $sign;
     }
+
+    /**
+     * H5支付回调
+     */
+    public function  h5notify(){
+        $params = array();
+        foreach($_POST as $key=>$val) {//动态遍历获取所有收到的参数,此步非常关键,因为收银宝以后可能会加字段,动态获取可以兼容由于收银宝加字段而引起的签名异常
+            $params[$key] = $val;
+        }
+        if(count($params)<1){//如果参数为空,则不进行处理
+            echo "error";
+            exit();
+        }
+        if(self::ValidSign($params, 15202156609)){//验签成功
+            //此处进行业务逻辑处理
+            $payment = new \app\v1\model\Payment();
+            $process = $payment->notifyProcess($params['cusorderid']);
+            if ($process['code'] == 200){
+                echo 'success';
+            }else{
+                echo 'error';
+            }
+            echo "success";
+        }
+        else{
+            echo "erro";
+        }
+    }
+    /**
+     * 校验签名
+     * @param array 参数
+     * @param unknown_type appkey
+     */
+    public static function ValidSign(array $array,$appkey){
+        $sign = $array['sign'];
+        unset($array['sign']);
+        $array['key'] = $appkey;
+        $mySign = self::SignArray($array, $appkey);
+        return strtolower($sign) == strtolower($mySign);
+    }
 }
