@@ -883,4 +883,78 @@ class Payment extends Base
         $data['list'][3]['status'] = false;
         return json_encode($data,true);
     }
+
+    /**
+     * 订单支付申请
+     * @return false|string
+     */
+    public function orderPayApply()
+    {
+        if (!input('member_id') || !input('pay_sn') || !input('card') || !input('bankcode')){
+            $data['code'] = 10001;
+            $data['message'] = '缺少参数';
+            return json_encode($data,true);
+        }
+        $member_id = input('member_id');
+        $pay_sn = input('pay_sn');
+        $card = input('card');
+        $bankcode = input('bankcode');
+
+        $payment = new \app\v1\model\Payment();
+        return json_encode($payment->orderPayApply($pay_sn,$member_id,$card,$bankcode),true);
+    }
+
+    /**
+     * 订单支付确认
+     * @return false|string
+     */
+    public function orderPayConfirm()
+    {
+        if (!input('member_id') ||
+            !input('pay_sn') ||
+            !input('smscode') ||
+            !input('card') ||
+            !input('bankcode') ||
+            !input('thpinfo'))
+        {
+            $data['code'] = 10001;
+            $data['message'] = '缺少参数';
+            return json_encode($data,true);
+        }
+        $member_id = input('member_id');
+        $pay_sn = input('pay_sn');
+        $smscode = input('smscode');
+        $card = input('card');
+        $bankcode = input('bankcode');
+        $thpinfo = input('thpinfo');
+
+        $payment = new \app\v1\model\Payment();
+        return json_encode($payment->orderPayConfirm($pay_sn,$member_id,$smscode,$card,$bankcode,$thpinfo),true);
+    }
+
+    /**
+     * 重新获取支付短信
+     * @return false|string
+     */
+    public function orderPaySms()
+    {
+        if (!input('member_id') ||
+            !input('pay_sn') ||
+            !input('card') ||
+            !input('bankcode') ||
+            !input('thpinfo'))
+        {
+            $data['code'] = 10001;
+            $data['message'] = '缺少参数';
+            return json_encode($data,true);
+        }
+        $member_id = input('member_id');
+        $pay_sn = input('pay_sn');
+        $card = input('card');
+        $bankcode = input('bankcode');
+        $thpinfo = input('thpinfo');
+
+        $payment = new \app\v1\model\Payment();
+        return json_encode($payment->orderPaySms($pay_sn,$member_id,$card,$bankcode,$thpinfo),true);
+    }
 }

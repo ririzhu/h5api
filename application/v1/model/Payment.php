@@ -1,6 +1,7 @@
 <?php
 namespace app\v1\model;
 
+use app\v1\api\payment\qpay\Pay;
 use Exception;
 use think\Model;
 use think\db;
@@ -215,6 +216,212 @@ class Payment extends Model
     //根据订单号获取订单信息
     public function getOrderInfo($order_sn){
         return $this->table('order')->field('*')->where(array('order_sn'=>$order_sn,'order_state'=>10))->find();
+    }
+
+    /**
+     * 订单支付申请
+     * @param $pay_sn
+     * @param $member_id
+     * @param $card
+     * @param $bankcode
+     * @return array
+     * @throws \think\exception\DbException
+     * @throws db\exception\DataNotFoundException
+     * @throws db\exception\ModelNotFoundException
+     */
+    public function orderPayApply($pay_sn,$member_id,$card,$bankcode)
+    {
+        $model_order = new Order();
+        $order_pay_info = $model_order->getOrderPayInfo(['pay_sn' => $pay_sn,'api_pay_state' => 0]);
+        if (!$order_pay_info){
+            return [
+                'code' => 1,
+                'message' => '订单不存在'
+            ];
+        }
+
+        $condition = [
+            'pay_sn' => $pay_sn,
+            'order_state' =>ORDER_STATE_NEW,
+        ];
+        $field = 'order_id,order_sn,order_amount,pd_amount,pd_points';
+        $order_list = Db::name('order')->field($field)->where($condition)->select();
+        if (!$order_list){
+            return [
+                'code' => 1,
+                'message' => '订单不存在'
+            ];
+        }
+
+        $pay_amount = 0;
+        foreach ($order_list as $key =>$val){
+            $pay_amount += sldPriceFormat(floatval($val['order_amount']) - floatval($val['pd_amount']));
+        }
+
+        //获取协议编号
+        $bankcard_condition = [
+            'member_id' => $member_id,
+            'card' => $card,
+            'bankcode' => $bankcode,
+        ];
+        $bankcard_info = Db::name('member_bankcard')->field('agreeid')->where($bankcard_condition)->find();
+        if (empty($bankcard_info)){
+            return [
+                'code' => 1,
+                'message' => '银行卡还未签约',
+            ];
+        }
+        $agreeid = $bankcard_info['agreeid'];
+
+        $params = [
+            'orderid' => $pay_sn,
+            'agreeid' => $agreeid,
+//            'agreeid' => "8j0bfmKmQHaTywjMfY",
+//            'agreeid' => "eN5ed5zrTgqY0ZA2gE",
+            'amount' => $pay_amount * 100,
+            'subject' => '商品购买_'.$pay_sn,
+        ];
+        $pay = new Pay();
+        $res = $pay->payapply($params);
+
+        if (!$res){
+            return [
+                'code' => 1,
+                'message' => '支付失败',
+            ];
+        }
+        if ($res['retcode'] != 'SUCCESS'){
+            return [
+                'code' => 1,
+                'message' => '支付失败，' . (isset($res['retmsg']) ? $res['retmsg'] : ''),
+            ];
+        }
+
+        return [
+            'code' => 0,
+            'message' => 'success',
+            'res' => $res
+        ];
+    }
+
+    /**
+     * 订单支付确认
+     * @param $pay_sn
+     * @param $member_id
+     * @param $smscode
+     * @param $card
+     * @param $bankcode
+     * @param $thpinfo
+     * @return array
+     * @throws \think\exception\DbException
+     * @throws db\exception\DataNotFoundException
+     * @throws db\exception\ModelNotFoundException
+     */
+    public function orderPayConfirm($pay_sn,$member_id,$smscode,$card,$bankcode,$thpinfo)
+    {
+        //获取协议编号
+        $bankcard_condition = [
+            'member_id' => $member_id,
+            'card' => $card,
+            'bankcode' => $bankcode
+        ];
+        $bankcard_info = Db::name('member_bankcard')->field('agreeid')->where($bankcard_condition)->find();
+        if (empty($bankcard_info)){
+            return [
+                'code' => 1,
+                'message' => '银行卡未签约'
+            ];
+        }
+        $agreeid = $bankcard_info['agreeid'];
+
+        $params = [
+            'orderid' => $pay_sn,
+            'agreeid' => $agreeid,
+//            'agreeid' => "8j0bfmKmQHaTywjMfY",
+            'smscode' => $smscode,
+//            'smscode' => '111111',
+            'thpinfo' => stripslashes($thpinfo),
+//            'thpinfo' => "{\"sign\":\"\",\"tphtrxcrtime\":\"\",\"tphtrxid\":0,\"trxflag\":\"trx\",\"trxsn\":\"\"}",
+        ];
+        $pay = new Pay();
+        $res = $pay->payconfirm($params);
+
+        if (!$res){
+            return [
+                'code' => 1,
+                'message' => '支付失败',
+            ];
+        }
+        if ($res['retcode'] != 'SUCCESS'){
+            return [
+                'code' => 1,
+                'message' => '支付失败，' . (isset($res['retmsg']) ? $res['retmsg'] : ''),
+            ];
+        }
+
+        return [
+            'code' => 0,
+            'message' => 'success',
+            'res' => $res
+        ];
+    }
+
+    /**
+     * 重新获取支付短信
+     * @param $pay_sn
+     * @param $member_id
+     * @param $card
+     * @param $bankcode
+     * @param $thpinfo
+     * @return array
+     * @throws \think\exception\DbException
+     * @throws db\exception\DataNotFoundException
+     * @throws db\exception\ModelNotFoundException
+     */
+    public function orderPaySms($pay_sn,$member_id,$card,$bankcode,$thpinfo)
+    {
+        //获取协议编号
+        $bankcard_condition = [
+            'member_id' => $member_id,
+            'card' => $card,
+            'bankcode' => $bankcode
+        ];
+        $bankcard_info = Db::name('member_bankcard')->field('agreeid')->where($bankcard_condition)->find();
+        if (empty($bankcard_info)){
+            return [
+                'code' => 1,
+                'message' => '银行卡未签约'
+            ];
+        }
+        $agreeid = $bankcard_info['agreeid'];
+
+        $params = [
+            'orderid' => $pay_sn,
+//            'agreeid' => "8j0bfmKmQHaTywjMfY",
+            'agreeid' => $agreeid,
+            'thpinfo' => stripslashes($thpinfo),
+//            'thpinfo' => "{\"sign\":\"\",\"tphtrxcrtime\":\"\",\"tphtrxid\":0,\"trxflag\":\"trx\",\"trxsn\":\"\"}",
+        ];
+        $pay = new Pay();
+        $res = $pay->paysms($params);
+
+        if (!$res){
+            return [
+                'code' => 1,
+                'message' => '发送失败',
+            ];
+        }
+        if ($res['retcode'] != 'SUCCESS'){
+            return [
+                'code' => 1,
+                'msg' => '发送失败，' . (isset($res['retmsg']) ? $res['retmsg'] : ''),
+            ];
+        }
+        return [
+            'code' => 0,
+            'message' => 'success',
+            'res' => $res
+        ];
     }
 
     /**
