@@ -104,7 +104,7 @@ class Base extends Controller
     //获取所有方法名称
     public function getAction($module, $controller){
         if(empty($controller)) return null;
-        $content = file_get_contents( '../application/'.$module.'/Controller/'.$controller.'.php');
+        $content = file_get_contents( '../application/'.$module.'/controller/'.$controller.'.php');
         preg_match_all("/.*?public.*?function(.*?)\(.*?\)/i", $content, $matches);
         $functions = $matches[1];
         array_push($functions,'*');

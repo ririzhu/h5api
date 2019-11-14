@@ -952,4 +952,35 @@ class User extends Base
             }
         }
     }
+    /**
+     * 邀请码
+     */
+    public function inviteCode(){
+        if(!input("member_id") || !input("token") || !input("type")){
+            $data['error_code'] = 10010;
+            $data['message'] = lang("缺少参数");
+            return json_encode($data,true);
+        }
+        $memberId = input("member_id");
+        $token = input("token");
+        $type = input("type");//1普通会员2商家入驻
+        $count = db::name("mb_user_token")->where("member_id=$memberId and token='$token'")->count();
+        if($count == 0){
+            $data['error_code'] = 10010;
+            $data['message'] = lang("参数错误");
+            return json_encode($data,true);
+        }
+        else{
+            $invitecode = base64_encode($memberId*999999999);
+            $data['error_code'] = 200;
+            $data['invitecode'] = $invitecode;
+            return json_encode($data,true);
+        }
+    }
+    /**
+     * 推手注册
+     */
+    private function tuishou(){
+
+    }
 }

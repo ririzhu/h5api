@@ -772,6 +772,7 @@ class Payment extends Base
      * H5支付签名
      */
     public function h5Sign(){
+
         $param['cusid'] = TLCUID;
         $param['appid'] = TLAPPID;
         $param['version'] = 12;
@@ -851,7 +852,7 @@ class Payment extends Base
     }
     public function methodList(){
         if(!input("member_id")){
-            return false;
+            return null;
         }
         $user = new \app\v1\model\User();
         $info = $user->getMemberInfo(input("member_id"),"available_predeposit");
@@ -872,9 +873,11 @@ class Payment extends Base
         $data['money'] = $info["available_predeposit"];
         $data['list'][0]['name'] = "余额支付";
         $data['list'][0]['status'] = false;
+        $data['list'][0]['logo'] = "http://192.168.2.252:7777/static/images/yue.png";
         $data['list'][1]['name'] = "快捷支付";
         $data['list'][1]['status'] = true;
         $data['list'][2]['name'] = "微信支付";
+        $data['list'][2]['logo'] = "http://192.168.2.252:7777/static/images/wxpay.png";
         $data['list'][2]['status'] = true;
         $data['list'][3]['name'] = "支付宝";
         $data['list'][3]['status'] = false;

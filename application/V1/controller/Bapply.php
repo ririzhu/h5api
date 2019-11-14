@@ -181,19 +181,19 @@ class Bapply extends Base
 
 //        新增根据店铺分类id获取店铺分类名称
             //店铺分类
-            $model_store = new VendorCategory();
+//            $model_store = new VendorCategory();
 
-            $store_class_list = $model_store->getStoreClassList(array('sc_id'=>array('in',$_POST['sc_id'])));
+//            $store_class_list = $model_store->getStoreClassList(array('sc_id'=>array('in',$_POST['sc_id'])));
 //        dd($model_store->getLastSql());die;
 //        dd($store_class_list);die;
-            $sc_id = '';
-            $sc_name = '';
-            foreach($store_class_list as $k=>$v){
-                $sc_id .= $v['sc_id'].',';
-                $sc_name .= $v['sc_name'].',';
-            }
-            $sc_id = rtrim($sc_id, ',');
-            $sc_name = rtrim($sc_name, ',');
+//            $sc_id = '';
+//            $sc_name = '';
+//            foreach($store_class_list as $k=>$v){
+//                $sc_id .= $v['sc_id'].',';
+//                $sc_name .= $v['sc_name'].',';
+//            }
+//            $sc_id = rtrim($sc_id, ',');
+//            $sc_name = rtrim($sc_name, ',');
 
             $param = array();
             $param['seller_name'] = $_POST['seller_name'];
@@ -207,8 +207,8 @@ class Bapply extends Base
             $param['sg_id'] = 1;//$_POST['sg_id'];
             $param['sg_id'] = 1;//$sc_id;
 //        $param['sc_name'] = $_POST['sc_name'];
-            $param['sc_name'] = $sc_name;
-            $param['sc_id'] = $_POST['sc_id'];
+//            $param['sc_name'] = $sc_name;
+//            $param['sc_id'] = $_POST['sc_id'];
             $param['joinin_state'] = STORE_JOIN_STATE_NEW;
             //取店铺等级信息
             $grade_list = db::name("store_grade")->select();
@@ -216,6 +216,9 @@ class Bapply extends Base
                 $param['sg_id'] = 1;
                 $param['sg_name'] = $grade_list[1]['sg_name'];
                 $param['sg_info'] = serialize(array('sg_price' => $grade_list[1]['sg_price']));
+            }
+            if(input("invite_code")){
+                $param['invitecode'] = input("invite_code");
             }
 
 

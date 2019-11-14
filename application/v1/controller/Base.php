@@ -18,6 +18,9 @@ class Base extends Controller
     public  function __construct() {
         global $setting_config;
         $this->request = request();
+        if ($this->request->isOptions()==true) {
+            return null;
+        }
         //$request = new Request();
         $controller=request()->controller();
         $action=request()->action();
@@ -44,11 +47,12 @@ class Base extends Controller
             ])->send();
             //获取头部token，查询有无权限
             $user = db::name("api_user")->where("token='$headertoken'")->find();
-            if (count($user) > 0) {
+            //print_r(db::name("api_user")->getLastSql());die;
+            if (!empty($user)) {
                 if ($user['name'] == "Horizou") {
 
                 } else {
-                    echo 1;
+                    //echo 1;
                     //查询会员状态
                     if ($user['endtime'] <= TIMESTAMP && $user['endtime'] != "") {
                         json($data['msg'] = "expired token")->code(201)->send();
