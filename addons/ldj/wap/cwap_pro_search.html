@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-touch-fullscreen" content="yes"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <meta name="msapplication-tap-highlight" content="no"/>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,minimum-scale=1"/>
+    <title>商品搜索</title>
+    <link rel="stylesheet" type="text/css" href="./css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_common.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_public.css">
+</head>
+<body id="goods_search">
+<header id="header">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1)">
+                <i class="back"></i>
+            </a>
+        </div>
+        <div class="header-inp">
+            <i class="icon"></i>
+            <input type="text" class="search-input" value="" oninput="writeClear($(this));" id="keyword"
+                   placeholder="请输入搜索关键词" maxlength="50" autocomplete="on" autofocus>
+            <span class="input-del"></span>
+        </div>
+        <div class="header-r">
+            <a id="header-nav" href="javascript:void(0);" class="search-btn">搜索</a>
+        </div>
+    </div>
+</header>
+<!-----------------搜索页面------------------------------------------------->
+<div id="store-wrapper">
+    <div class="sldtouch-search-layout">
+        <dl class="hot-keyword">
+            <dt><span>历史搜索</span> <span id="delete">清除搜索历史</span></dt>
+            <dd id="hot_list_container"></dd>
+        </dl>
+        <dl class="ls_jr">
+
+        </dl>
+    </div>
+</div>
+<!--------------------搜索失败------------------------------>
+<!--<div class="map_sb">
+    <img src="./images/sousuo_null@2x.png" alt="">
+    <p>没有找到该商品</p>
+</div>-->
+<script type="text/javascript" src="./js/zepto.min.js"></script>
+<script type="text/javascript" src="./js/cwap_config.js"></script>
+<script type="text/javascript" src="./js/layer.js"></script>
+<script type="text/javascript" src="./js/cwap_common.js"></script>
+<script type="text/javascript" src="./js/cwap_pro_search.js"></script>
+</body>
+</html>

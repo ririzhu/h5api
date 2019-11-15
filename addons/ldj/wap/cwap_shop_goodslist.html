@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>店内搜索</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_public.css">
+</head>
+<body style="background: #fff;">
+<header id="header_user" class="fixed" style="position: fixed">
+    <div class="header-wrap">
+        <div class="header-l"><a href="javascript:history.go(-1)"> <i class="back"></i> </a></div>
+        <div class="header-inp f4f4f4">
+            <i class="icon"></i>
+            <input type="text" class="search-input f4f4f4" value="" oninput="writeClear($(this));" id="keyword" placeholder="请输入搜索关键词" maxlength="50" autocomplete="on">
+            <span class="input-del"></span>
+        </div>
+    </div>
+</header>
+<div class="box">
+    <div class="right_goods" id="shopList">
+        <!--<h1>
+            <span>热销(12)</span> <em>销量<b>价格</b></em>
+        </h1>-->
+        <ul>
+        </ul>
+    </div>
+</div>
+<div class="bottom">
+
+</div>
+
+<div id="wrapper" class="cart_box">
+
+</div>
+
+<div id="top">
+    <img src="./images/fanhuitop.png" alt="">
+</div>
+</body>
+
+
+<!--商铺详情购物车-->
+<script type="text/html" id="store_cart">
+    <div class="money">
+        <% if(cart_list.list.length){ %>
+        <a href="javascript:;"><img class="haslist" src="./images/cart8.png" alt="">
+            <span class="cart_num"><%=cart_list.list.length%></span>
+        </a>
+        <em class="num">¥<%=cart_list.all_money%></em>
+        <!--<del>¥300</del>-->
+        <%}else{%>
+        <a href="javascript:;"><img src="./images/cartBlack@2x.png" alt="">
+        </a>
+        <span class="empty">购物车是空的</span>
+        <%}%>
+    </div>
+    <%if(cart_list.error==1){%>
+    <a href="javascript:;" class="disable">休息中</a>
+    <%}else if(cart_list.all_money==0){%>
+    <a href="javascript:;" class="disable">￥<%=dian_info.ldj_delivery_order_Price%>起送</a>
+    <%}else if(cart_list.all_money>=dian_info.ldj_delivery_order_Price){%>
+    <a href="javascript:;" class="go_pay">去结算</a>
+    <%}else{
+    var diff = dian_info.ldj_delivery_order_Price-cart_list.all_money;
+    %>
+    <a href="javascript:;" class="disable">差<%=diff%>元起送</a>
+    <%}%>
+</script>
+
+<!--购物车列表-->
+<script type="text/html" id="store_cart_list">
+    <div class="cartAlert">
+        <div class="cart_img"><p><span><%=cart_list.list.length%></span></p></div>
+        <h1>
+            <span id="allSelect" class="actived"><em class="check"></em><b>全选 </b><span> (已选<%=cart_list.list.length%>件)</span></span>
+            <button class="clear_cart">清空购物车</button>
+        </h1>
+        <ul class="hasData">
+            <% for(var i=0;i<cart_list.list.length ;i++){
+                         var item=cart_list.list[i];
+                         var gclass='gid' +cart_list.list[i].gid
+                         if(item.error==0){
+                         %>
+                <li class="goods_list_item actived" data-cartid="<%=item.cart_id%>" data-gid="<%=item.gid%>">
+                    <em class="check"></em>
+                    <div class="gods">
+                        <div class="shop_img">
+                            <img src="<%=item.goods_image%>" alt="">
+                        </div>
+                        <div class="cart_goods_title">
+                            <h1>
+                                <%=item.goods_name%>
+                            </h1>
+                            <p>&yen;<%=item.goods_price%></p>
+                        </div>
+                    </div>
+                    <div class="count">
+                        <em class="reduce" data-id="<%=item.gid%>" data-vid="<%=item.vid%>"><b></b></em>
+                        <ins class="<%=gclass%>"><%=item.goods_num%></ins>
+                        <span class="add" data-id="<%=item.gid%>" data-vid="<%=item.vid%>"><img src="./images/add@2x.png" alt=""></span>
+                    </div>
+                </li>
+                <%}%>
+                <%}%>
+        </ul>
+
+        <div class="shixiao_gods">
+            <h1>
+                <span id="failureSelect">失效商品</span>
+                <button>清空购物车</button>
+            </h1>
+            <ul>
+                <%for(var j=0;j<cart_list.list.length ;j++){
+                        var item2=cart_list.list[j];
+                        if(item2.error!=0){
+                        %>
+                    <li data-cartid="<%=item2.cart_id%>">
+                        <em class="failur"></em>
+                        <div class="gods">
+                            <div class="shop_img">
+                                <img src="<%=item2.goods_image%>" alt="">
+                                <em class="rest rest_show">
+                                    <b><%=item2.errorinfo%></b>
+                                </em>
+                            </div>
+                            <div class="cart_goods_title">
+                                <h1>
+                                    <%=item2.goods_name%>
+                                </h1>
+                                <p>&yen;<%=item2.goods_price%></p>
+                            </div>
+                        </div>
+                        <div class="count dis">
+                            <em><b></b></em>
+                            <ins><%=item2.goods_num%></ins>
+                            <span class="disable_add"><img src="./images/dis_add@2x.png" alt=""></span>
+                        </div>
+                    </li>
+                    <%}%>
+                    <%}%>
+            </ul>
+        </div>
+        <div class="bottomCArt">
+            <p>&yen; <%=cart_list.all_money%>
+                <!--<del> &yen;300</del>-->
+            </p>
+            <%if(dian_info.error==1){%>
+            <a href="javascript:;" class="disable">休息中</a>
+            <%}else if(cart_list.all_money==0){%>
+            <a href="javascript:;" class="disable">￥<%=dian_info.ldj_delivery_order_Price%>起送</a>
+            <%}else if(cart_list.all_money>=dian_info.ldj_delivery_order_Price){%>
+            <a href="javascript:;" class="go_pay">去结算</a>
+            <%}else{
+            var diff = dian_info.ldj_delivery_order_Price-cart_list.all_money;
+            %>
+            <a href="javascript:;" class="disable">差<%=diff%>元起送</a>
+            <%}%>
+         <!--   <a href="javascript:;" class="go_pay">去结算</a>-->
+        </div>
+    </div>
+</script>
+
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/search.js"></script>
+<script>
+    $(".left_nav ul li").click(function(){
+        $(this).siblings().removeClass("default");
+        $(this).addClass("default");
+    })
+
+    //--------------------添加购物车----------------------------------
+
+    var val =parseInt($(".ToCalculate ins").text());
+
+    $(".bottom>a").css("background","#848484");
+    if(val>0){
+        $(".bottom>a").css("background","#5EB319");
+        $(".ToCalculate em").css("display","flex");
+        $(".ToCalculate ins").css("display","flex");
+    }
+    $(".ToCalculate em").click(function(){
+        val-=1;
+        if(val>=1){
+            $(".ToCalculate ins").text( val);
+            $(".money a span").css("display","flex");
+            $(".money a span").text(val);
+            $(".bottom>a").css("background","#5EB319");
+        }else{
+            $(".ToCalculate em").css("display","none");
+            $(".ToCalculate ins").css("display","none");
+            $(".bottom>a").css("background","#848484");
+        }
+
+    });
+
+    $(".ToCalculate span").click(function(){
+        val+=1;
+        if(val>=1){
+            $(".bottom>a").css("background","#5EB319");
+            $(".ToCalculate em").css("display","flex");
+            $(".ToCalculate ins").css("display","flex");
+            $(".money a span").text(val);
+            $(".ToCalculate ins").text(val);
+            $(".bottom>a").css("background","#5EB319");
+        }
+    });
+//--------------------返回顶部----------------------------------
+    $(window).scroll(function(){// 滚动条距离顶部的距离 大于 200px时
+       if($(window).scrollTop() >= 100){
+           $("#top").show(2000); // 开始淡入
+       } else{
+           $("#top").hide(2000);
+       } // 如果小于等于 200 淡出}
+    });
+    $("#top").click(function(){
+        $(window).scrollTop(0);
+    })
+
+    $("body").on('click', '.money img.haslist', function () {
+        $(".cart_box").css("display", "block");
+    })
+
+    $(".cart_box").click(function (e) {
+        if (e.target.id == 'wrapper') {
+            $(".cart_box").css("display", "none");
+        }
+    })
+</script>
+</html>

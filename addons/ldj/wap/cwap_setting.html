@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_public.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_setting.css">
+</head>
+<body>
+<header id="header_user" class="fixed" style="position: fixed">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1);">
+                <i class="back"></i>
+            </a>
+        </div>
+        <div class="header-title">
+            <h1>设置</h1>
+        </div>
+    </div>
+</header>
+<div class="setting">
+    <div class="set_list clear_cache">
+        <div class="list_left">
+            <div class="img">
+                <img src="./images/clear.png" alt="">
+            </div>
+            <span>清除本地缓存</span>
+        </div>
+       <div class="list_right">
+           <em class="radius"></em>
+       </div>
+    </div>
+    <div class="logout">退出登录</div>
+</div>
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script>
+    $(function () {
+        var key = getcookie('key');
+        if(!key){
+            $('.logout').remove();
+        }
+
+        $('.clear_cache').on('click',function () {
+            window.localStorage.removeItem('search_history');
+            window.localStorage.removeItem('session_lng');
+            window.localStorage.removeItem('session_lat');
+            window.localStorage.removeItem('session_addr');
+            window.localStorage.removeItem('choose_city');
+            window.localStorage.removeItem('choose_city_id');
+            window.localStorage.removeItem('mp');
+            window.localStorage.removeItem('user');
+            window.localStorage.removeItem('phone');
+            window.localStorage.removeItem('isdefault');
+            window.localStorage.removeItem('address_id');
+            layer.open({
+                content: '已清除',
+                skin: 'msg',
+                time: 2
+            })
+        })
+
+        $('.logout').on('click', function () {
+            window.localStorage.removeItem('key');
+            window.location.href = SiteUrl + '/cwap/cwap_login.html';
+        })
+    })
+</script>
+</html>

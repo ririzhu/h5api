@@ -1,0 +1,1 @@
+<?php defined('DYMall') or exit('Access Invalid!'); return array ( 'ldj_isuse' => '1', 'member_stop_cancel_time' => '2', 'order_cancel_time' => '59', 'vendor_cancel_time' => '57', ) ?>

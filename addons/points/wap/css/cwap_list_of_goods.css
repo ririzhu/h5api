@@ -1,0 +1,114 @@
+body{
+    background: #fff;
+    padding-top:1.91rem;
+    padding-bottom:3rem;
+}
+.head{
+    position: fixed;
+    left:0;
+    top: 0;
+    background: #fff;
+    width: 100%;
+    height:1.91rem;
+    line-height:1.91rem;
+    border-bottom:1px solid #eee;
+    overflow-x:auto;
+    overflow-y:hidden;
+    z-index: 10;
+}
+.head ul{
+    width:300%;
+    padding-left:3%;
+}
+.head ul li{
+    float: left;
+    line-height:1.91rem;
+    margin-right:34px;
+}
+.head ul li:last-child{
+    padding-right:1rem;
+}
+.head ul li a{
+    padding-bottom:2px;
+    border-bottom:1px solid transparent;
+}
+.head ul li:nth-of-type(1) a {
+    border-bottom:1px solid #FC3357;
+}
+.head ul li a{
+    font-size: 0.65rem;
+    color: #333;
+}
+.box{
+    width: 94%;
+    padding:0 3%;
+}
+.box a{
+    color:#5C5C5C;
+}
+.box dl{
+    float: left;
+    width:49%;
+    height:10rem;
+}
+.box dl dt{
+    width: 100%;
+    height: 65%;
+    text-align: center;
+}
+.box dl dt a img{
+    height: 82%;
+    margin: 0.65rem 0 0.52rem 0;
+}
+.box dl dd{
+    height: 0.6rem;
+    line-height: 0.6rem;
+    font-size: 0.608rem;
+    padding-left:0.304rem;
+    margin-bottom:0.304rem;
+}
+.box dl dd:nth-of-type(1){
+    font-weight: bold;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+.box dl dd:nth-of-type(2){
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+}
+.box dl dd:nth-of-type(2),.box dl dd:nth-of-type(3),.box dl dd:nth-of-type(4){
+    font-size: 0.478rem;
+}
+
+.box dl dd:nth-of-type(4){
+    color:#FC3357;
+    position: relative;
+}
+.box dl dd:nth-of-type(4) span:nth-of-type(1){
+    margin-right:19px;
+}
+.box dl:nth-child(2n){
+    border-left:1px solid #EEEEEE;
+}
+.border{
+    border:1px solid #eee;
+    border-left:none;
+    border-top:none;
+}
+.border_2{
+    border-bottom:1px solid #EEEEEE;
+}
+.box dl dd i{
+    position: absolute;
+    display: block;
+    width:1.08rem;
+    height:1.08rem;
+    right: 0.3rem;
+    top: -0.5rem;
+}
+.box dl dd i img{
+    width: 100%;
+    height: 100%;
+}

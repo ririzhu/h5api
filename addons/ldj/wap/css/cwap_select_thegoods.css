@@ -1,0 +1,100 @@
+.sousuo{
+    padding:1.9rem 0.652rem 0 0.652rem;
+    background: #fff;
+    height: 1.695rem;
+    position: relative;
+    border-bottom: 0.434rem solid #f1f1f1;
+}
+body{
+    background: #fff!important;
+}
+.sousuo i.icon{
+    position: absolute;
+    left: 1rem;
+    top: 2.05rem;
+    width: 1rem;
+    height: 1rem;
+    margin: 0.2rem 0.1rem;
+    background-image: url(../images/search_ico.png);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 70%;
+    opacity: 1;
+}
+
+.sousuo input{
+    display:flex;
+    width: 100%;
+    text-indent: 1.3rem;
+    margin-top:0.212rem;
+    height:1.21rem;
+    border:1px solid #dadada;
+}
+.dingwei{
+    font-size: 0.521rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 1.82rem;
+    padding:0 0.652rem;
+    color:#5EB318;
+    background: #fff;
+}
+.dingwei p{
+    display: flex;
+    justify-content: flex-start;
+    align-items:center;
+}
+.dingwei img{
+    width: 0.652rem;
+    margin-right:0.304rem;
+}
+.dingwei em.radius{
+    border-color:#5EB318;
+}
+.dizhiList{
+    color: #333;
+    font-size: 0.608rem;
+}
+.dizhiList h1{
+    height: 1.521rem;
+    display:flex;
+    align-items: center;
+    background: #f1f1f1;
+    padding-left:0.695rem;
+}
+.dizhiList ul{
+    padding-left:0.695rem;
+    background: #fff;
+}
+.dizhiList ul li{
+    height: 3.17rem;
+    border-bottom:1px solid #dadada;
+    display: flex;
+    align-items: center;
+}
+.dizhiList ul li a{
+    color: #666;
+    flex:1;
+}
+.dizhiList ul li a ins{
+    text-decoration: none;
+    margin-left:1.3rem;
+}
+.dizhiList ul li a img{
+    float: right;
+    height: 0.62rem;
+    padding-top: 0.2rem;
+    padding-right: 0.5rem;
+}
+.dizhiList ul li a span{
+    color: #333;
+    padding-left:2.6rem;
+}
+.adddizhi{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #5EB318;
+    font-size: 0.652rem;
+}

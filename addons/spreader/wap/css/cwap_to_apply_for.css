@@ -1,0 +1,143 @@
+.head{
+    text-align: center;
+    height: 1.9rem;
+    background:#FC3357;
+    color: #fff;
+    font-size:0.7391rem;
+    position:fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+.biaoti{
+    position: relative;
+    height:1.9rem;
+    line-height: 1.9rem;
+}
+.head a{
+    display: block;
+    position: absolute;
+    left: 0.5rem;
+    top: 0.5rem;
+    width: 0.782rem;
+    height: 0.782rem;
+}
+.head a img{
+    width: 100%;
+    height: 100%;
+}
+body{
+    /*padding-top: 1.9rem;*/
+}
+.banner{
+    width: 100%;
+    margin:0 auto;
+    padding-bottom:0.304rem;
+}
+.banner img{
+    width: 100%;
+}
+.kitong{
+    /*height: 4.52rem;*/
+    padding-bottom:0.5rem;
+    width:94%;
+    background: #fff;
+    margin:0 auto;
+    box-shadow: 1px 1px 14px 1px rgba(0,0,0,0.1);
+}
+.divimg{
+    width: 100%;
+    height: 61%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.ktil{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding-top: 0.608rem;
+    height: 0.7rem;
+    font-size: 0.521rem;
+    padding-bottom:0.21rem;
+}
+.kitong p{
+    width: 14.47rem;
+    line-height: 0.869rem;
+    font-size: 0.521rem;
+    margin-left: 0.521rem;
+    color:#6D6868;
+}
+.ktil span{
+    margin:0 0.26rem;
+    font-size: 0.608rem;
+}
+.ktil em{
+    border-top:1px solid #E9E4E5;
+    width: 2.21rem;
+}
+.goodsList{
+    padding-top:0.521rem;
+    padding-bottom:1.34rem;
+}
+.goods{
+    display: inline-block;
+    width: 47%;
+    height: 12.434rem;
+    background: #fff;
+    margin-left:0.43rem;
+    margin-bottom: 0.5rem;
+}
+.goods:nth-child(2n){
+    margin-left:0.2rem;
+}
+.goods img{
+    width: 100%;
+}
+.goods p{
+    width: 7.04rem;
+    font-size: 0.521rem ;
+    line-height: 0.869rem;;
+    height:1.7rem;
+    overflow: hidden;
+    color:#6A6C78;
+    margin-left:0.217rem;
+}
+.goods span{
+    color:#E62C2E;
+    font-size:0.521rem;
+    padding-bottom:0.5rem;
+    margin-left:0.217rem;
+}
+.goods span em{
+    transform: scale(0.8,0.8);
+}
+.goods a{
+    display: block;
+    width: 6.86rem;
+    height: 1.04rem;
+    background: #FC3357;
+    color: #fff;
+    text-align: center;
+    font-size: 0.521rem;
+    margin-left:0.3rem;
+    border-radius: 5px;
+    line-height:1.04rem;
+}
+.shenqing{
+    height: 1.91rem;
+    line-height:1.91rem;
+    text-align: center;
+}
+.shenqing a{
+    display: inline-block;
+    height: 1.91rem;
+    width: 15.521rem;
+    line-height:1.91rem;
+    background: #FC3357;
+    color: #fff;
+    font-size: 0.782rem;
+    border-radius: 10px;
+    box-shadow: 1px 7px 17px 1px #F8B0BD;
+}

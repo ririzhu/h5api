@@ -1,0 +1,328 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Responsive Bootstrap 4 Admin &amp; Dashboard Template">
+    <meta name="author" content="Bdtask">
+    <title>海云舟API控制中心</title>
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="/static/img/favicon.png">
+    <!--Global Styles(used by all pages)-->
+    <link href="http://cdn.bootstrapmb.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
+    <link href="/static/plugins/fontawesome/css/all.min.css" rel="stylesheet">
+    <link href="/static/plugins/typicons/src/typicons.min.css" rel="stylesheet">
+    <link href="/static/plugins/themify-icons/themify-icons.min.css" rel="stylesheet">
+    <!--Third party Styles(used by this page)-->
+    <link href="/static/plugins/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <!--Start Your Custom Style Now-->
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body class="fixed">
+<!-- Page Loader -->
+<div class="page-loader-wrapper">
+    <div class="loader">
+        <div class="preloader">
+            <div class="spinner-layer pl-green">
+                <div class="circle-clipper left">
+                    <div class="circle"></div>
+                </div>
+                <div class="circle-clipper right">
+                    <div class="circle"></div>
+                </div>
+            </div>
+        </div>
+        <p>Please wait...</p>
+    </div>
+</div>
+<!-- #END# Page Loader -->
+<div class="wrapper">
+    <!-- Sidebar  -->
+    <nav class="sidebar sidebar-bunker">
+        <div class="sidebar-header">
+            <!--<a href="index.html" class="logo"><span>bd</span>task</a>-->
+            <a href="index.html" class="logo"><img src="/static/img/logo.png" alt=""></a>
+        </div><!--/.sidebar header-->
+        <div class="profile-element d-flex align-items-center flex-shrink-0">
+            <div class="avatar online">
+                <img src="/static/img/avatar-1.jpg" class="img-fluid rounded-circle" alt="">
+            </div>
+            <div class="profile-text">
+                <h6 class="m-0">Admin</h6>
+                <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1c79647d716c70795c7b717d7570327f7371">[email&#160;protected]</a></span>
+            </div>
+        </div><!--/.profile element-->
+        <form class="search sidebar-form" action="#" method="get" >
+            <div class="search__inner">
+                <input type="text" class="search__text" placeholder="Search...">
+                <i class="typcn typcn-zoom-outline search__helper" data-sa-action="search-close"></i>
+            </div>
+        </form><!--/.search-->
+        <div class="sidebar-body">
+            <nav class="sidebar-nav">
+                <ul class="metismenu">
+                    <li class="nav-label">Main Menu</li>
+                    <li class="mm-active">
+                        <a class="has-arrow material-ripple" href="#">
+                            <i class="typcn typcn-home-outline mr-2"></i>
+                            member and group
+                        </a>
+                        <ul class="nav-second-level">
+                            <li class="mm-active"><a href="/admin/admin/memberlist/index.html">memberlist</a></li>
+                            <li><a href="/admin/admin/grouplist/index.html">grouplist</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="/admin/admin/apilist/index.html"><i class="typcn typcn-messages mr-2"></i> horizou H5</a></li>
+
+                </ul>
+            </nav>
+        </div><!-- sidebar-body -->
+    </nav>
+    <!-- Page Content  -->
+    <div class="content-wrapper">
+        <div class="main-content">
+            <nav class="navbar-custom-menu navbar navbar-expand-lg m-0">
+                <div class="sidebar-toggle-icon" id="sidebarCollapse">
+                    sidebar toggle<span></span>
+                </div><!--/.sidebar toggle icon-->
+                <div class="d-flex flex-grow-1">
+                    <ul class="navbar-nav flex-row align-items-center ml-auto">
+                        <li class="nav-item dropdown quick-actions">
+                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                                <i class="typcn typcn-th-large-outline"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" >
+                                <div class="nav-grid-row row">
+                                    <a href="#" class="icon-menu-item col-4">
+                                        <i class="typcn typcn-cog-outline d-block"></i>
+                                        <span>Settings</span>
+                                    </a>
+                                    <a href="#" class="icon-menu-item col-4">
+                                        <i class="typcn typcn-group-outline d-block"></i>
+                                        <span>Users</span>
+                                    </a>
+                                    <a href="#" class="icon-menu-item col-4">
+                                        <i class="typcn typcn-puzzle-outline d-block"></i>
+                                        <span>Components</span>
+                                    </a>
+                                    <a href="#" class="icon-menu-item col-4">
+                                        <i class="typcn typcn-chart-bar-outline d-block"></i>
+                                        <span>Profits</span>
+                                    </a>
+                                    <a href="#" class="icon-menu-item col-4">
+                                        <i class="typcn typcn-time d-block"></i>
+                                        <span>New Event</span>
+                                    </a>
+                                    <a href="#" class="icon-menu-item col-4">
+                                        <i class="typcn typcn-edit d-block"></i>
+                                        <span>Tasks</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li><!--/.dropdown-->
+                        <li class="nav-item">
+                            <a class="nav-link" href="chat.html"><i class="typcn typcn-messages"></i></a>
+                        </li>
+                        <li class="nav-item dropdown notification">
+                            <a class="nav-link dropdown-toggle badge-dot" href="#" data-toggle="dropdown">
+                                <i class="typcn typcn-bell"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <h6 class="notification-title">Notifications</h6>
+                                <p class="notification-text">You have 2 unread notification</p>
+                                <div class="notification-list">
+                                    <div class="media new">
+                                        <div class="img-user"><img src="/static/img/avatar.png" alt=""></div>
+                                        <div class="media-body">
+                                            <h6>Congratulate <strong>Socrates Itumay</strong> for work anniversaries</h6>
+                                            <span>Mar 15 12:32pm</span>
+                                        </div>
+                                    </div><!--/.media -->
+                                    <div class="media new">
+                                        <div class="img-user online"><img src="/static/img/avatar2.png" alt=""></div>
+                                        <div class="media-body">
+                                            <h6><strong>Joyce Chua</strong> just created a new blog post</h6>
+                                            <span>Mar 13 04:16am</span>
+                                        </div>
+                                    </div><!--/.media -->
+                                    <div class="media">
+                                        <div class="img-user"><img src="/static/img/avatar3.png" alt=""></div>
+                                        <div class="media-body">
+                                            <h6><strong>Althea Cabardo</strong> just created a new blog post</h6>
+                                            <span>Mar 13 02:56am</span>
+                                        </div>
+                                    </div><!--/.media -->
+                                    <div class="media">
+                                        <div class="img-user"><img src="/static/img/avatar4.png" alt=""></div>
+                                        <div class="media-body">
+                                            <h6><strong>Adrian Monino</strong> added new comment on your photo</h6>
+                                            <span>Mar 12 10:40pm</span>
+                                        </div>
+                                    </div><!--/.media -->
+                                </div><!--/.notification -->
+                                <div class="dropdown-footer"><a href="">View All Notifications</a></div>
+                            </div><!--/.dropdown-menu -->
+                        </li><!--/.dropdown-->
+                        <li class="nav-item dropdown user-menu">
+                            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                                <!--<img src="/static/img/user2-160x160.png" alt="">-->
+                                <i class="typcn typcn-user-add-outline"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" >
+                                <div class="dropdown-header d-sm-none">
+                                    <a href="" class="header-arrow"><i class="icon ion-md-arrow-back"></i></a>
+                                </div>
+                                <div class="user-header">
+                                    <div class="img-user">
+                                        <img src="/static/img/avatar-1.jpg" alt="">
+                                    </div><!-- img-user -->
+                                    <h6>Naeem Khan</h6>
+                                    <span><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c5a0bda4a8b5a9a085a2a8a4aca9eba6aaa8">[email&#160;protected]</a></span>
+                                </div><!-- user-header -->
+                                <a href="" class="dropdown-item"><i class="typcn typcn-user-outline"></i> My Profile</a>
+                                <a href="" class="dropdown-item"><i class="typcn typcn-edit"></i> Edit Profile</a>
+                                <a href="" class="dropdown-item"><i class="typcn typcn-arrow-shuffle"></i> Activity Logs</a>
+                                <a href="" class="dropdown-item"><i class="typcn typcn-cog-outline"></i> Account Settings</a>
+                                <a href="register.html" class="dropdown-item"><i class="typcn typcn-key-outline"></i> Sign Out</a>
+                            </div><!--/.dropdown-menu -->
+                        </li>
+                    </ul><!--/.navbar nav-->
+                    <div class="nav-clock">
+                        <div class="time">
+                            <span class="time-hours"></span>
+                            <span class="time-min"></span>
+                            <span class="time-sec"></span>
+                        </div>
+                    </div><!-- nav-clock -->
+                </div>
+            </nav><!--/.navbar-->
+            <!--Content Header (Page header)-->
+            <div class="content-header row align-items-center m-0">
+                <nav aria-label="breadcrumb" class="col-sm-4 order-sm-last mb-3 mb-sm-0 p-0 ">
+                    <ol class="breadcrumb d-inline-flex font-weight-600 fs-13 bg-white mb-0 float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </nav>
+                <div class="col-sm-8 header-title p-0">
+                    <div class="media">
+                        <div class="header-icon text-success mr-3"><i class="typcn typcn-spiral"></i></div>
+                        <div class="media-body">
+                            <h1 class="font-weight-bold">Dashboard</h1>
+                            <small>From now on you will start your activities.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a class="btn btn-default" href="/admin/admin/addmember" role="button">添加用户</a>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                    <th>令牌</th>
+                    <th>开始时间</th>
+                    <th>结束时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+                <tbody>
+                {volist name="list" id="vo"}
+                <tr>
+                    <th scope="row">{$vo.id}</th>
+                    <td>{$vo.name}</td>
+                    <td>{$vo.email}</td>
+                    <td style="width:100px;"><a href="#" data-toggle="popover"data-token="{$vo.token}" title="{$vo.token}">
+                        查看令牌
+                    </a></td>
+                    <td>{$vo.starttime | date='Y-m-d H:i:s'}</td>
+                    <td>{eq name="vo.endtime" value=""}永久{else/}{$vo.endtime | date='Y-m-d H:i:s'}{/eq}</td>
+                    <td>{eq name="vo.status" value="1"}
+                        正常
+                        {else/}
+                        禁用
+                        {/eq}</td>
+                    <td>{eq name="vo.status" value="1"}
+                        <button type="button" class="btn btn-default btn-lg" disabled="disabled">解除禁用</button>
+                        <button type="button" class="btn btn-primary btn-lg active" data-id="{$vo.id}"data-status="{$vo.status}">禁用</button>
+                        {else/}
+                        <button type="button" class="btn btn-default btn-lg" disabled="disabled">禁用</button>
+                        <button type="button" class="btn btn-primary btn-lg active" data-id="{$vo.id}"data-status="{$vo.status}">解除禁用</button>
+                        {/eq}
+                        <a href="/admin/admin/editmember?id={$vo.id}" class="btn btn-primary   edit" data-id="{$vo.id}"data-status="{$vo.status}">编辑</a></td>
+
+                </tr>
+                {/volist}
+                </tbody>
+                </thead>
+            </table>
+            {$page|raw}
+            <!--/.Content Header (Page header)-->
+
+            <footer class="footer-content">
+                <div class="footer-text d-flex align-items-center justify-content-between">
+                    <div class="copy">© 2018 Bdtask Responsive Bootstrap 4 Dashboard Template</div>
+                    <div class="credit">Designed by: <a href="http://www.bootstrapmb.com/">Bdtask</a></div>
+                </div>
+            </footer><!--/.footer content-->
+            <div class="overlay"></div>
+        </div><!--/.wrapper-->
+    </div>
+    <!--Global script(used by all pages)-->
+    <script src="/static/plugins/jQuery/jquery-3.4.1.min.js"></script>
+    <script src="/static/js/popper.min.js"></script>
+    <script src="http://cdn.bootstrapmb.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+    <script src="/static/plugins/metisMenu/metisMenu.min.js"></script>
+    <script src="/static/plugins/perfect-scrollbar/dist/perfect-scrollbar.min.js"></script>
+    <!-- Third Party Scripts(used by this page)-->
+    <script src="/static/plugins/chartJs/Chart.min.js"></script>
+    <script src="/static/plugins/sparkline/sparkline.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.min.js"></script>
+    <script src="/static/plugins/datatables/dataTables.bootstrap4.min.js"></script>
+    <!--Page Active Scripts(used by this page)-->
+    <script src="/static/js/pages/dashboard.js"></script>
+    <!--Page Scripts(used by all page)-->
+    <script src="/static/js/sidebar.js"></script>
+    <script>
+        $(function () { $("[data-toggle='popover']").popover(); });
+    </script>
+    <script>
+        $(function() {
+            $(".btn-lg").click(function(){
+                $id = $(this).attr("data-id");
+                $status = $(this).attr("data-status");
+                if($status == 1){
+                    $status = 0;
+                }
+                else{
+                    $status = 1;
+                }
+                alert($status);
+                $.ajax({
+                    url:"/admin/api/changememberstatus/",
+
+                    data:{"status":$status,"id":$id},
+                    method:"POST",
+                    success:function(result){
+                        if(result == 1){
+                            alert("更新成功");
+                            window.location=window.location;
+                        }else{
+                            alert("更新失败");
+                        }
+
+                    }})
+
+
+
+            });
+        });
+    </script>
+
+</body>
+</html>

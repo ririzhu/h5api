@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>预购首页</title>
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_index.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper-3.4.2.min.css">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body style="background: #fff">
+<header id="header_user" class="fixed" style="position: fixed">
+    <div class="header-wrap green">
+        <div class="header-l"><a href="javascript:history.go(-1)"> <img src="./images/ico_011.png" alt="">  </a></div>
+        <div class="header-title">
+            <h1 class="colorWhite">预售商品</h1>
+        </div>
+    </div>
+</header>
+
+<div class="nav_container">
+    <ul>
+
+    </ul>
+</div>
+
+<div class="main" id="main-container">
+
+    <div class="sld-loading">
+        <div class="sld-loading-img">
+            <i class="fa fa-spinner fa-spin"></i>
+        </div>
+    </div>
+
+</div>
+<script type="text/html" id="kefu">
+    <div class="kefu_part">
+        <a class="kefu_part_a" href="tel:<%= tel %>"><img src=""/>
+            <span class="kefu_part_span"><%= text %></span>
+            <span class="kefu_part_span"><%= tel %></span></a>
+    </div>
+</script>
+<script type="text/html" id="fzx">
+    <div class="fzx_part">
+        <div class="fzx_content fzx_<%= val %>" >
+        </div>
+    </div>
+</script>
+<script type="text/html" id="dapei">
+    <div class="modules-dapei">
+        <div>
+            <section class="mod-goods-com">
+                <div class="com-title"><%=dapei_title%></div>
+                <img style="width: 100%; display: inline;" src="<%=dapei_img%>">
+                <div class="com-desc"><%=dapei_desc%></div>
+                <div class="swiper-goods-container">
+                    <% for(var i in data.goods_info){ %>
+                    <div class="swiper-wrapper">
+                        <div class="swiper-slide " style="margin-right: 10px;">
+                            <a href="cwap_product_detail.html?gid=<%= data.goods_info[i].gid %>">
+                                <div class="goods-image"><img class="swiper"  src="<%=data.goods_info[i].goods_image%>" style="display: inline;"></div>
+                                <div class="goods-info"><p class="goods-title"><%=data.goods_info[i].goods_name%></p>
+                                    <p class="goods-price">￥<%=data.goods_info[i].show_price%></p></div>
+                            </a></div>
+                        <% } %>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="nav">
+    <div class="modules-nav">
+        <div>
+            <section>
+                <% if(style_set == "tag-nav"){ %>
+                <ul class="mod-tag-nav">
+                    <% }else{ %>
+                    <% if(icon_set == "left"){ %>
+                    <ul class="mod-nav before-icon">
+                        <% }else if(icon_set == "no-icon"){ %>
+                        <ul class="mod-nav no-icon">
+                            <% }else if(icon_set == "up"){ %>
+                            <ul class="mod-nav">
+                                <% } %>
+                                <% } %>
+                                <% for (var i in data) { %>
+                                <% if(data[i].img){ %>
+                                <li>
+                                    <% if(style_set == "tag-nav"){ %>
+                                    <a href="<%=data[i].true_url%>" style="line-height: <%= slide %>px">
+                                        <% }else{ %>
+                                        <a href="<%=data[i].true_url%>">
+                                            <% } %>
+                                            <i style="width:<%= slide %>px;">
+                                                <img style="width:<%= slide %>px;"
+                                                     src="<%= data[i].img %>"></i>
+                                            <span><%= data[i].name %></span></a>
+                                </li>
+                                <% } %>
+                                <% } %>
+                            </ul>
+            </section>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_0123">
+    <div class="modules-slide">
+        <div>
+            <div class="image-list style<%=sele_style%>">
+                <ul class="clearfix">
+                    <% for (var i in data) { %>
+                    <li><a href="<%=data[i].true_url%>">
+                        <img  src="<%=data[i].img%>"  style="display: inline;">
+                    </a>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_4">
+    <div class="modules-slide">
+        <div>
+            <div class="image-ad clearfix images-tpl">
+                <div>
+                    <a href="<%=data[0].true_url%>">
+                        <img src="<%=data[0].img%>">
+                    </a>
+                </div>
+                <div>
+                    <a href="<%=data[1].true_url%>">
+                        <img src="<%=data[1].img%>">
+                    </a>
+                    <a href="<%=data[2].true_url%>">
+                        <img src="<%=data[2].img%>">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_5">
+    <div class="modules-slide">
+        <div>
+            <div class="image-ad2 clearfix images-tpl">
+                <div class="clearfix">
+                    <a class="small" href="<%=data[0].true_url%>">
+                        <img src="<%=data[0].img%>">
+                    </a>
+                    <a class="big" href="<%=data[1].true_url%>">
+                        <img src="<%=data[1].img%>">
+                    </a>
+                </div>
+                <div class="clearfix">
+                    <a class="big" href="<%=data[2].true_url%>">
+                        <img src="<%=data[2].img%>">
+                    </a>
+                    <a class="small" href="<%=data[3].true_url%>">
+                        <img src="<%=data[3].img%>">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_6">
+    <div class="modules-slide">
+        <div>
+            <div class="image-ad3 clearfix images-tpl">
+                <div>
+                    <a href="<%=data[0].true_url%>">
+                        <img src="<%=data[0].img%>"></a>
+                    <a href="<%=data[1].true_url%>">
+                        <img src="<%=data[1].img%>">
+                    </a>
+                </div>
+                <div>
+                    <a href="<%=data[2].true_url%>">
+                        <img src="<%=data[2].img%>">
+                    </a>
+                    <a href="<%=data[3].true_url%>">
+                        <img src="<%=data[3].img%>">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_7">
+    <div class="modules-slide">
+        <div>
+            <div listorder="5" class="image-ad4 clearfix images-tpl">
+                <div>
+                    <a href="<%=data[0].true_url%>">
+                        <img src="<%=data[0].img%>">
+                    </a>
+                    <a href="<%=data[1].true_url%>">
+                        <img src="<%=data[1].img%>">
+                    </a>
+                </div>
+                <div>
+                    <a href="<%=data[2].true_url%>">
+                        <img src="<%=data[2].img%>">
+                    </a>
+                    <a href="<%=data[3].true_url%>">
+                        <img src="<%=data[3].img%>">
+                    </a>
+                </div>
+                <div>
+                    <a href="<%=data[4].true_url%>">
+                        <img src="<%=data[4].img%>">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="lunbo">
+    <div class="adv_list">
+        <div class="swipe-wrap">
+            <% for (var i in data) { %>
+            <% if(data[i].img){ %>
+            <div class="item">
+                <a href="<%=data[i].true_url%>">
+                    <img src="<%= data[i].img %>" alt="">
+                </a>
+            </div>
+            <% } %>
+            <% } %>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="adv_list">
+    <div class="adv_list">
+        <div class="swipe-wrap">
+            <% for (var i in item) { %>
+            <div class="item">
+                <a href="<%= item[i].url %>">
+                    <img src="<%= item[i].image %>" alt="">
+                </a>
+            </div>
+            <% } %>
+        </div>
+    </div>
+    <div id="appcenter" class="floor box-enter">
+        <div class="floor-item">
+            <div class="position-r">
+                <nav class="quick-entry-nav position-ab     hasBgImg   quick-nav-five ">
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_pro_cat.html"><span class="quick-box"><img src="./images/wap_home_fenlei.png"><span style="color:#000000">分类</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="javascript:void(0)"><span class="quick-box"><img  src="./images/wap_home_jingxuan.png"><span style="color:#000000">精选</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_favorites.html"><span class="quick-box"><img src="./images/wap_home_shoucang.png"><span style="color:#000000">收藏</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_user.html"><span class="quick-box"><img src="./images/wap_home_mine.png"><span style="color:#000000">个人中心</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_shop_list.html"><span class="quick-box"><img src="./images/wap_home_shop.png"><span style="color:#000000">店铺街</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_cart.html"><span class="quick-box"><img src="./images/wap_home_cart.png"><span style="color:#000000">购物车</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_pointslog_list.html"><span class="quick-box"><img src="./images/wap_home_point.png"><span style="color:#000000">积分</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_views_list.html"><span class="quick-box"><img src="./images/wap_home_zuji.png"><span style="color:#000000">足迹</span></span></a>
+
+                </nav>
+            </div>
+        </div>
+    </div>
+</script>
+<!--富文本的展示-->
+<script type="text/html" id="fuwenben">
+    <div class="fuwenben_part">
+        <% if(text){ %>
+        <%= text %>
+        <% } %>
+    </div>
+</script>
+
+<script type="text/html" id="gonggao">
+    <div class="gonggao_part">
+        <% if(text){ %>
+        <section class="mod-notice"> <span class="gonggao_pic"><img src="./images/home_gonggao.png"></span><marquee scrollamount="4"><a href="<%=true_url%>"><%= text %></a></marquee></section>
+        <% } %>
+    </div>
+</script>
+<script type="text/html" id="goods">
+    <div class="index_block goods">
+        <% if (title) { %>
+        <div class="title"><%= title %></div>
+        <div class="desc"><span class="time">限时优惠 实时推荐</span></div>
+        <% } %>
+        <div class="content">
+            <% for (var i in item) { %>
+            <div class="goods-item">
+                <a href="cwap_product_detail.html?gid=<%= item[i].gid %>">
+                    <div class="goods-item-pic"><img src="<%= item[i].goods_image %>" alt=""></div>
+                    <div class="goods-item-name"><%= item[i].goods_name %></div>
+                    <div class="goods-item-price"><span class="yens">￥</span><em class="bigprice"><%= item[i].show_price %></em><em class="goods-xianshi">限时折扣</em></div>
+                </a>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tuijianshangpin">
+    <% if (isshow_title == '0'&&isshow_price == '0') { %>
+    <div class="index_block goods hide_title hide_price">
+        <% }else if(isshow_title == '0'&&isshow_price == '1'){ %>
+        <div class="index_block goods hide_title">
+            <% }else if(isshow_title == '1'&&isshow_price == '0'){ %>
+            <div class="index_block goods hide_price">
+                <% }else{ %>
+                <div class="index_block goods">
+                    <% } %>
+                    <div class="content">
+                        <% for (var i in data.goods_info) { %>
+                        <div class="goods-item goods-<%= show_style %>">
+                            <a href="cwap_product_detail.html?gid=<%= data.goods_info[i].gid %>">
+                                <div class="goods-item-pic"><img src="<%= data.goods_info[i].goods_image %>" alt=""></div>
+                                <div class="goods-item-name"><%= data.goods_info[i].goods_name %></div>
+                                <div class="goods-item-price"><span class="yens">￥</span><em class="bigprice"><%= data.goods_info[i].show_price %></em></div>
+                            </a>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+</script>
+<script type="text/html" id="huodong">
+</script>
+<script type="text/html" id="huodong_0">
+    <% if(data.left.top[0].goods_info!=null&& data.right.bottom[2].goods_info!=null&& data.right.top[0].goods_info!=null){ %>
+    <div class="modules-huodong modules-slide">
+        <div class="style_template">
+
+            <div class="huodong-content">
+                <div class="huodong-top">
+                    <a href="pin_index.html">
+                        <div class="huodong-top-bg" style="background:url(./images/huodong_top_bg-0.jpg) no-repeat;background-size: 100%;"></div>
+                        <div class="huodong-top-title"><%=data.top.top[0].title%></div>
+                    </a>
+                </div>
+                <div class="huodong-main">
+                    <div class="huodong-left" style="background:url(./images/huodong_left_bg.jpeg) no-repeat;background-size: 100%;">
+                        <div class="huodong-left-top">
+                            <div class="huodong-left-top-layout">
+                                <div class="main-title"><%=data.left.top[0].title%></div>
+                                <div class="sub-title"><span><%=data.left.top[0].subtitle%></span></div>
+                                <% if(data.left.top[0].gid) {%>
+                                <div class="countdown" data-end_time_str="<% if(data.left.top[0].goods_info.extend_data && data.left.top[0].goods_info.extend_data.sld_end_time) { %><%=data.left.top[0].goods_info.extend_data.sld_end_time%><% } %>">
+
+                                    <div class="countdown-main">
+                                        <span class="hours countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="min countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="sec countdown-num">00</span>
+                                    </div>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="huodong-left-goods">
+                            <div class="huodong-left-goods-layout huodong-left-goods-item">
+                                <% if(data.left.top[0].gid && data.left.top[0].goods_info.extend_data) {%>
+                                <a href="cwap_product_detail.html?gid=<%= data.left.top[0].goods_info.gid %>">
+                                    <div class="goods-thumb">
+                                        <% if (data.left.top[0].goods_info.goods_image) { %>
+                                        <img src="<%=data.left.top[0].goods_info.goods_image%>">
+                                        <% } else {%>
+                                        <div class="empty-img"></div>
+                                        <% } %>
+                                    </div>
+                                    <div class="goods-price">
+                                        <div class="sale-price">
+                                            ¥<span class="money-number"><%=data.left.top[0].goods_info.promotion_price%></span>
+                                        </div>
+                                        <div class="market-price">
+                                            ¥<span class="money-number"><%=data.left.top[0].goods_info.goods_marketprice%></span>
+                                        </div>
+                                    </div>
+                                    <div class="goods-other">
+                                        <div class="goods-extend-data">
+                                            <span><em><%=data.left.top[0].goods_info.extend_data.sld_team_count%></em>人团</span>
+                                            <span>|</span>
+                                            <span>去开团</span>
+                                        </div>
+                                    </div>
+                                </a>
+                                <% } else { %>
+                                <div style="text-align: center;font-size: 0.3rem;height: 6rem;line-height: 6rem;display: table;padding: 0.5rem;">
+                                    <p style="line-height: 0.8rem;display: table-cell;vertical-align: middle;color: #cccccc;">该活动已结束，请重新选择拼团活动</p>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="huodong-right">
+                        <div class="huodong-right-top">
+                            <div class="huodong-top-title">
+                                <div class="main-title"><%=data.right.top[0].title%></div>
+                                <div class="sub-title"><span><%=data.right.top[0].subtitle%></span></div>
+                            </div>
+                            <div class="huodong-goods-list">
+                                <% if(data.right.top[0].gid) {%>
+                                <% if(data.right.top[0].goods_info.length > 0){ %>
+                                <% for (var i in data.right.top[0].goods_info) { %>
+                                <a href="cwap_product_detail.html?gid=<%= data.right.top[0].goods_info[i].gid %>" class="huodong-goods-item">
+                                    <div class="goods-thumb">
+                                        <% if(data.right.top[0].goods_info[i].goods_image) { %>
+                                        <img src="<%=data.right.top[0].goods_info[i].goods_image%>">
+                                        <% } else { %>
+                                        <div class="empty-img"></div>
+                                        <% } %>
+                                    </div>
+                                </a>
+                                <% } %>
+                                <% } %>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="huodong-right-bottom">
+                            <div class="huodong-goods-list">
+                                <div class="huodong-goods-item">
+                                    <div class="huodong-top-title">
+                                        <div class="main-title"><%=data.right.bottom[1].title%></div>
+                                        <div class="sub-title"><span><%=data.right.bottom[1].subtitle%></span></div>
+                                    </div>
+                                    <% if(data.right.bottom[1].gid) {%>
+                                    <a href="cwap_product_detail.html?gid=<%= data.right.bottom[1].goods_info[0].gid %>" class="goods-thumb">
+                                        <% if (data.right.bottom[1].goods_info[0].goods_image) { %>
+                                        <img src="<%=data.right.bottom[1].goods_info[0].goods_image%>">
+                                        <% } else {%>
+                                        <div class="empty-img"></div>
+                                        <% } %>
+                                    </a>
+                                    <% } %>
+                                </div>
+                                <div class="huodong-goods-item" style="border-width: 0.05rem 0 0 0;">
+                                    <div class="huodong-top-title">
+                                        <div class="main-title"><%=data.right.bottom[2].title%></div>
+                                        <div class="sub-title"><span><%=data.right.bottom[2].subtitle%></span></div>
+                                    </div>
+                                    <% if(data.right.bottom[2].gid) {%>
+                                    <a href="cwap_product_detail.html?gid=<%= data.right.bottom[2].goods_info[0].gid %>" class="goods-thumb">
+                                        <% if (data.right.bottom[2].goods_info[0].goods_image) { %>
+                                        <img src="<%=data.right.bottom[2].goods_info[0].goods_image%>">
+                                        <% } else {%>
+                                        <div class="empty-img"></div>
+                                        <% } %>
+                                    </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <% } %>
+</script>
+<script type="text/html" id="huodong_1">
+    <% if(data.bottom.left[1].goods_info!=null&&data.bottom.mid[2].goods_info!=null&&data.bottom.right[3].goods_info!=null) {%>
+    <div class="modules-huodong modules-slide">
+        <div class="style_template">
+
+            <div class="huodong-content style-1">
+                <div class="huodong-top">
+                    <a href="cwap_discount.html">
+                        <div class="huodong-top-bg" style="background:url(./images/huodong_top_bg-1.jpg) no-repeat;background-size: 100%;"></div>
+                        <div class="huodong-top-title"><%=data.top.top[0].title%></div>
+                    </a>
+                </div>
+                <div class="huodong-main">
+                    <div class="huodong-goods-list">
+                        <div class="huodong-goods-item">
+                            <% if(data.bottom.left[1].gid && data.bottom.left[1].goods_info[0].extend_data) {%>
+                            <div class="huodong-top-title">
+                                <div class="main-title"><%=data.bottom.left[1].title%></div>
+                                <div class="sub-title"><span><%=data.bottom.left[1].subtitle%></span></div>
+                                <div class="countdown" data-end_time_str="<%=data.bottom.left[1].goods_info[0].extend_data.sld_end_time%>">
+                                    <div class="countdown-main">
+                                        <span class="hours countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="min countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="sec countdown-num">00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="cwap_product_detail.html?gid=<%= data.bottom.left[1].goods_info[0].gid %>" class="goods-thumb">
+                                <% if (data.bottom.left[1].gid && data.bottom.left[1].goods_info[0].goods_image) { %>
+                                <img src="<%=data.bottom.left[1].goods_info[0].goods_image%>">
+                                <% } else {%>
+                                <div class="empty-img"></div>
+                                <% } %>
+                            </a>
+                            <div class="huodong-style-1-bottom">
+                                <div class="goods-price">
+                                    <div class="sale-price">
+                                        ¥<span class="money-number"><%=data.bottom.left[1].goods_info[0].promotion_price%></span>
+                                    </div>
+                                    <div class="market-price">
+                                        ¥<span class="money-number"><%=data.bottom.left[1].goods_info[0].goods_marketprice%></span>
+                                    </div>
+                                </div>
+                                <div class="goods-bottom-button">
+                                    <a href="javascript:;">抢</a>
+                                </div>
+                            </div>
+
+                            <% } else { %>
+                            <div style="text-align: center;font-size: 0.3rem;height: 8.6rem;line-height: 6rem;display: table;padding: 0.5rem;">
+                                <p style="line-height: 0.8rem;display: table-cell;vertical-align: middle;color: #cccccc;">该活动已结束，请重新选择限时折扣活动</p>
+                            </div>
+                            <% } %>
+                        </div>
+                        <div class="huodong-goods-item">
+                            <% if(data.bottom.mid[2].gid && data.bottom.mid[2].goods_info[0].extend_data) {%>
+                            <div class="huodong-top-title">
+                                <div class="main-title"><%=data.bottom.mid[2].title%></div>
+                                <div class="sub-title"><span><%=data.bottom.mid[2].subtitle%></span></div>
+                                <div class="countdown" data-end_time_str="<%=data.bottom.mid[2].goods_info[0].extend_data.sld_end_time%>">
+                                    <div class="countdown-main">
+                                        <span class="hours countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="min countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="sec countdown-num">00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="cwap_product_detail.html?gid=<%= data.bottom.mid[2].goods_info[0].gid %>" class="goods-thumb">
+                                <% if (data.bottom.mid[2].goods_info[0].goods_image) { %>
+                                <img src="<%=data.bottom.mid[2].goods_info[0].goods_image%>">
+                                <% } else {%>
+                                <div class="empty-img"></div>
+                                <% } %>
+                            </a>
+                            <div class="huodong-style-1-bottom">
+                                <div class="goods-price">
+                                    <div class="sale-price">
+                                        ¥<span class="money-number"><%=data.bottom.mid[2].goods_info[0].promotion_price%></span>
+                                    </div>
+                                    <div class="market-price">
+                                        ¥<span class="money-number"><%=data.bottom.mid[2].goods_info[0].goods_marketprice%></span>
+                                    </div>
+                                </div>
+                                <div class="goods-bottom-button">
+                                    <a href="javascript:;">抢</a>
+                                </div>
+                            </div>
+                            <% } else { %>
+                            <div style="text-align: center;font-size: 0.3rem;height: 8.6rem;line-height: 6rem;display: table;padding: 0.5rem;">
+                                <p style="line-height: 0.8rem;display: table-cell;vertical-align: middle;color: #cccccc;">该活动已结束，请重新选择限时折扣活动</p>
+                            </div>
+                            <% } %>
+                        </div>
+                        <div class="huodong-goods-item">
+                            <% if(data.bottom.right[3].gid && data.bottom.right[3].goods_info[0].extend_data) {%>
+                            <div class="huodong-top-title">
+                                <div class="main-title"><%=data.bottom.right[3].title%></div>
+                                <div class="sub-title"><span><%=data.bottom.right[3].subtitle%></span></div>
+                                <div class="countdown" data-end_time_str="<%=data.bottom.right[3].goods_info[0].extend_data.sld_end_time%>">
+                                    <div class="countdown-main">
+                                        <span class="hours countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="min countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="sec countdown-num">00</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="cwap_product_detail.html?gid=<%= data.bottom.right[3].goods_info[0].gid %>" class="goods-thumb">
+                                <% if (data.bottom.right[3].goods_info[0].goods_image) { %>
+                                <img src="<%=data.bottom.right[3].goods_info[0].goods_image%>">
+                                <% } else {%>
+                                <div class="empty-img"></div>
+                                <% } %>
+                            </a>
+                            <div class="huodong-style-1-bottom">
+                                <div class="goods-price">
+                                    <div class="sale-price">
+                                        ¥<span class="money-number"><%=data.bottom.right[3].goods_info[0].promotion_price%></span>
+                                    </div>
+                                    <div class="market-price">
+                                        ¥<span class="money-number"><%=data.bottom.right[3].goods_info[0].goods_marketprice%></span>
+                                    </div>
+                                </div>
+                                <div class="goods-bottom-button">
+                                    <a href="javascript:;">抢</a>
+                                </div>
+                            </div>
+                            <% } else { %>
+                            <div style="text-align: center;font-size: 0.3rem;height: 8.6rem;line-height: 6rem;display: table;padding: 0.5rem;">
+                                <p style="line-height: 0.8rem;display: table-cell;vertical-align: middle;color: #cccccc;">该活动已结束，请重新选择限时折扣活动</p>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <% } %>
+</script>
+<script type="text/html" id="huodong_2">
+
+    <% if(data.bottom.mid[2].goods_info!=null) { %>
+    <div class="modules-huodong modules-slide">
+        <div class="style_template">
+
+            <div class="huodong-content style-2">
+                <div class="huodong-top">
+                    <a href="cwap_tuan.html">
+                        <div class="huodong-top-bg" style="background:url(./images/huodong_top_bg-2.jpg) no-repeat;background-size: 100%;"></div>
+                        <div class="huodong-top-title"><%=data.top.top[0].title%></div>
+                    </a>
+                </div>
+                <div class="huodong-main" style="background:url(./images/huodong_main_bg-2.jpg) no-repeat;background-size: 100%;">
+                    <div class="huodong-goods-list">
+                        <div class="huodong-goods-item">
+                            <% if(data.bottom.mid[2].gid && data.bottom.mid[2].goods_info[0].extend_data) {%>
+                            <a href="cwap_product_detail.html?gid=<%=data.bottom.mid[2].goods_info[0].gid %>" class="goods-thumb">
+                                <% if (data.bottom.mid[2].goods_info[0].goods_image) { %>
+                                <img src="<%=data.bottom.mid[2].goods_info[0].goods_image%>">
+                                <% } else {%>
+                                <div class="empty-img"></div>
+                                <% } %>
+                            </a>
+                            <div class="huodong-style-2-right">
+                                <div class="countdown" data-end_time_str="<%=data.bottom.mid[2].goods_info[0].extend_data.sld_end_time%>">
+
+                                    <div class="countdown-main">
+                                        <span class="hours countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="min countdown-num">00</span>
+                                        <span class="countdown-break-flag">:</span>
+                                        <span class="sec countdown-num">00</span>
+                                    </div>
+                                </div>
+                                <div class="main-title"><%=data.bottom.mid[2].title%></div>
+                                <div class="goods-price">
+                                    <div class="sale-price">
+                                        ¥<span class="money-number"><%=data.bottom.mid[2].goods_info[0].promotion_price%></span>
+                                    </div>
+                                    <div class="market-price">
+                                        ¥<span class="money-number"><%=data.bottom.mid[2].goods_info[0].goods_marketprice%></span>
+                                    </div>
+                                </div>
+                                <div class="goods-other">
+                                    <div class="goods-tuan-info">
+                                        已团<span><%=data.bottom.mid[2].goods_info[0].extend_data.buyed_quantity%></span>件
+                                    </div>
+                                    <div class="goods-tuan-btn">
+                                        <a href="cwap_product_detail.html?gid=<%=data.bottom.mid[2].goods_info[0].gid %>"><span>立即团</span><span class="arrow-right">&gt;</span></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <% } else { %>
+                            <div style="text-align: center;font-size: 0.3rem;height: 100%;line-height: 6rem;display: table;padding: 0.5rem;margin:0 auto;">
+                                <p style="line-height: 0.8rem;display: table-cell;vertical-align: middle;color: #cccccc;">该活动已结束，请重新选择团购活动</p>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <% } %>
+</script>
+<script type="text/html" id="fzkb">
+    <div class="fzkb" style="width: 100%;height:<%=text%>px;background-color: #<%=color%>"></div>
+</script>
+
+<div class="main2">
+    <div class="goods_list">
+        <ul>
+
+        </ul>
+    </div>
+</div>
+
+<script type="text/html" id="goods_item">
+    <%if(list.length){%>
+    <%for(var i = 0;i<list.length;i++){
+        var item = list[i];
+    %>
+    <li class="goods_item">
+        <a href="/cwap/cwap_product_detail.html?gid=<%=item.gid%>">
+            <div class="g_left">
+                <img src="<%=item.pre_pic%>" alt="">
+            </div>
+            <div class="g_right">
+                <h3 class="name"><%=item.goods_name%></h3>
+                <div class="price">
+                    <div class="p_left">
+                        <p class="n">预售价:￥<%=item.pre_sale_price%></p>
+                        <p class="p">原价:<span>￥<%=item.goods_price%></span></p>
+                    </div>
+                    <div class="p_right">
+                        <a href="/cwap/cwap_product_detail.html?gid=<%=item.gid%>">立即预定</a>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </li>
+    <%}%>
+    <%}else{%>
+    <!--<div class="err">
+        <div class="img">
+            <img src="./images/search_w.png" alt="">
+        </div>
+        <p>该分类暂无拼团活动</p>
+        <p>选择其他分类试试吧！</p>
+    </div>-->
+    <%}%>
+</script>
+</body>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=b1d1e551839382e38e9eabe2348aa0db&plugin=AMap.Scale,AMap.ToolBar"></script>
+<script type="text/javascript" src="js/swipe-noheight.js"></script>
+<script type="text/javascript" src="js/swiper-3.4.2.jquery.min.js"></script>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/cwap_index.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>可提现金额</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <style>
+        body{
+            background: #fff;
+        }
+        header{
+            position: fixed;
+            left: 0;
+            top:0;
+            text-align: center;
+            width: 100%;
+            height:1.9rem;
+            line-height:1.9rem;
+            background:#FC3357;
+            color: #fff;
+            font-size: 0.78rem;
+        }
+        header a{
+            float: left;
+            color: #fff;
+            font-family: simsun;
+            padding-left:3%;
+        }
+        .box{
+            width:100%;
+            text-align: center;
+            margin:5.4rem auto;
+        }
+        .box img{
+            width: 4.26rem;
+        }
+        .box p{
+            color:#5C5C5C;
+            padding-top:3%;
+            font-size: 0.6521rem;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <a href="cwap_user.html">&lt;</a> 可提现金额
+</header>
+<div class="box">
+    <img src="images/sld_icon@2x.png" alt="">
+    <p>暂无提现记录</p>
+</div>
+</body>
+<script type="text/javascript" src="jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script>
+    var oh = $(document).height();
+    var ow = $(document).width();
+    console.log(oh,ow);
+    $(document.body).css({"height":oh,"width":ow});
+</script>
+</html>

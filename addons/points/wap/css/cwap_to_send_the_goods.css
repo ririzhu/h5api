@@ -1,0 +1,94 @@
+.order_time{
+    background: #fff;
+    font-size: 0.652rem;
+    color: #666;
+    padding:0.869rem 0.826rem;
+    margin:0.5rem 0;
+}
+.bbctouch-cart-container{
+    background:transparent!important;
+    padding-bottom:0.5rem;
+}
+.order_time span{
+    margin-left: 0.521rem;
+}
+.yunfei{
+    margin-right:0!important;
+    padding-right: 0.5rem;
+}
+.To_change_again{
+    height: 2.608rem;
+    background: #fff;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width:100%;
+    z-index: 100000;
+    line-height:2.608rem;
+    text-align: right;
+    box-shadow:1px 1px 1px rgba(0,0,0,0.1) inset;
+}
+.To_change_again a{
+    margin-right:0.652rem;
+    display: inline-block;
+    width: 4.13rem;
+    height: 1.56rem;
+    border:1px solid #707070!important;
+    font-size: 0.521rem;
+    color: #131313;
+    text-align: center;
+    line-height:1.6rem;
+    border-radius: 2px;
+}
+.To_change{
+    height: 2.608rem;
+    background: #fff;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 97%;
+    z-index: 100000;
+    text-align: right;
+    display: flex;
+    padding-right: 3%;
+    box-shadow: 1px 1px 1px rgba(0,0,0,0.1) inset;
+    justify-content: flex-end;
+    align-items: center;
+}
+.To_change a{
+    display:flex;
+    width: 4.13rem;
+    height: 1.56rem;
+    border:1px solid #707070!important;
+    font-size: 0.521rem;
+    color: #131313;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    margin-left: 0.652rem;
+}
+.To_change span{
+    display:flex;
+    width: 4.13rem;
+    height: 1.56rem;
+    border:1px solid #707070!important;
+    font-size: 0.521rem;
+    color: #131313;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    margin-left: 0.652rem;
+}
+.To_change em{
+    display:flex;
+    width: 4.13rem;
+    height: 1.56rem;
+    border:1px solid #ed3736!important;
+    font-size: 0.521rem;
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    margin-left: 0.652rem;
+    background:#ed3736;
+}

@@ -1,0 +1,102 @@
+.p_clear:after{ content: " "; clear: both; display: block;}
+.avg_row{
+    flex-wrap: wrap;
+    display: box !important;			  /* OLD - Android 4.4- */
+    display: -webkit-box !important;	  /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box !important;		 /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox !important;	  /* TWEENER - IE 10 */
+    display: -webkit-flex !important;	 /* NEW - Chrome */
+    display: flex !important;			 /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    /* 09ç‰ˆ */
+    -webkit-box-orient: horizontal;
+    /* 12ç‰ˆ */
+    -webkit-flex-direction: row;
+    -moz-flex-direction: row;
+    -ms-flex-direction: row;
+    -o-flex-direction: row;
+    flex-direction: row;
+}
+.avg_col{
+    display: block;
+    max-width: 100%;
+    width: 0;
+    -webkit-box-flex: 1;	  /* OLD - iOS 6-, Safari 3.1-6 */
+    -moz-box-flex: 1;		 /* OLD - Firefox 19- */
+    width: 20%;			   /* For old syntax, otherwise collapses. */
+    -webkit-flex: 1;		  /* Chrome */
+    -ms-flex: 1;			  /* IE 10 */
+    flex: 1;				  /* NEW, Spec - Opera 12.1, Firefox 20+ */
+}
+
+/*商联达 pc商城拼团首页*/
+.pin_list .pin_index_title { height: 24px; line-height: 24px; margin:10px 0 0; }
+.pin_list .pin_index_title h2{ width: 140px; height: 100%; background: url(../img/pc_pin_title.jpg) no-repeat; display: block; text-indent: 150px; overflow: hidden; display: block; float: left; line-height: 200px; }
+.pin_list .pin_index_title ul { float: left; }
+.pin_list .pin_index_title ul li{ float: left;}
+.pin_list .pin_index_title ul li a{ padding: 6px 20px; font-size: 14px;}
+.pin_list .pin_index_title ul li a.on{ color: #e70e16;}
+.pin_list .type_tit{ line-height: 16px; font-size: 17px; border-left: 4px #222 solid; color: #222; padding-left: 8px; margin-left: 4px;}
+.pin_list .type_tit a{ float: right; background: url(../img/more.jpg) no-repeat; height: 18px; width: 70px; display: inline-block; height: 18px; margin-right: 4px;}
+.J_sk_list_wrapper .J_sk_list{ width: 100%;}
+
+.pin_list .jmys-exchange-list ul li{ border: 1px #dcdcdc solid; margin-top: 0; margin-bottom: 10px;}
+.pin_list .sk_item{ padding: 0 !important; width: 289px !important; height:auto !important;}
+.pin_list .sk_item_pic{ width: 100%; height: 290px; overflow: hidden;}
+.pin_list .sk_item_img{ max-width: 100%; max-height: 290px; margin: 0;}
+.pin_list .sk_item_name{ padding: 5px 10px 10px; font-size: 12px; white-space: normal; line-height: 19px; height: 38px; overflow: hidden; font-size: 13px; color: #222; line-height: 20px;}
+.pin_list .sk_item h3{ padding: 0 10px; color: #888; margin-bottom: 12px;}
+.pin_list .sk_item h3 span{ border: 1px #e70e16 solid; border-radius: 50px; color: #e70e16; background: url(../img/group.jpg) no-repeat 5px center; background-size: auto 80%; font-size: 12px; padding: 2px 8px 2px 23px; margin-right: 10px;}
+.pin_list .goods-detail-pin {
+    background: #E70E16;
+    color: #fff;
+    position: relative;
+    height: 52px;
+}
+.pin_list .goods-detail-pin h1{ float: left; font-size: 16px; line-height: 18px; padding-top: 8px; padding-left: 10px;}
+.pin_list .goods-detail-pin em{  font-size: 26px; font-weight: normal; }
+.pin_list .goods-detail-pin s{ display: block; margin-top: 2px; }
+.pin_list .goods-detail-pin h2{
+    float: right;
+    position: relative;
+    font-size: 14px;
+    background: #F6D550;
+    color: #685310;
+    line-height: 24px;
+    text-align: center;
+    padding-right: 7px;
+    line-height: 23px;
+    height: 45px;
+    padding-top: 4px;
+    width: 100px;
+    padding-bottom: 3px;
+}
+.pin_list .goods-detail-pin h2:after {
+    width: 0px;
+    height: 0px;
+    border-left: 20px solid transparent;
+    border-bottom: 52px solid #F6D550;
+    content: ' ';
+    position: absolute;
+    left: -20px;
+    top: 0;
+}
+.pin_list .goods-detail-pin h2 span b {
+    background: #CEB244;
+    border-radius: 2px;
+    font-weight: normal;
+    padding: 1px 2px;
+    margin: 0 2px;
+}
+.pin_list .goods-detail-pin h2 span{ display: block; }
+.pin_list .box_bd{ margin-top: 0;}
+.pin_list .jmys-voucher-list, .jmys-exchange-list{ margin: 0;}
+.norecord{ padding: 10px 0 50px; }
+.norecord img{ margin-top: 20px;}
+.norecord_body{ border:1px #eee solid; padding: 15px;}
+.norecord_body span { position: static; margin: 0; margin-left: 80px; font-size: 16px; color: #666; }
+.sk_item_shadow{ width: 100%; background: rgba(0,0,0,0.4); top:0; height: 290px; font-weight: bold; font-size: 20px; color: #fff; transition: 0.5s all ease-in-out; opacity: 0;}
+.sk_item_shadow img{ width: 60%; margin:45px auto 10px; display: block;}
+li:hover .sk_item_shadow { opacity: 1;}
+.jmys-layout-right{ min-height: 300px;}
+
+.wqload{ background: url(../img/loading.gif) no-repeat center top 72px; border-top:1px #eee solid; color: #ff712b; clear: both; width: 100%; background-size: auto 50%; text-align: center; padding-top: 184px; padding-bottom: 100px; text-indent: 1px;}

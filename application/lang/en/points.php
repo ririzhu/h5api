@@ -1,0 +1,17 @@
+<?php defined('DYMall') or exit('Access Invalid!');
+$lang['regist']		= 'register member';
+$lang['login']		= 'member login';
+$lang['comments']		= 'comments on the goods';
+$lang['order']		= 'order %s shopping consumption';
+$lang['pointorder']		= 'redeem gift information %s cost points';
+$lang['purpose']		= 'payment order deduction';
+$lang['returnpurpose']		= 'deduction points are returned';
+$lang['app']		= 'UC application integration';
+$lang['inviter']		= 'invite new member %s to register';
+$lang['rebate0']		= 'order %s shopping consumption';
+$lang['rebate1']		= 'invitee [%s] consumption';
+$lang['rebate2']		= 'invitee subordinate [%s] consumption';
+$lang['rebate3']		= "invitee subordinate's subordinate [%s] consumption";
+$lang['checkin']		= 'sign in integral';
+$lang['share_article']		= 'share points earned from discovery articles';
+$lang['share_goods']		= 'share points earned on merchandise';

@@ -1,0 +1,120 @@
+header .header-l a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+header img {
+    width: 0.34782609rem;
+    height: 0.65217391rem;
+}
+
+header .header-title h1 {
+    background-color: #FE0E65;
+    color: #fff;
+}
+
+.main{
+    padding-top: 1.95rem;
+}
+
+.title {
+    position: relative;
+    color: #353535;
+    font-size: 0.69565217rem;
+    line-height: 1.52173913rem;
+}
+
+.title::after {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: '';
+    height: 0.04347826rem;
+    background-color: #e2e2e2;
+    transform: scaleY(0.5);
+}
+
+.pay_mode {
+    margin: 0.43478261rem 0;
+    background-color: #fff;
+    padding: 0 0.2173913rem;
+}
+
+.pay_mode .pay_item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 2.86956522rem;
+    position: relative;
+}
+
+.pay_mode .pay_item::after {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: '';
+    height: 0.04347826rem;
+    background-color: #e2e2e2;
+    transform: scaleY(0.5);
+}
+
+.pay_mode .pay_item:last-child::after {
+    background-color: transparent;
+}
+
+.pay_mode .pay_item .p_left {
+    display: flex;
+    align-items: center;
+}
+
+.pay_mode .pay_item .p_left img {
+    width: 1.13043478rem;
+}
+
+.pay_mode .pay_item .p_left .info {
+    margin-left: 1.08695652rem;
+}
+
+.pay_mode .pay_item .p_left .info p {
+    line-height: 1;
+}
+
+.pay_mode .pay_item .p_left .info p:nth-child(1) {
+    color: #353535;
+    font-size: 0.60869565rem;
+    margin-bottom: 0.43478261rem;
+}
+
+.pay_mode .pay_item .p_left .info p:nth-child(2) {
+    color: #808080;
+    font-size: 0.52173913rem;
+}
+
+.checkbox {
+    display: inline-block;
+    width: 0.86956522rem;
+    height: 0.86956522rem;
+    cursor: pointer;
+    background: url("../images/check@2x.png") no-repeat center center;
+    background-size: 100% 100%;
+}
+.checkbox.active {
+    background: url("../images/active@2x.png") no-repeat center center;
+    background-size: 100% 100%;
+}
+
+.go_pay{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #FE011D;
+    color: #fff;
+    font-size: 0.7391rem;
+    line-height: 2.1739rem;
+    text-align: center;
+    cursor: pointer;
+}

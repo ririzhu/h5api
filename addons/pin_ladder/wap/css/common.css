@@ -1,0 +1,100 @@
+html {
+    overflow-y: scroll;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    background: #ffffff;
+}
+
+div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, blockquote, p {
+    padding: 0;
+    margin: 0;
+}
+
+table, td, tr, th {
+    font-size: 12px;
+}
+
+li {
+    list-style-type: none;
+}
+
+img {
+    vertical-align: top;
+    border: 0;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: normal;
+}
+
+address, cite, code, em, th {
+    font-weight: normal;
+    font-style: normal;
+}
+
+a{
+    text-decoration: none;
+}
+
+.fl{
+    float: left;
+}
+
+.fr{
+    float: right;
+}
+
+.clearfix::before,
+.clearfix::after{
+    content: ".";
+    display: block;
+    height: 0;
+    line-height: 0;
+    visibility: hidden;
+    clear: both;
+}
+
+.hide{
+    display: none;
+}
+
+header{
+    position: relative;
+    height: 1.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    background-color: #fff;
+}
+
+header .back{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 0.423rem;
+    padding: 0.327rem 0.423rem;
+}
+header span{
+    text-align: center;
+    font-size: 0.4533rem;
+    color: #333;
+    font-weight: 600;
+    font-family: 'SourceHanSansCN-Regular';
+}
+
+footer{
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1.3rem;
+    background-color: #F9F9F9;
+    z-index: 999;
+}

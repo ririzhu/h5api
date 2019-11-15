@@ -1,0 +1,21 @@
+@charset "utf-8";
+
+/*搜索页面样式*/
+.sldtouch-search-layout { margin-top: 2rem;}
+.sldtouch-search-layout dl { padding : 0.8rem 0.5rem 0 0.5rem; text-align: left;}
+.sldtouch-search-layout dt { font-size: 0.6rem; line-height: 1rem; color: #232326; margin-bottom: 0.4rem; }
+.sldtouch-search-layout dd {}
+.sldtouch-search-layout ul { font-size: 0; display: block;}
+.sldtouch-search-layout li { display: inline-block; background-color: #FFF; margin: 0 0.4rem 0.4rem 0;}
+.sldtouch-search-layout li a {     display: block;
+    padding: 0.01rem 0.6rem;
+    font-size: 0.52rem;
+    line-height: 1rem;
+    color: #686868;background: #f0f2f5}
+.sldtouch-search-layout .hot-keyword li { border-radius: 0.23rem;}
+.sldtouch-search-layout a.clear-history { display: inline-block; width: 79%; height: 1.5rem; text-align: center; margin: 1.5rem 10% 0 10%; background-color: #EEE; border-radius: 0.2rem; font-size: 0.7rem; line-height: 1.5rem; color: #232326; }
+#goods_search{background: #fff}
+
+
+
+

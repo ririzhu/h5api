@@ -1,0 +1,154 @@
+body{
+    padding-top:3.5rem!important;
+}
+.header-r a i.more{
+    background-image: url(../images/sld_search@2x.png)!important;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: 100%;
+    opacity: 0.65;
+}
+.nav_box{
+    position: fixed;
+    width:100%;
+    z-index: 1000;
+    height:1.6rem;
+    top:1.9rem;
+    background: #fff;
+    border-bottom:1px solid #fff;
+}
+.nav_box ul{
+    padding:0 0.652rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.nav_box ul li{
+    float: left;
+    line-height:1.304rem;
+}
+.nav_box ul li:first-child{
+    /*border-bottom:1px solid #EC3737;*/
+}
+.nav_box ul li a{
+    color:#181818;
+    font-size: 0.695rem;
+}
+.orderList{
+    background: #fff;
+    padding-bottom:0.6521rem;
+    margin-bottom:0.652rem;
+}
+.orderList h1{
+    font-size: 0.608rem;
+    color: #E32222;
+}
+.orderList h1{
+    padding-right:0.608rem;
+    margin-left:0.608rem;
+    border-bottom:1px solid #eee;
+    line-height:1.782rem;
+    text-align: right;
+}
+.orderList .box{
+}
+.orderList .box dl{
+    margin-left:0.608rem;
+    font-size: 0.695rem ;
+    padding-top:0.434rem;
+    color:#181818;
+    height: 3.478rem;
+    position: relative;
+}
+.orderList .box dl dt img{
+    height: 2.869rem;
+    width: 73px;
+    border:1px solid #eee;
+    margin-right:0.826rem;
+}
+.orderList .box dl dt{
+    float: left;
+}
+.orderList .box dl dd{
+    text-align:right;
+    overflow: hidden;
+    padding-right:0.608rem;
+}
+.orderList .box dl dd p{
+    float: left;
+    width:7.608rem;
+    text-align: left;
+    line-height:0.8rem;
+    overflow: hidden;
+}
+.orderList .box dl dd:nth-of-type(1){
+    height: 1.56rem;;
+}
+.orderList .box dl dd:nth-of-type(2){
+    color: #5e5e5e;
+}
+.orderList .box dl dd:last-child{
+    position: absolute;
+    border-bottom: 1px solid #eee;
+    bottom:0;
+    right: 0;
+    display: block;
+    width: 11.956rem;
+}
+.orderList .box dl:last-child dd:last-child{
+    border:none;
+}
+.orderList .box dl dd span{
+    float: right;
+    font-size: 0.608rem;
+    line-height: 0.8rem;
+}
+.heji{
+    padding: 0.652rem;
+    color: #181818;
+    text-align: right;
+    padding-left: 0;
+    margin-left: 0.652rem;
+    font-size: 0.695rem;
+    border-top: 1px solid #eee;
+}
+.heji ins{
+    text-decoration: none;
+    color: #E32222;
+}
+.heji em{
+    padding:0 0.652rem;
+}
+.Btn2{
+    text-align:right;
+}
+.Btn2 a{
+    display: inline-block;
+    width: 4.13rem;
+    height: 1.56rem;
+    border:1px solid #707070;
+    color:#181818;
+    font-size: 0.652rem;
+    line-height:1.6rem;
+    text-align: center;
+    border-radius:2px;
+    margin-right: 0.652rem;
+}
+.duihuan{
+    background: #EC3737;
+    color: #fff!important;
+    border-color: #EC3737!important;
+}
+#bottom .nav .tab-line-item i{
+    color:#acacac!important;
+}
+#bottom .nav .tab-line-item a{
+    color:#acacac!important;
+}
+#bottom .nav .tab-line-item:nth-of-type(3) i{
+    color: #ff5181!important;
+}
+#bottom .nav .tab-line-item:nth-of-type(3) a{
+    color: #ff5181!important;
+}

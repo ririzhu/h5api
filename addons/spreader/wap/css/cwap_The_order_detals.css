@@ -1,0 +1,71 @@
+body{
+    background:#f7f8fb;
+    padding-top:2.46rem;
+}
+i.icoTabC{
+    display: block;width:1.04rem;height:1.04rem;
+    background:url(../images/sld_icon3.1@2x.png)no-repeat!important;
+    background-size:0.86rem 1.04rem!important;
+}
+.icoTaba{
+    display: block;width:1.04rem;height:1.04rem;
+    background:url(../images/sld_icon1.1@2x.png)no-repeat!important;
+    background-size:1.04rem 1.04rem!important;
+}
+/*.tab-line-item:nth-of-type(3) a{*/
+    /*color: #FC3357!important;*/
+/*}*/
+/*#bottom .nav a.sle{*/
+    /*color:#5C5C5C!important;*/
+/*}*/
+ins,a{
+    text-decoration: none;
+}
+header{
+    position: fixed;
+    left: 0;
+    top:0;
+    text-align: center;
+    width: 100%;
+    height:1.9rem;
+    line-height:1.9rem;
+    background:#FC3357;
+    color: #fff;
+    font-size: 0.78rem;
+}
+dl{
+    width: 94%;
+    margin:0 3%;
+    margin-bottom:10px;
+    height:5rem;
+    background: #fff;
+    border-radius:5px;
+    box-shadow:1px 1px 20px 1px #DDE1ED ;
+}
+dl dd{
+    text-align: left;
+    font-size: 0.565rem;
+    width: 94%;
+    padding:0 3%;
+    color:#616161;
+}
+dl dd:nth-of-type(1){
+    padding-top:18px;
+}
+dl dd em{
+    width: 30%;
+    float: right;
+}
+.settlement dd em ins{
+    color:#38A30E;
+}
+.freeze dd em ins{
+    color:#EF8D01;
+}
+.failure dd em ins{
+    color:#FC3357;
+}
+i.icoTabc{
+    /*background-size:100% 100%!important;*/
+    /*margin-left: 0.1rem;*/
+}

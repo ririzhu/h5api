@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>填写核对购物信息</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_child.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_cart.css">
+    <link rel="stylesheet" type="text/css" href="./css/GeneralCSS.css">
+    <style>
+        .bbctouch-inp-con ul li .input-box .txt{font-size: 0.6rem;}
+        .input-box label{font-size: 0.6rem!important;color: #262629!important;}
+        #areaSelected .bbctouch-main-layout{
+            display: block;
+            background-color: #f5f5f5;
+            min-width: 320px;
+            max-width: 640px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            position: absolute;
+            z-index: 1;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+        .bbctouch-main-layout-a{
+            display: block;
+            position: absolute;
+            top: 1.95rem;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            z-index: 1;
+        }
+        .bbctouch-default-list li h4{
+            font-size: 0.55rem;
+        }
+        .bbctouch-inp-con ul li .input-box {
+            height: 2.12rem;
+            margin: 0 0.5rem 0 4rem;
+        }
+        .bbctouch-default-list{
+            border-bottom:none!important;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="header">
+        <a href="javascript:history.go(-1)" class="jiantou"></a>
+         确认订单
+    </div>
+</header>
+
+<div class="bbctouch-main-layout" style="margin-bottom: 2rem">
+    <div class="bbctouch-cart-block">
+        <!--正在使用的默认地址Begin-->
+        <div class="bbctouch-cart-add-default"><a href="javascript:void(0);" id="list-address-valve">
+            <!--<i class="icon-add"></i>-->
+            <dl>
+                <dt><span id="true_name"></span><span id="mob_phone"></span></dt>
+                <dd><span id="address"></span></dd>
+            </dl>
+            <i class="icon-arrow"></i>
+        </a>
+        </div>
+        <!--正在使用的默认地址End-->
+    </div>
+    <!--选择收货地址Begin-->
+    <div id="list-address-wrapper" class="bbctouch-full-mask hide">
+        <div class="bbctouch-full-mask-bg"></div>
+        <div class="bbctouch-full-mask-block">
+            <div class="header" style="display: none">
+                <div class="header-wrap">
+                    <div class="header-l"> <a href="javascript:void(0);"> <i class="back"></i> </a> </div>
+                    <div class="header-title">
+                        <h1>收货地址管理</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="bbctouch-main-layout" id="list-address-scroll">
+                <ul class="bbctouch-cart-add-list" id="list-address-add-list-ul">
+                </ul>
+                <div id="addresslist" class="mt10"> <a href="javascript:void(0);" class="btn-l" id="new-address-valve">新增收货地址</a> </div>
+            </div>
+        </div>
+    </div>
+    <!--选择收货地址End-->
+    <!--新增收货地址Begin-->
+    <div id="new-address-wrapper" class="bbctouch-full-mask hide">
+        <div class="bbctouch-full-mask-bg"></div>
+        <div class="bbctouch-full-mask-block">
+            <div class="header" style="display: none">
+                <div class="header-wrap">
+                    <div class="header-l"> <a href="javascript:void(0);"> <i class="back"></i> </a> </div>
+                    <div class="header-title">
+                        <h1>新增收货地址</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="bbctouch-main-layout" id="new-address-scroll">
+                <div class="bbctouch-inp-con">
+                    <form id="add_address_form">
+                        <ul class="form-box">
+                            <li class="form-item">
+                                <h4>收货人&nbsp;&nbsp;</h4>
+                                <div class="input-box">
+                                    <input type="text" class="inp" name="true_name" id="vtrue_name" autocomplete="off" oninput="writeClear($(this));"/>
+                                    <span class="input-del"></span> </div>
+                            </li>
+                            <li class="form-item">
+                                <h4>联系手机</h4>
+                                <div class="input-box">
+                                    <input type="tel" class="inp" name="mob_phone" id="vmob_phone" autocomplete="off" oninput="writeClear($(this));"/>
+                                    <span class="input-del"></span> </div>
+                            </li>
+                            <li class="form-item">
+                                <h4>地区选择</h4>
+                                <div class="input-box">
+                                    <input unselectable="on" style="outline:none;" name="area_info" type="text"  onfocus="this.blur()" class="inp" id="varea_info" autocomplete="off" onchange="btn_check($('form'));" readonly/>
+                                </div>
+                            </li>
+                            <li class="form-item">
+                                <h4>详细地址</h4>
+                                <div class="input-box">
+                                    <input type="text" class="inp" name="vaddress" id="vaddress" autocomplete="off" oninput="writeClear($(this));"/>
+                                    <span class="input-del"></span> </div>
+                            </li>
+                        </ul>
+                        <div class="error-tips"></div>
+                        <div class="form-btn"><a href="javascript:void(0);" class="btn">保存地址</a></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--新增收货地址End-->
+
+
+    <!--选择付款方式Begin-->
+    <div id="select-payment-wrapper" class="bbctouch-full-mask hide">
+        <div class="bbctouch-full-mask-bg"></div>
+        <div class="bbctouch-full-mask-block">
+            <div class="header">
+                <div class="header-wrap">
+                    <div class="header-l"> <a href="javascript:void(0);"> <i class="back"></i> </a> </div>
+                    <div class="header-title">
+                        <h1>选择支付方式</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="bbctouch-main-layout">
+                <div class="bbctouch-sel-box">
+                    <h4 class="tit">支付方式</h4>
+                    <div class="sel-con"> <a href="javascript:void(0);" class="sel" id="payment-online">在线支付</a> <a href="javascript:void(0);" style="display:none;" id="payment-offline">货到付款</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--选择付款方式End-->
+
+
+
+    <!--商品列表Begin-->
+    <div id="goodslist_before" class="mt039">
+        <div id="deposit"> </div>
+    </div>
+    <!--红包使用Begin-->
+    <!--<div id="rptVessel" class="bbctouch-cart-block mt039">-->
+        <!--<div class="input-box">-->
+            <!--<label>-->
+                <!--<input type="checkbox" class="checkbox" id="useRPT"/>-->
+                <!--平台红包 <span class="power"><i></i></span> </label>-->
+            <!--<p id="rptInfo"></p>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--红包使用End-->
+
+    <!--店铺优惠券开始-->
+    <!--<div id="product_detail_red_html" class="bbctouch-bottom-mask">-->
+        <!--<div class="bbctouch-bottom-mask-bg "></div>-->
+        <!--<div class="bbctouch-bottom-mask-block ">-->
+            <!--<div class="bbctouch-bottom-mask-top goods-tags-intro-top">-->
+                <!--使用店铺优惠券-->
+            <!--</div>-->
+            <!--<div class="bbctouch-bottom-mask-rolling" id="product_red_roll" style="height: 12rem; overflow: hidden;">-->
+                <!--<div class="goods-red-intro-list">-->
+                    <!--<div class="bbctouch-red-list">-->
+                        <!--<ul class="bbctouch-tickets" id="vred-list" style="min-height: auto; padding-bottom: 1rem;">-->
+
+                        <!--</ul>-->
+                    <!--</div>-->
+                <!--</div>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <!--店铺优惠券结束-->
+
+    <div class="error-tips mt10"></div>
+    <!--底部总金额固定层Begin-->
+    <div class="bbctouch-cart-bottom">
+        <div class="total"><span id="online-total-wrapper"></span>
+            <dl class="total-money">
+                <dt class="yinfu">共<span class="num" style="padding-left: 0">4</span>件</dt>
+                <dt>应付：</dt>
+                <dd><em id="totalPrice">2000</em><span>积分</span></dd>
+            </dl>
+        </div>
+        <div class="check-out"><a href="javascript:void(0);" id="ToBuyStep2">去付款</a></div>
+    </div>
+    <!--底部总金额固定层End-->
+    <div class="bbctouch-bottom-mask">
+        <div class="bbctouch-bottom-mask-bg"></div>
+        <div class="bbctouch-bottom-mask-block">
+            <div class="bbctouch-bottom-mask-tip"><i></i>点击此处返回</div>
+            <div class="bbctouch-bottom-mask-top">
+                <p class="bbctouch-cart-num">本次交易需在线支付<em id="onlineTotal">0.00</em>元</p>
+                <p style="display:none" id="isPayed"></p>
+                <a href="javascript:void(0);" class="bbctouch-bottom-mask-close"><i></i></a> </div>
+            <div class="bbctouch-inp-con bbctouch-inp-cart">
+                <ul class="form-box" id="internalPay">
+                    <p class="rpt_error_tip" style="display:none;color:red;"></p>
+                    <li class="form-item" id="wrapperUsePDpy">
+                        <div class="input-box pl5">
+                            <label>
+                                <input type="checkbox" class="checkbox" id="usePDpy" autocomplete="off" />
+                                使用预存款支付 <span class="power"><i></i></span> </label>
+                            <!--<p>可用余额 ￥<em id="availablePredeposit"></em></p>-->
+                        </div>
+                    </li>
+                    <li class="form-item" id="wrapperPaymentPassword" style="display:none">
+                        <div class="input-box"> <span class="txt">输入支付密码</span>
+                            <input type="password" class="inp" id="paymentPassword" autocomplete="off" />
+                            <span class="input-del"></span> </div>
+                    </li>
+                </ul>
+                <div class="bbctouch-pay">
+                    <div class="spacing-div"><span>在线支付方式</span></div>
+                    <div class="pay-sel">
+                        <label style="display:none;">
+                            <input type="radio" name="payment_code" class="checkbox" id="alipay" autocomplete="off" />
+                            <span class="alipay" >支付宝</span><input id="alipay" type="checkbox" style="margin-left: 10px;"></label>
+                        <label style="display:none">
+                            <input type="radio" name="payment_code" class="checkbox" id="wxpay_jsapi" autocomplete="off" />
+                            <span class="wxpay">微信</span><input id="wxpay_jsapi" type="checkbox" style="margin-left: 10px;"></label>
+                    </div>
+                </div>
+                <div class="pay-btn"> <a href="javascript:void(0);" id="toPay" class="btn-l">确认支付</a> </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/html" id="goods_list">
+
+    <div class="bbctouch-cart-container">
+        <ul class="bbctouch-cart-item">
+            <% for (var k in store_cart_list) { var v1 = store_cart_list[k]%>
+            <li class="buy-item" data-gid="<%=v1.pgid%>" data-stock="<%=v1.number%>">
+                <div class="goods-pic">
+                    <a href="<%=v1.url%>">
+                        <img src="<%=v1.goods_image_url%>"/>
+                    </a>
+                </div>
+                <dl class="goods-info">
+                    <dt class="goods-name"><a href="<%=v1.url%>" ><%=v1.pgoods_name%></a></dt>
+                    <dd class="goods-type order-goods-type"><%=v1.goods_spec%>数量</dd>
+                </dl>
+                <div class="goods-subtotal">
+                    <span class="goods-price"><em><%=v1.pgoods_points%></em>积分</span>
+                </div>
+                <div class="goods-num">
+                    x<em><%=v1.number%></em>
+                </div>
+            </li>
+            <% } %>
+        </ul>
+
+        <div class="bbctouch-cart-subtotal">
+
+            <div class="message">
+                <p class="heji"><span>商品合计</span><span><%=all_money%>积分</span></p>
+                <p class="yunfei"><span>运费</span><span>免运费</span></p>
+            </div>
+            <div class="store-total">
+                合计应付:<span><em id="storeTotal<%=k%>" ><%=all_money%></em></span>积分
+            </div>
+        </div>
+
+</script>
+
+<script type="text/html" id="list-address-add-list-script">
+    <% for (var i=0; i<address_list.length; i++) { %>
+    <li <% if (address_id == address_list[i].address_id) { %>class="selected"<% } %> data-param="{address_id:'<%=address_list[i].address_id%>',true_name:'<%=address_list[i].true_name%>',mob_phone:'<%=address_list[i].mob_phone%>',area_info:'<%=address_list[i].area_info%>',address:'<%=address_list[i].address%>',area_id:'<%=address_list[i].area_id%>',city_id:'<%=address_list[i].city_id%>'}"> <i></i>
+    <dl>
+        <dt><span ><%=address_list[i].true_name%></span><span id=""><%=address_list[i].mob_phone%></span><% if (address_list[i].is_default == 1) { %><sub>默认</sub><% } %></dt>
+        <dd><span ><%=address_list[i].area_info %>&nbsp;<%=address_list[i].address %></span></dd>
+    </dl>
+    </li>
+    <% } %>
+</script>
+
+<script type="text/javascript" src="./js/cwap_config.js"></script>
+<script type="text/javascript" src="./js/zepto.min.js"></script>
+<script type="text/javascript" src="./js/template.js"></script>
+<script type="text/javascript" src="./js/cwap_common.js"></script>
+<script type="text/javascript" src="./js/simple-plugin.js"></script>
+<script type="text/javascript" src="./js/cwap_order_payment.js"></script>
+<script type="text/javascript" src="./js/layer.js"></script>
+<script type="text/javascript" src="./js/cwap_buy_step1.js"></script>
+<script>
+    function goGoodsDetail(type,value) {
+        var data = {
+            type:type,
+            value:value,
+        };
+        window.postMessage(JSON.stringify(data));
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+
+/*添加拼团*/
+
+.pin_add .slideDown { position: absolute; top:39px; display: none; z-index: 99; box-shadow: 0px 1px 5px 3px rgba(0,0,0,0.1); }
+
+.bbc_ms-form-default dl { overflow: visible;}
+
+.div-goods-select .close, .div-goods-select-box .close{
+    color: #999; right: 15px; top:15px;
+}
+.div-goods-select .search-result .goods-info dd{ width: 100%; line-height: 22px;}
+.div-goods-select .search-result .goods-info dd .bbc_ms-btn-mini{ padding: 0 5px;}
+
+.mutiGoods_panel{ width: 100%; overflow-x:auto; padding-bottom: 20px;}
+.mutiGoods:after{ content: ' '; clear: both; display: block;}
+.mutiGoods ul { float: left; width: 220px;}
+.mutiGoods .goods_spec{ line-height: 20px;}
+
+.team_user { text-align: left !important; }
+.team_user b{ text-align: center; display: inline-block; width: 72px; position: relative; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team_user b img { width: 40px; height: 40px; display: block; margin: 0 auto;}
+.team_user b:first-child:before{ content: "\f024"; position: absolute; left: 0; top: 0; display: block; font-size: 10px; font-family: FontAwesome !important; color: #EF1B21;}

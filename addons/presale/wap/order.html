@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>预售订单</title>
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" href="css/order.css">
+</head>
+<body>
+<header id="header_user" class="fixed" style="position: fixed">
+    <div class="header-wrap green">
+        <div class="header-l"><a href="javascript:history.go(-1)"> <img src="./images/ico_011.png" alt=""> </a></div>
+        <div class="header-title">
+            <h1 class="colorWhite">预售订单</h1>
+        </div>
+        <div class="header-share">
+            <a href="javascript:;"><img src="./images/more_b.png" alt=""></a>
+            <ul>
+                <li>
+                    <a href="/index.html"><img src="./images/home_w.png" alt="">首页</a>
+                </li>
+                <li>
+                    <a href="/cwap/cwap_user.html"><img src="./images/member_w.png" alt="">个人中心</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<div class="main">
+    <div class="nav_container">
+        <ul>
+            <li class="nav_item on">
+                <a href="javascript:;" data-id="">全部</a>
+            </li>
+            <li class="nav_item">
+                <a href="javascript:;" data-id="1_20">已付定金</a>
+            </li>
+            <li class="nav_item">
+                <a href="javascript:;" data-id="1_30">待付尾款</a>
+            </li>
+            <li class="nav_item">
+                <a href="javascript:;" data-id="1_0">支付超时</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="goods_list">
+        <ul>
+
+        </ul>
+    </div>
+</div>
+
+<script type="text/html" id="ys_order_list">
+    <%if(list.length){%>
+    <%for(var i = 0;i<list.length;i++){
+        var item = list[i];
+    %>
+    <li class="goods_item">
+        <div class="store">
+            <div class="s_left">
+                <a href="/cwap/cwap_go_shop.html?vid=<%=item.vid%>">
+                    <img src="./images/store@2x.png" alt="">
+                    <span><%=item.store_name%></span>
+                </a>
+            </div>
+            <div class="s_right">
+                <p class="s_red"><%=item.order_state_str%></p>
+            </div>
+        </div>
+        <a href="order_detail.html?orderid=<%=item.order_id%>">
+            <div class="gods">
+                <div class="g_left">
+                    <img src="<%=item.goods_image%>" alt="">
+                </div>
+                <div class="g_right">
+                    <h3 class="name"><%=item.goods_name%></h3>
+                    <p class="desc">
+                        <%if(item.goods_spec){%>
+                        <%for(var j in item.goods_spec){%>
+                            <%=item.goods_spec[j]%>
+                        <%}%>
+                        <%}%>
+                        X <%=item.goods_num%></p>
+                    <p class="pr">￥<%=item.goods_price%></p>
+                    <%if(item.order_send_str){%>
+                    <p class="send_time"><%=item.order_send_str%></p>
+                    <%}%>
+                </div>
+            </div>
+        </a>
+
+        <div class="order_status">
+            <div class="order_top">
+                <span>共<%=item.goods_num%>件商品，定金已支付￥<%=item.ding_price%></span>
+                <%if(item.wei_price>0){%>
+                    <span>待支付尾款：￥<%=item.wei_price%></span>
+                <%}%>
+            </div>
+            <%if(item.ding==1){%>
+                <a href="pay.html?order_sn=<%=item.order_sn%>&p=<%=item.ding_price%>" class="pay pay_ding">支付定金</a>
+            <%}else if(item.finish==1){%>
+                <a href="pay.html?order_sn=<%=item.order_sn%>&p=<%=item.wei_price%>" class="pay pay_wei">支付尾款</a>
+            <%}%>
+        </div>
+    </li>
+    <%}%>
+    <%}else{%>
+    <div class="err">
+        <div class="img">
+            <img src="./images/search_w.png" alt="">
+        </div>
+        <p>该分类暂无订单</p>
+        <p>选择其他分类试试吧！</p>
+    </div>
+    <%}%>
+</script>
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/order.js"></script>
+</html>

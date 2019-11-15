@@ -1,0 +1,101 @@
+<html lang="en" style="font-size: 20px;"><head>
+    <meta charset="UTF-8">
+    <title>全部订单</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_my_order.css">
+    <link rel="stylesheet" type="text/css" href="./css/GeneralCSS.css">
+</head>
+<body>
+<header id="header_user" class="fixed">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1)">
+                <i class="back"></i>
+            </a>
+        </div>
+        <div class="header-title">
+            <h1>我的订单</h1>
+        </div>
+        <!--<div class="header-r">-->
+            <!--<a id="header-nav" href="javascript:void(0);"><i class="more"></i></a>-->
+        <!--</div>-->
+    </div>
+</header>
+<div class="myorder">
+    <div class="nav_box">
+        <ul>
+            <li bbc_type="1"><a href="cwap_my_order.html?s=1">全部</a></li>
+            <li bbc_type="10"><a href="cwap_my_order.html?s=10">待兑换</a></li>
+            <li bbc_type="20"><a href="cwap_my_order.html?s=20">待发货</a></li>
+            <li bbc_type="30"><a href="cwap_my_order.html?s=30">待收货</a></li>
+            <li bbc_type="40"><a href="cwap_my_order.html?s=40">兑换成功</a></li>
+        </ul>
+    </div>
+    <div id="order_list">
+    </div>
+
+</div>
+<div id="footer"></div>
+<script type="text/html" id="order-list-tmpl">
+    <% if(list) { %>
+    <% for(var v in list) { var goodslist = list[v].order_goods; %>
+    <div class="orderList">
+        <h1><%=list[v].order_state%></h1>
+        <div class="box">
+            <% if(goodslist) { for(var gv in goodslist) { %>
+            <a href="cwap_for_ths_goods.html?order_id=<%=list[v].point_orderid%>">
+                <dl>
+                    <dt><img src="<%=goodslist[gv].image%>" alt=""></dt>
+                    <dd><p><%=goodslist[gv].point_goodsname%></p><span><%=goodslist[gv].point_goodspoints%>积分</span></dd>
+                    <dd>x<%=goodslist[gv].point_goodsnum%></dd>
+                    <dd></dd>
+                </dl>
+            </a>
+            <% } } else { %>
+            <li class="loading"><div class=""><i></i></div>暂无商品数据...</li>
+            <% } %>
+        </div>
+        <div class="heji"><span>共<%=list[v].goods_number%>件</span><em>应付:</em>
+            <ins><%=list[v].point_allpoint%>积分</ins>
+        </div>
+        <div class="Btn2" bbc_type="<%=list[v].point_orderid%>">
+            <% if(list[v].point_orderstate == 10) { %>
+                <a href="javascript:void(0)" class="rollback_order">取消订单</a>
+                <a class="duihuan go_pay" href="javascript:void(0)">去兑换</a>
+            <% } else if(list[v].point_orderstate == 11 || list[v].point_orderstate == 20) { %>
+                <a href="javascript:void(0)" class="rollback_order">取消订单</a>
+                <a class="duihuan again_buy" href="javascript:void(0)">再次兑换</a>
+            <% } else if(list[v].point_orderstate == 30) { %>
+            <a href="javascript:void(0)" class="again_buy">再次兑换</a>
+            <a href="javascript:void(0)" class="duihuan confirmation">确认收货</a>
+            <% } else if(list[v].point_orderstate == 2) { %>
+            <% } else {%>
+                <!--<a href="javascript:void(0)" class="shippingdesc">查看物流</a>-->
+                <a href="javascript:void(0)" class="duihuan again_buy">再次兑换</a>
+            <% }%>
+
+        </div>
+    </div>
+    <% } %>
+    <% } else { %>
+    <li class="loading"><div class=""><i></i></div>暂无数据...</li>
+    <% } %>
+
+</script>
+
+<script type="text/javascript" src="./js/zepto.min.js"></script>
+<script type="text/javascript" src="./js/cwap_config.js"></script>
+<script type="text/javascript" src="./js/template.js"></script>
+<script type="text/javascript" src="./js/cwap_common.js"></script>
+<script type="text/javascript" src="./js/simple-plugin.js"></script>
+<script type="text/javascript" src="./js/layer.js"></script>
+<script type="text/javascript" src="./js/cwap_footer.js"></script>
+<script type="text/javascript" src="./js/cwap_orderlist.js"></script>
+</body>
+</html>

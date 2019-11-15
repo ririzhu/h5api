@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>积分中心</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_integral_center.css">
+</head>
+<body>
+<header>
+    <div class="header">
+        <a href="javascript:history.go(-1);" class="jiantou"></a>
+        积分中心
+    </div>
+</header>
+<div class="connter">
+    <p><a href="">积分规则</a></p>
+    <div class="je"><img src="images/qianbi@2x.png" alt="."><em id="pointsnum">--</em></div>
+</div>
+<div class="banner">
+    <a href="index.html"><img src="images/banner_img@2x.png" alt=""></a>
+</div>
+<div class="list">
+    <h1>积分明细</h1>
+    <p class="tab_btn"><span class="active">全部</span><span>收入</span><span>支出</span></p>
+    <div class="listBox">
+        <ul class="tab" data-type="all">
+
+            <li class="loading"><div class="spinner"><i></i></div>订单数据读取中...</li>
+        </ul>
+        <ul class="tab" data-type="add">
+
+        </ul>
+        <ul class="tab"  data-type="desc">
+
+        </ul>
+    </div>
+</div>
+</body>
+<div id="footer"></div>
+<script type="text/html" id="points-list-tmpl">
+    <% if(list) { %>
+        <% for(var k=0;k<list.length;k++) { %>
+            <li>
+                <a href="">
+                    <div class="text">
+                        <span><%=list[k].points%> 积分</span>
+                        <p><%=list[k].pl_desc%></p>
+                        <em>领取时间<%=list[k].time%></em>
+                    </div>
+                </a>
+            </li>
+        <% } %>
+            <% if(ishasmore.hasmore){ %>
+            <li class="loading"><div class="spinner"><i></i></div>数据读取中...</li>
+            <% } %>
+    <% } else { %>
+            暂无更多...
+    <% }%>
+
+
+
+</script>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/simple-plugin.js"></script>
+<script type="text/javascript" src="js/cwap_footer.js"></script>
+<script type="text/javascript" src="js/cwap_intgral.js"></script>
+</html>

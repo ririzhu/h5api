@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/deposit_pay.css">
+    <style>
+        .main{
+            padding-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+<header id="header_user" class="fixed">
+    <div class="header-wrap">
+        <div class="header-l">
+            <a href="javascript:history.go(-1)"><img src="./images/ico_011.png" alt=""></a>
+        </div>
+        <div class="header-title">
+            <h1 class="colorWhite top_g">订单详情</h1>
+        </div>
+        <div class="header-share">
+            <a href="javascript:;"><img src="./images/more_b.png" alt=""></a>
+            <ul>
+                <li>
+                    <a href="/index.html"><img src="./images/home_w.png" alt="">首页</a>
+                </li>
+                <li>
+                    <a href="/cwap/cwap_user.html"><img src="./images/member_w.png" alt="">个人中心</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</header>
+<div class="main">
+    <div class="address">
+
+    </div>
+
+    <div class="goods_list">
+
+    </div>
+
+    <div class="ys_jd_wrap">
+
+    </div>
+
+    <div class="order">
+        <p>
+            <span>订单号：</span>
+            <span></span>
+        </p>
+        <p>
+            <span>订单时间：</span>
+            <span></span>
+        </p>
+    </div>
+
+    <div class="go_pay_wrap"></div>
+</div>
+
+<script type="text/html" id="j_address">
+    <div class="hasAddr">
+        <div class="address_left_img">
+            <img src="./images/address@2x.png" alt="">
+        </div>
+        <div class="addr_left">
+            <p class="name">
+                <span><%=true_name%> <%=mob_phone%></span>
+            </p>
+            <p class="addr_info"><%=area_info%><%=address%></p>
+        </div>
+    </div>
+</script>
+
+<script type="text/html" id="j_goods">
+    <ul>
+        <li class="goods_item">
+            <div class="store">
+                <a href="/cwap/cwap_go_shop.html?vid=<%=vid%>" class="s_left">
+                    <img src="./images/store@2x.png" alt="">
+                    <span><%=store_name%></span>
+                    <img src="./images/ltr@2x.png" alt="">
+                </a>
+            </div>
+            <div class="info">
+                <div class="img">
+                    <a href="/cwap/cwap_product_detail.html?gid=<%=gid%>">
+                        <img src="<%=goods_image%>" alt="">
+                    </a>
+                </div>
+                <div class="goods_info">
+                    <a href="/cwap/cwap_product_detail.html?gid=<%=gid%>"><%=goods_name%></a>
+                    <%if(goods_spec){%>
+                    <p class="size">
+                        <%for(var j in goods_spec){%>
+                            <span><%=goods_spec[j]%></span>
+                        <%}%>
+                        X <%=goods_num%>
+                    </p>
+                    <%}%>
+                    <%if(send_str){%>
+                    <p class="send">
+                        <span><%=send_str%></span>
+                    </p>
+                    <%}%>
+
+                    <%if(order_state==20){%>
+                    <img class="y_pay" src="./images/pay@2x.png" alt="">
+                    <%}%>
+                </div>
+            </div>
+        </li>
+    </ul>
+</script>
+
+<script type="text/html" id="price_detail">
+    <div class="ys_jd ys_jd_first">
+        <h2>阶段一<span><%=state_1%></span></h2>
+        <p class="ys_jd_price">
+            <span><%=state_str_1%></span>
+            <span>￥<%=ding_price%></span>
+        </p>
+    </div>
+    <%if(state_2){%>
+    <div class="ys_jd">
+        <h2>阶段二<span><%=state_2%></span></h2>
+        <p class="ys_jd_tip"><%=state_str_2%></p>
+        <p class="ys_jd_price">
+            <span>商品尾款 <%=(order_state==20&&finish==0?'(待支付)':'')%></span>
+            <span>￥<%=wei_price%></span>
+        </p>
+    </div>
+    <%}%>
+</script>
+
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/order_detail.js"></script>
+</html>

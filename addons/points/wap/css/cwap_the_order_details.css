@@ -1,0 +1,43 @@
+.convert{
+    background:#CAE6F4;
+    font-size: 0.695rem;
+    color: #333;
+    height: 3.91rem;
+    padding-left:3.26rem;
+    position: relative;
+    margin:0.4rem 0;
+}
+.convert img{
+    height: 1.3rem;
+    position: absolute;
+    left:1.21rem;
+    top: 0.782rem;
+}
+.convert h1{
+    padding-top:0.739rem;
+}
+.convert p{
+    color: #666;
+    line-height:0.782rem;
+    font-size: 0.565rem;
+}
+.yinfu em,.yinfu span{
+    color:#E32222;
+}
+.yinfu{
+    position: relative;
+}
+.yinfu:after{
+    content: "";
+    display: block;
+    height: 2.2rem;
+    width: 1px;
+    position: absolute;
+    right: -1.5rem;
+    top: -0.5rem;
+    border-right: 1px solid #dadada;
+}
+#cancel{
+    color:#3C3C3C;
+    font-size: 0.782rem;
+}

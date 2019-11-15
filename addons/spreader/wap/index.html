@@ -1,0 +1,327 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_index.css">
+    <link rel="stylesheet" type="text/css" href="css/swiper-3.4.2.min.css">
+    <style>
+        .goods_detail{
+            display: inline-block;
+            width:100%;
+        }
+    </style>
+</head>
+<body>
+<header>
+    首页
+</header>
+<div class="main" id="main-container">
+
+</div>
+<div id="box">
+<p>热门分享 <a href="cwap_list_of_goods.html">查看更多&nbsp;&gt;</a></p>
+    <div class="box-list">
+        
+    </div>
+</div>
+<footer id="footer"></footer>
+<script type="text/html" id="list">
+    <% if(list.length >0){%>
+    <% for (var i in list) { %>
+    <dl>
+
+        <dt>
+            <a href="javascript:void(0)" class="goods_detail" data-id="<%=list[i].gid%>">
+            <img src="<%=list[i].goods_image%>" alt="">
+            </a>
+        </dt>
+        <dd>
+            <span class="goods_detail" data-id="<%=list[i].gid%>">
+            <%=list[i].goods_name%>
+            </span>
+        </dd>
+        <dd>
+              <span class="goods_detail" data-id="<%=list[i].gid%>">
+            <%=list[i].goods_jingle%>11111
+              </span>
+        </dd>
+        <dd>
+             <span class="goods_detail" data-id="<%=list[i].gid%>">
+            ¥ <%=list[i].show_price%>
+            </span>
+        </dd>
+
+        <dd>
+           <span class="goods_detail" data-id="<%=list[i].gid%>">
+            <span id="goods_<%=list[i].gid%>" data-amount="<% if (list[i].has_more_yj == 1) { %><%=list[i].min_yj_amount%>,<%=list[i].max_yj_amount%><% }else{ %><%=list[i].yj_amount%><% } %>">奖励</span>
+            <% if (list[i].has_more_yj == 1) { %>
+            <span>¥ (<%=list[i].min_yj_amount%> ~ <%=list[i].max_yj_amount%>)</span>
+            <% }else{ %>
+            <span>¥ <%=list[i].yj_amount%></span>
+            <% } %>
+            </span>
+            <i data-title="<%=list[i].goods_name%>" data-desc="<%=list[i].goods_jingle%>" data-img="<%=list[i].goods_image%>" data-url="<%=list[i].share_link%>" data-gid="<%=list[i].gid%>" class="share"><img src="images/sld_share@2x.png" alt=""></i>
+        </dd>
+    </dl>
+    <% } %>
+    <% }else { %>
+    <% } %>
+</script>
+<script type="text/html" id="kefu">
+    <div class="kefu_part">
+        <a class="kefu_part_a" href="tel:<%= tel %>"><img src=""/>
+            <span class="kefu_part_span"><%= text %></span>
+            <span class="kefu_part_span"><%= tel %></span></a>
+    </div>
+</script>
+<script type="text/html" id="fzx">
+    <div class="fzx_part">
+        <div class="fzx_content fzx_<%= val %>" >
+        </div>
+    </div>
+</script>
+<script type="text/html" id="nav">
+    <div class="modules-nav">
+        <div>
+            <section>
+                <% if(style_set == "tag-nav"){ %>
+                <ul class="mod-tag-nav">
+                <% }else{ %>
+                    <% if(icon_set == "left"){ %>
+                    <ul class="mod-nav before-icon">
+                    <% }else if(icon_set == "no-icon"){ %>
+                    <ul class="mod-nav no-icon">
+                    <% }else if(icon_set == "up"){ %>
+                    <ul class="mod-nav">
+                    <% } %>
+                <% } %>
+                    <% for (var i in data) { %>
+                    <% if(data[i].img){ %>
+                    <li>
+                        <% if(style_set == "tag-nav"){ %>
+                            <a href="<%=data[i].true_url%>" style="line-height: <%= slide %>px">
+                        <% }else{ %>
+                            <a href="<%=data[i].true_url%>">
+                        <% } %>
+                            <i style="width:<%= slide %>px;">
+                            <img style="width:<%= slide %>px;"
+                            src="<%= data[i].img %>"></i>
+                        <span><%= data[i].name %></span></a>
+                    </li>
+                    <% } %>
+                    <% } %>
+                </ul>
+            </section>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_0123">
+    <div class="modules-slide">
+        <div>
+            <div class="image-list style<%=sele_style%>">
+                <ul class="clearfix">
+                    <% for (var i in data) { %>
+                    <li><a href="<%=data[i].true_url%>">
+                        <img  src="<%=data[i].img%>"  style="display: inline;">
+                    </a>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_4">
+    <div class="modules-slide">
+        <div>
+            <div class="image-ad clearfix images-tpl">
+                <div>
+                    <a href="<%=data[0].true_url%>">
+                    <img src="<%=data[0].img%>">
+                </a>
+                </div>
+                <div>
+                    <a href="<%=data[1].true_url%>">
+                        <img src="<%=data[1].img%>">
+                    </a>
+                    <a href="<%=data[2].true_url%>">
+                        <img src="<%=data[2].img%>">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_5">
+    <div class="modules-slide">
+        <div>
+            <div class="image-ad2 clearfix images-tpl">
+                <div class="clearfix">
+                    <a class="small" href="<%=data[0].true_url%>">
+                        <img src="<%=data[0].img%>">
+                    </a>
+                    <a class="big" href="<%=data[1].true_url%>">
+                        <img src="<%=data[1].img%>">
+                    </a>
+                </div>
+                <div class="clearfix">
+                    <a class="big" href="<%=data[2].true_url%>">
+                        <img src="<%=data[2].img%>">
+                    </a>
+                    <a class="small" href="<%=data[3].true_url%>">
+                        <img src="<%=data[3].img%>">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_6">
+    <div class="modules-slide">
+        <div>
+            <div class="image-ad3 clearfix images-tpl">
+                <div>
+                    <a href="<%=data[0].true_url%>">
+                        <img src="<%=data[0].img%>"></a>
+                    <a href="<%=data[1].true_url%>">
+                        <img src="<%=data[1].img%>">
+                    </a>
+                </div>
+                <div>
+                    <a href="<%=data[2].true_url%>">
+                        <img src="<%=data[2].img%>">
+                    </a>
+                    <a href="<%=data[3].true_url%>">
+                        <img src="<%=data[3].img%>">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="tupianzuhe_7">
+    <div class="modules-slide">
+        <div>
+            <div listorder="5" class="image-ad4 clearfix images-tpl">
+                <div>
+                    <a href="<%=data[0].true_url%>">
+                    <img src="<%=data[0].img%>">
+                </a>
+                    <a href="<%=data[1].true_url%>">
+                    <img src="<%=data[1].img%>">
+                </a>
+                </div>
+                <div>
+                    <a href="<%=data[2].true_url%>">
+                        <img src="<%=data[2].img%>">
+                    </a>
+                    <a href="<%=data[3].true_url%>">
+                        <img src="<%=data[3].img%>">
+                    </a>
+                </div>
+                <div>
+                    <a href="<%=data[4].true_url%>">
+                    <img src="<%=data[4].img%>">
+                </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="lunbo">
+    <div class="adv_list">
+        <div class="swipe-wrap">
+            <% for (var i in data) { %>
+            <% if(data[i].img){ %>
+            <div class="item">
+                <a href="<%=data[i].true_url%>">
+                    <img src="<%= data[i].img %>" alt="">
+                </a>
+            </div>
+            <% } %>
+            <% } %>
+        </div>
+    </div>
+</script>
+<script type="text/html" id="adv_list">
+    <div class="adv_list">
+        <div class="swipe-wrap">
+        <% for (var i in item) { %>
+            <div class="item">
+                <a href="<%= item[i].url %>">
+                    <img src="<%= item[i].image %>" alt="">
+                </a>
+            </div>
+        <% } %>
+        </div>
+    </div>
+    <div id="appcenter" class="floor box-enter">
+        <div class="floor-item">
+            <div class="position-r">
+                <nav class="quick-entry-nav position-ab     hasBgImg   quick-nav-five ">
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_pro_cat.html"><span class="quick-box"><img src="./images/wap_home_fenlei.png"><span style="color:#000000">分类</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="javascript:void(0)"><span class="quick-box"><img  src="./images/wap_home_jingxuan.png"><span style="color:#000000">精选</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_favorites.html"><span class="quick-box"><img src="./images/wap_home_shoucang.png"><span style="color:#000000">收藏</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_user.html"><span class="quick-box"><img src="./images/wap_home_mine.png"><span style="color:#000000">个人中心</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_shop_list.html"><span class="quick-box"><img src="./images/wap_home_shop.png"><span style="color:#000000">店铺街</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_cart.html"><span class="quick-box"><img src="./images/wap_home_cart.png"><span style="color:#000000">购物车</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_pointslog_list.html"><span class="quick-box"><img src="./images/wap_home_point.png"><span style="color:#000000">积分</span></span></a>
+
+                    <a class="quick-entry-link fz12 J_ping"  href="./cwap_views_list.html"><span class="quick-box"><img src="./images/wap_home_zuji.png"><span style="color:#000000">足迹</span></span></a>
+
+                </nav>
+            </div>
+        </div>
+    </div>
+</script>
+<!--富文本的展示-->
+<script type="text/html" id="fuwenben">
+    <div class="fuwenben_part">
+        <% if(text){ %>
+        <%= text %>
+        <% } %>
+    </div>
+</script>
+
+<script type="text/html" id="gonggao">
+<div class="gonggao_part">
+    <% if(text){ %>
+    <section class="mod-notice"> <span class="gonggao_pic"><img src="./images/home_gonggao.png"></span><marquee scrollamount="4"><a href="<%=true_url%>"><%= text %></a></marquee></section>
+    <% } %>
+</div>
+</script>
+<script type="text/html" id="fzkb">
+<div class="fzkb" style="width: 100%;height:<%=text%>px;background-color: #<%=color%>"></div>
+</script>
+</body>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="http://webapi.amap.com/maps?v=1.3&key=b1d1e551839382e38e9eabe2348aa0db&plugin=AMap.Scale,AMap.ToolBar"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/swipe-noheight.js"></script>
+<script type="text/javascript" src="js/swiper-3.4.2.jquery.min.js"></script>
+<script type="text/javascript" src="js/cwap_index.js"></script>
+<script type="text/javascript" src="js/cwap_footer.js"></script>
+<script>
+    var oh = $(document).height();
+    var ow = $(document).width();
+    $(document.body).css({"height":oh,"width":ow});
+</script>
+</html>

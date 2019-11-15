@@ -1,0 +1,125 @@
+body{
+    background: #fff;
+}
+.headerA{
+    width: 100%;
+    height:10rem;
+    background:url(../images/xin_sld_bg@2x.png)no-repeat;
+    background-size:cover;
+    color: #fff;
+    font-size:0.87rem;
+    text-align: center;
+}
+
+.headerA p{
+    padding:1rem 0;
+}
+.headerA a{
+    float: left;
+    padding-left:5%;
+    font-family: simsun;
+    color: #fff;
+}
+.headerA h1{
+    font-size: 3rem;
+    height: 4rem;
+    line-height: 4rem;
+}
+.user{
+    display: block;
+    position: absolute;
+    right: 0.3rem;
+    top: 8.565rem;
+    width:2.521rem;
+    text-align: center;
+    height: 1.08rem;
+    padding:0!important;
+    font-size: 0.56rem;
+    border-radius:20px;
+    border:1px solid #F21069;
+    background: -webkit-linear-gradient(#FD668F,#F72081); /* Safari 5.1 - 6.0 */
+    background: -o-linear-gradient(#FD668F,#F72081); /* Opera 11.1 - 12.0 */
+    background: -moz-linear-gradient(#FD668F,#F72081); /* Firefox 3.6 - 15 */
+    background: linear-gradient(#FD668F,#F72081);
+    box-shadow: 1px 1px 20px 1px #E71D72;
+}
+.tab{
+    width:100%;
+    position: relative;
+}
+.tab p{
+    width:97%;
+    text-align: right;
+    padding-top:5px;
+    font-size: 0.56rem;
+    padding-right:2%;
+}
+.tab p em{
+    display: inline-block;
+    font-family: simsun;
+    margin-left:3%;
+    font-size:0.8rem;
+    transform:rotate(-90deg);
+}
+.tab ul{
+    display: none;
+    position: absolute;
+    right: 4px;
+    top: 35px;
+    width: 18%;
+    border-radius: 5%;
+    background: rgba(0,0,0,0.7);
+    height: 4rem;
+    padding: 0.4rem 0;
+    z-index: 10;
+
+}
+.tab ul li{
+    font-size: 0.56rem;
+    height:1rem;
+    text-align: center;
+    color: #fff;
+}
+.list{
+    width: 100%;
+}
+.list ul{
+    padding:0 3%;
+}
+.list ul li{
+    background:url(../images/sld_qianbao@2x.png)no-repeat 1px;
+    padding:3% 0;
+    background-size: 17px 17px;
+    padding-left: 7%;
+    line-height: 0.8rem;
+    font-size: 0.608rem;
+    position: relative;
+    border-bottom:1px solid #EAEAEA;
+}
+.list ul li p{
+    height: 0.8rem;
+    line-height: 0.8rem;
+}
+.list ul li time{
+    font-size: 0.4rem;
+}
+.list ul li span{
+    font-size: 0.521rem;
+    position: absolute;
+    right:2%;
+    top:21%;
+}
+.list ul li span em{
+    margin-left:1.269rem;
+    font-size: 0.55rem;
+    color:#5C5C5C;
+}
+.settlement span{
+    color:#FF413D;
+}
+.freeze span{
+    color:#25A371;
+}
+.failure span{
+    color:#A5A5A5;
+}

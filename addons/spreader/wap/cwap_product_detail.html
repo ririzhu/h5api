@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en" style="font-size: 20px;">
+<head>
+    <meta charset="UTF-8">
+    <title>商品详情</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="./css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_child.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_pro_detail.css">
+    <link rel="stylesheet" type="text/css" href="./css/cwap_cart.css">
+    <style>
+        .vjs-center-container {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            margin: auto;
+            z-index: 2;
+        }
+        .vjs-center-start {
+            width: 100px;
+            height: 100px;
+            /*background-image: url(http://gw.alicdn.com/mt/TB1exduPVXXXXcIXpXXXXXXXXXX-136-136.png);*/
+            background-size: contain;
+            border: none;
+            background-repeat: no-repeat;
+            border-radius: 50%;
+        }
+        .vjs-center-load {
+            opacity: 0;
+            display: none;
+            border-radius: 100%;
+            animation-fill-mode: both;
+            border: 1px solid #fff;
+            border-bottom-color: transparent;
+            width: 90px;
+            height: 90px;
+            background: transparent!important;
+            animation: rotate .75s 0s linear infinite;
+        }
+        li.goods_img_hide{
+            display: none;
+        }
+        .sfm{
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        /*---------------------------限时折扣标志start-------------------------------*/
+
+        .daojishi{
+            background:#AC1FE0;
+            height: 2.5rem;
+            color: #fff;
+        }
+        .daojishi .price{
+            width:60%;
+            float: left;
+        }
+        .daojishi .price p{
+            font-size: 1.4rem;
+            height: 1.2rem;
+            padding-left: 0.6rem;
+            line-height: 1.5rem;
+        }
+        .daojishi .price p em{
+            font-size: 0.9rem;
+        }
+        .zhehe h1{
+            display: inline-block;
+            border: 1px solid #fff;
+            height:0.7rem;
+            margin-left:0.6rem;
+            line-height: 0.8rem;
+            font-size: 0.391rem;
+            max-width: 3.8rem;
+            padding-right: 0.2rem;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+        .zhehe h1 span{
+            display: inline-block;
+            line-height:0.8rem;
+            height:0.7rem;
+            background: #fff;
+            color: #AC1FE0;
+            margin-right: 0.2rem;
+            padding:0 0.1rem;
+        }
+        .zhehe h2{
+            text-decoration: line-through;
+            display: inline-block;
+            width: 4rem;
+            font-size: 0.5rem;
+            position: relative;
+            left:0.2rem;
+        }
+        .daojishi .time{
+            float: left;
+            text-align: center;
+            width:40%;
+            height:100%;
+            background: #F3D8FF;
+            color: #9011BF;
+            font-size: 0.608rem;
+        }
+        .time p{
+            font-size: 0.608rem;
+        }
+        .daojishi .time p{
+            height: 0.65rem;
+            line-height: 0.65rem;
+        }
+        .daojishi .time p:nth-of-type(1){
+            padding:0.434rem 0;
+            font-weight: 400;
+        }
+        .daojishi .time .sfm{
+            font-size:0.5rem!important;
+        }
+        .daojishi .time .sfm span{
+            line-height:0.7rem;
+            height: 0.6rem;
+        }
+        .tungou .time2 p{
+            margin-left: 1.2rem;
+            font-size: 0.5rem;
+            height: 1.2rem;
+        }
+        .timeThree{
+            height: 1rem;
+            line-height: 0.7rem;
+        }
+        .goods-detail-cnt{
+            margin-top: 15.95rem;
+            margin-bottom:0;
+        }
+        .daojishi .time p img{
+            vertical-align: text-bottom;
+            width: 0.62rem;
+            margin-right: 0.2rem;
+        }
+        .time span{
+            background:#E1B0F4;
+            padding:1px;
+            margin:0 1px;
+        }
+
+        /*---------------------------限时折扣标志--end------------------------------*/
+
+        /*---------------------------限时团购扣标志--start------------------------------*/
+        .tungou{
+            background: #F31367;
+            height: 2.5rem;
+            color: #fff;
+        }
+        .tungou .price2{
+            width:60%;
+            float: left;
+        }
+        .tungou .price2 p{
+            font-size: 1.4rem;
+            height: 1rem;
+            padding-left: 0.6rem;
+            line-height: 1.5rem;
+        }
+        .tungou .price2 p em{
+            font-size: 0.9rem;
+        }
+        .zhehe2{
+            padding-top: 0.15rem;
+        }
+        .zhehe2 h1{
+            display: inline-block;
+            background: #C20F52;
+            text-align: center;
+            border-radius: 25px;
+            height:0.7rem;
+            margin-left:0.6rem;
+            line-height: 0.8rem;
+            font-size: 0.391rem;
+            /*width: 3rem;*/
+            max-width: 3.8rem;
+            padding-right: 0.2rem;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+        .zhehe2 h2{
+            text-decoration: line-through;
+            display: inline-block;
+            width: 4rem;
+            font-size: 0.5rem;
+            position: relative;
+            left:0.2rem;
+            bottom:0.1rem;
+        }
+        .tungou .time2{
+            float: left;
+            width:40%;
+            height:100%;
+            background:url(images/xianshiTuan.png)no-repeat;
+            background-size:100% 100%;
+            color:#F31367;
+            font-size: 0.608rem;
+        }
+        .tungou .time2 p{
+            margin-left: 1.2rem;
+            font-size: 0.606rem;
+            height:0.7rem;
+            line-height:0.7rem;
+        }
+        .tungou .time2 p:nth-of-type(1){
+            padding:0.434rem 0 0.3rem 0;
+            font-size: 0.608rem;
+            font-weight: bold;
+            text-align: center;;
+        }
+        .tungou .time2 p:nth-of-type(2){
+            font-size: 0.5rem;
+        }
+        .timeThree{
+            height: 1rem;
+            line-height: 0.7rem;
+        }
+        .time2 span{
+            background:#FDC0D5;
+            padding:1px;
+            margin:0 0.15rem;
+        }
+
+        /*---------------------------限时团购扣标志--end------------------------------*/
+        /*---------------------手机专享 start------------------------------------*/
+        .cwap_zuanxiang{
+            color: #EE262C;
+            border: 1px solid #EE262C;
+            /*position: absolute;*/
+            /*top: 5.5rem;*/
+            /*right:4%;*/
+            float: right;
+            font-size: 0.5rem;
+            z-index: 100;
+            width: 2.8rem;
+            text-align: center;
+            line-height: 0.8rem;
+            height: 0.8rem;
+            border-radius: 5px;
+        }
+        /*---------------------手机专享 end------------------------------------*/
+        /*---------------------优惠套装 推荐组合 start------------------------------------*/
+        body{
+            /*padding-top:1.9rem;*/
+            background: #f6f6f6;
+        }
+        #app>dl{
+            background: #fff;
+            padding:0 3%;
+            height: 5.05rem;
+            margin-bottom: 0.5rem;
+        }
+        #app dl{
+            padding:0 3%;
+        }
+        #app>dl dt{
+            color: #FF2727;
+            height: 1.56rem;
+            line-height: 1.56rem;
+            font-size: 0.608rem;
+        }
+        #app dl dt span{
+            display: inline-block;
+            width: 1.8rem;
+            height: 0.8rem;
+            line-height: 0.8rem;
+            color: #fff;
+            background: #EC5858;
+            border-radius: 5px;
+            text-align: center;
+            margin-right: 0.5rem;
+            font-size: 0.4rem;
+            transform: scale(0.8,0.8);
+        }
+        .detail{
+            display: inline-block;
+            width: 58%;
+            overflow: hidden;
+            font-size: 0.69rem;
+            text-overflow: ellipsis;
+            color: #181818;
+            white-space: nowrap;
+        }
+        #app dl dd:nth-of-type(1){
+            float: left;
+        }
+        #app dl dd:nth-of-type(3){
+            color: #959595;
+            margin-left: 3.8rem;
+            font-size:0.6rem;
+        }
+        #app dl dd img{
+            border:1px solid #f6f6f6;
+            width:3.04rem;
+        }
+        #app dl dd p{
+            margin-bottom:0;
+        }
+        #app dl dd span{
+            float: right;
+            font-size:0.56rem;
+        }
+        .dl2{
+            position: relative;
+            height: 2.17rem!important;
+        }
+        .dl2 dd:first-child{
+            width: 100%;
+        }
+
+        .dl2 dd img{
+            vertical-align: middle;
+            margin-right:0.86rem;
+            width: 1.52rem!important;
+        }
+        .dl2 em,.dl3 em,.dl4 em{
+            display:inline-block;
+            width:0.34rem;
+            height: 0.34rem;
+            transform:rotate(-44deg);
+            border:1px solid #676767;
+            border-top:none;
+            border-left:none;
+        }
+        .dl2 dd{
+            padding:0!important;
+            height: 2.17rem;
+            line-height:2.17rem;
+            font-size:0.56rem;
+            font-weight: bold;
+        }
+        .addon_pin .goods-detail-pin h3 span{
+            display: block;
+            font-size: 0.45rem;
+            width: 5rem;
+            position: relative;
+            left: -0.4rem;
+        }
+        .dl2 dd a{
+            float: right;
+            color: #646464;
+            padding-left:1.728rem;
+            background: url(images/detail_09.png)no-repeat 0.8rem 0.6rem;
+            background-size: 0.8rem 0.8rem;
+        }
+        .dl3{
+            font-size: 0.608rem;
+            background: #fff;
+            position: relative;
+            margin-bottom: 0.3rem;
+            overflow: hidden;
+            padding-bottom: 0.8rem;
+            transition-timing-function: linear;
+            transition: 0.5s;
+            height: 6.5rem;
+            min-height:5.5rem;
+        }
+        .title_radius{
+            padding:0.4rem 3%;
+            background: #fff;
+            font-size: 0.6rem;
+        }
+        .title_radius a{
+            float: right;
+            color: #353535;
+        }
+        .dl3 dl{
+            border-bottom:1px dashed #D9D9D9;
+            padding:0.3rem 3%!important;
+            background: #fff;
+        }
+        .dl3 dl:last-child{
+            border:none;
+        }
+        .dl3 dt{
+            color: #353535!important;
+        }
+        .dl3 dt a{
+            display: inline-block;
+            height: 2.8rem;
+            vertical-align: text-bottom;
+        }
+        .dl3 dt:nth-of-type(2){
+            float: left;
+            line-height:2.82rem!important;
+        }
+        .dl3 dt b{
+            display: inline-block;
+            vertical-align:text-bottom;
+            color: #848486;
+            font-family: '微软雅黑';
+        }
+        .dl3 dd p{
+            font-size: 0.52rem;
+        }
+        .dl3 dd p ins{
+            text-decoration: none;
+        }
+        .dl3 dt img{
+            display: inline-block;
+            border-radius:5%;
+            height: 2.8rem;
+            border:1px solid #f6f6f6;
+        }
+        .dl3 dd{
+            width:4rem;
+            display: inline-block;
+            float: right!important;
+            text-align: right;
+            color: #353535;
+            line-height:0.8rem;
+        }
+        .dl3 dd p{
+            display: inline-block;
+            width: 100%;
+        }
+        .dl3 dd p:nth-of-type(1) {
+            color: #353535;
+        }
+        .dl3 dd p:nth-of-type(1) ins{
+            color:red;
+            margin-left:0.2rem;
+        }
+        .dl3 dd p:nth-of-type(2){
+            color: red;
+            width:100%!important;
+            height: 0.652rem;
+            margin-right: 0.5rem;
+            border-radius: 5px;
+            margin-bottom: 0.5rem!important;
+            line-height: 0.652rem;
+        }
+        .dl4{
+            position: relative;
+            height:6rem;
+            transition-timing-function: linear;
+            padding-bottom: 0.9rem;
+            transition:0.5s;
+            overflow: hidden;
+        }
+        .dl4 dl{
+            background: #fff;
+            padding:0.3rem 3%!important;
+            border-bottom:1px dashed #D9D9D9;
+        }
+        .dl4 dl:last-child{
+            border:none;
+        }
+        .dl4 dt{
+            color: #353535!important;
+
+        }
+        .dl4 dt a{
+            position: relative;
+            display: inline-block;
+            height: 2.8rem;
+            vertical-align: text-bottom;
+            color: #353535;
+            overflow: hidden;
+        }
+        .dl4 dt a b{
+            text-align: center;
+            padding:0!important;
+            margin:0!important;
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            display: block;
+            font-size: 0.5rem;
+            width: 100%;
+            height: 0.58rem;
+            line-height: 0.65rem;
+            font-weight: normal;
+        }
+        .dl4 dt:nth-of-type(2){
+            line-height:2.8rem!important;
+            float: left;
+        }
+        .dl4 dt b{
+            display: inline-block;
+            vertical-align:text-bottom;
+            color: #848486;
+            font-family:'微软雅黑';
+            font-size: 0.62rem;
+        }
+        .dl4 dt img{
+            display: inline-block;
+            width: 2.8rem;
+            border-radius:5%;
+            border:1px solid #f6f6f6;
+        }
+        .dl4 dd{
+            width: 27%;
+            float: right!important;
+            text-align: right;
+            color: #353535;
+        }
+        .dl4 dd p{
+            display: inline-block;
+            width: 100%;
+        }
+        .dl4 dd p:nth-of-type(1) {
+            color: #353535;
+            font-size: 0.52rem;
+        }
+        .dl4 dd p:nth-of-type(1) ins{
+            color:red;
+            text-decoration:none;
+            margin-left: 0.2rem;
+        }
+        .dl4 dd p:nth-of-type(2){
+            color: red;
+            width: 3rem;
+            font-size: 0.52rem;
+            border-radius: 12px;
+            text-align: center;
+            line-height: 0.8rem;
+            border: 1px solid red;
+        }
+        .overflow{
+            width: 11rem;
+            line-height: 2.82rem!important;
+            height: 2.82rem!important;
+            overflow: hidden;
+            overflow-x: scroll;
+            display: inline-block;
+        }
+        .tuijian{
+            width: 15.8rem!important;
+        }
+        .goodsBox{
+            white-space: nowrap;
+        }
+        .gmBtn{
+            background:#FF0000;
+            color: #fff;
+            border-radius: 16px;
+            width: 3rem!important;
+            text-align: center;
+            height: 0.8rem;
+            line-height: 0.9rem;
+        }
+        .gengduo{
+            background: #fff;
+            text-align: center;
+            font-size: 0.6rem;
+            position: absolute;
+            width: 100%;
+            bottom:-0.1rem;
+        }
+        .gengduo em{
+            transform: rotate(45deg);
+            position: relative;
+            bottom: 0.1rem;
+            transition-timing-function: linear;
+            transition: 0.5s;
+        }
+        .gengduo:hover em{
+            transform:rotate(-135deg);
+            position:relative;
+            bottom:-0.1rem;
+        }
+        .img{
+            display: inline-block;
+        }
+        /*---------------------优惠套装 推荐组合 end------------------------------------*/
+        .addon_pin .goods-detail-pin h3:after{
+            left:-0.847rem!important;
+        }
+        /*-------------------满减-------------------------------------*/
+        .reduction{
+            position: relative;
+            background: #fff;
+            height: 1.2rem;
+            font-size: 0.565rem;
+            overflow: hidden;
+            transition-timing-function: linear;
+            transition: 5s;
+        }
+        .manjian{
+            margin-left:2.086rem;
+            border-bottom:1px solid transparent;
+            position: relative;
+            /*height: 0.521rem;*/
+            line-height:0.521rem;
+            padding:0.39rem 0;
+            color: #333;
+        }
+        em.chuxiao{
+            position: absolute;
+            color: #FF0000;
+            left: 0.5rem;
+            top: 0.2rem;
+            height: 0.5rem;
+            line-height:0.5rem;
+            font-size: 0.34rem;
+            border-radius: 3px;
+            padding: 0.1rem 0.1rem 0 0.1rem;
+            border: 1px solid #FF0000;
+        }
+        .btn_open{
+            position: absolute;
+            right: 0rem;
+            top: -0.5rem;
+            z-index: 1000;
+            padding: 0.8rem 0.8rem 0.5rem 2rem;
+        }
+        .radius{
+            display: block;
+            width: 0.3rem;
+            height: 0.3rem;
+            border: 1px solid #676767;
+            transition-timing-function: linear;
+            transition: 0.5s;
+            transform: rotate(45deg);
+            border-top: none;
+            border-left: none;
+        }
+        .manjian_goods{
+            position: relative;
+            padding-left:2.086rem;
+            color: #333333;
+        }
+        .manjian_goods dl{
+            padding-bottom:0.739rem;
+            clear: both;
+            border-bottom:1px solid #e1e1e1;;
+        }
+        .manjian_goods:last-child dl:last-child{
+            border:none;
+        }
+        .manjian_goods p{
+            width: 12.75rem;
+        }
+        .manjian_goods dl dt{
+            float: left;
+            width: 1.95rem;
+            height: 1rem;
+            padding-bottom:1rem;
+            margin-right:0.304rem;
+        }
+        .manjian_goods dl dt img{
+            width: 1.95rem;
+            height: 1.95rem;
+            border:1px solid #eee;
+        }
+        .manjian_goods dl dd{
+            font-size: 0.478rem;
+            color: #999;
+            line-height:0.7rem;
+            padding-right: 1.304rem;
+        }
+        .manjian_goods dl dd strong{
+            color: #FF1F1F;
+        }
+        .manjian_box{
+            position: relative;
+        }
+        .first_goods{
+            position: relative;
+        }
+        .share_div{
+            width:100%;
+            height:2rem;
+            display: inline-block;
+            text-align: center;
+            line-height: 2rem;
+            background-color:#f23030;
+            color:white;
+        }
+        .amount_class{
+            display: inline-block;
+            color:#FC3357;
+            font-size: 0.8rem;
+            margin-left: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+<header id="header" class="posf">
+    <div id="header_user">
+        <div class="header-wrap" >
+            <div class="header-l"> <a href="index.html"> <i class="back"></i> </a> </div>
+            <ul class="header-nav">
+                <li class="cur" id="goodsDetail" style="background-color: white;border: 0px solid white"><a href="#" style="color: black">商品详情</a></li>
+                <!--<li id="goodsBody"><a href="#sld_goods_body">详情</a></li>-->
+                <!-- <li><a href="javascript:void(0);" id="goodsEvaluation">评价</a></li> -->
+            </ul>
+            <!--<div class="header-r" id="header-r"></div>-->
+        </div>
+    </div>
+
+</header>
+<div id="product_detail_html"></div>
+<div id="product_detail_spec_html" class="bbctouch-bottom-mask"></div>
+<div id="product_detail_tag_html" class="bbctouch-bottom-mask"></div>
+<div id="product_detail_red_html" class="bbctouch-bottom-mask"></div>
+<div id="product_detail_dian_html" class="bbctouch-bottom-mask"></div>
+<script type="text/html" id="header_top_r">
+    <a href="javascript:void(0);" class="<% if (is_favorate) { %>favorate<% } %> round pd-collect"><i></i></a>
+    <a id="header-nav" href="javascript:void(0);" class="share"><i></i></a>
+</script>
+<script type="text/html" id="product_detail">
+    <div class="goods-detail-top" id="goods-detail-top">
+        <div class="goods-detail-pic" id="mySwipe">
+            <ul class="img_slide">
+                <% if(goods_info.video_url){%>
+                <li class="video_goods">
+                    <video src="<%=goods_info.video_url%>" type="video/mp4" playsinline="playsinline"  type="video/mp4" id="video" width="350" height="350"  style="cursor: pointer" controls="controls" poster="<%= goods_image[0]%>">
+                        <!--定义视频来源 以及类型。type不加也可以正常播放-->
+                    </video>
+                    <div class="vjs-center-container">
+                        <button class="vjs-center-load vjs-button" role="button" type="button">
+                            <span class="vjs-control-text">Load</span>
+                        </button>
+                        <button class="vjs-center-start vjs-button" role="button" type="button">
+                        </button>
+                    </div>
+                </li>
+                <% }%>
+                <% for (var i =0;i<goods_image.length;i++){ %>
+                <li class="goods_img_hide"><img src="<%=goods_image[i]%>"/></li>
+                <% } %>
+            </ul>
+        </div>
+        <div class="goods-detail-turn-right-number">
+            <div class="right-number-slider-num">
+                <span class="slider-num-current">1</span>/<span class="slider-num-total"><% if(goods_info.video_url){%><%=goods_image.length+1%><% }else{ %><%=goods_image.length%><% }%></span>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="goods-detail-cnt">
+    </div>
+    <div class="goods-detail-name">
+        <dl>
+
+            <dt><%if(goods_info.is_virtual == '1'){%><span>虚拟</span><%}%><% if (goods_info.is_presell == '1') { %><span>预售</span><% } %><% if (goods_info.is_fcode == '1') { %><span>F码</span><% } %><%=goods_info.goods_name%></dt>
+            <dd><%=goods_info.goods_jingle%></dd>
+        </dl>
+    </div>
+
+            <div class="goods-detail-price" >
+                <dl>
+                    <dt>￥<em><%=goods_info.show_price%></em></dt>
+                   <span class="amount_class">奖励:&nbsp;¥&nbsp;20</span>
+                </dl>
+
+
+            </div>
+            <!---------------------------------满减----start--------------------------->
+
+            <!------------------------------满减--end-------------------------------------------------------->
+            <div class="goods-detail-item" id="goods_spec_selected">
+                <div class="itme-name">已选</div>
+                <div class="item-con">
+                    <dl class="goods-detail-sel">
+                        <dt>
+                            <% if (!isEmpty(goods_info.goods_spec)) { %>
+                            <% if(goods_map_spec.length>0){%>
+                            <% for(var i =0;i<goods_map_spec.length;i++){%>
+						<span>
+							<%=goods_map_spec[i].goods_spec_name%>
+							<% if (!isEmpty(goods_map_spec[i].goods_spec_value)) { %>
+							<%for(var j = 0;j<goods_map_spec[i].goods_spec_value.length;j++){%>
+								<%if (goods_info.goods_spec[goods_map_spec[i].goods_spec_value[j].specs_value_id]){%>
+									<em><%=goods_map_spec[i].goods_spec_value[j].specs_value_name%></em>
+								<%}%>
+							<%}%>
+							<%}%>
+							</span>
+                            <%}%>
+                            <%}} else { %>
+                            <span>默认</span>
+                            <% } %>
+                        </dt>
+                    </dl>
+                </div>
+                <div class="item-more"></div>
+            </div>
+
+            <div class="sld_goods_body" id="sld_goods_body">
+                <div class="sld-channel-top">
+                    <div class="sld-channel-top-div">
+                        <span>...</span>
+                        <span class="sld-channel-top-title">商品详情</span>
+                        <span>...</span>
+                    </div>
+                </div>
+                <div class="sld_goods_body_content fixed-tab-pannel">
+                    <div class="no-data">
+                        暂无商品详情
+                    </div>
+                </div>
+            </div>
+
+            <div class="goods-detail-foot">
+
+            </div>
+
+        </div>
+</script>
+<script type="text/html" id="product_detail_sepc">
+    <div class="bbctouch-bottom-mask-bg"></div>
+    <div class="bbctouch-bottom-mask-block">
+        <div class="bbctouch-bottom-mask-tip"><i></i>点击此处返回</div>
+        <div class="bbctouch-bottom-mask-top goods-options-info">
+            <div class="goods-pic">
+                <div class="table-set">
+                    <img src="<%=goods_image[0]%>"/>
+                </div>
+            </div>
+            <dl>
+                <dt><%=goods_info.goods_name%></dt>
+                <dd class="goods-price">
+                    ￥<em><%=goods_info.show_price%></em>
+                    <span class="goods-storage" style="display: inline-block">库存：<%=goods_info.goods_storage%>件</span>
+                </dd>
+            </dl>
+            <a href="javascript:void(0);" class="bbctouch-bottom-mask-close"><i></i></a>
+        </div>
+
+
+
+
+        <div class="bbctouch-bottom-mask-rolling" id="product_roll">
+            <div class="goods-options-stock">
+                <% if(goods_map_spec.length>0){%>
+                <% for(var i =0;i<goods_map_spec.length;i++){%>
+                <dl class="spec">
+                    <dt spec_id="<%=goods_map_spec[i].goods_spec_id%>">
+                        <%=goods_map_spec[i].goods_spec_name%>：
+                    </dt>
+                    <dd>
+                        <%for(var j = 0;j<goods_map_spec[i].goods_spec_value.length;j++){%>
+                        <a href="javascript:void(0);" <%if (goods_info.goods_spec[goods_map_spec[i].goods_spec_value[j].specs_value_id]){%> class="current" <%}%>specs_value_id = "<%=goods_map_spec[i].goods_spec_value[j].specs_value_id%>">
+                        <%=goods_map_spec[i].goods_spec_value[j].specs_value_name%>
+                        </a>
+                        <%}%>
+                    </dd>
+                </dl>
+                <% } %>
+                <% } %>
+
+            </div>
+        </div>
+
+        <div class="goods-option-foot">
+
+        </div>
+    </div>
+</script>
+<script type="text/html" id="dian_tpl">
+    <% var dian_data = datas.data; %>
+    <div class="bomb-box pickup-bomb-box logistics-choosen-<%=datas.data[0].vid%> pickup-bomb-hide">
+        <div class="box-title">自提门店<b class="close"></b></div>
+        <!--<div class="box-oprate"></div>-->
+        <div class="content-info">
+            <form class="">
+                <ul class="logistics-store-list-1 logistics-store-list">
+                    <%for(var m in dian_data){ var vv = dian_data[m];%>
+                    <li class="logistics-item" style="padding-left: 20px;" data-lat="<%=vv.dian_lat%>" data-lng="<%=vv.dian_lng%>">
+                        <label class="wq">
+                            <div class="logistics-inner" data-id="1">
+                                <p class="logistics-name"><%=vv.dian_name%></p>
+                                <p class="juli"><%=vv.juli%><span><%=vv.danwei=='km'?'千米':'米'%></span></p>
+                                <p class="logistics-address"><%=vv.dian_address%></p>
+                                <p class="logistics-tel"><%=vv.dian_phone_arr[0]%></p>
+                            </div>
+                        </label>
+                        <span class="i"></span>
+                    </li>
+                    <%}%>
+                    <% if (hasmore) {%>
+                    <li class="loading">
+                        <div class="spinner"><i></i></div>
+                        数据读取中...
+                    </li>
+                    <% } %>
+                </ul>
+            </form>
+        </div>
+    </div>
+    <div class="mask-div" style="display: none;"></div>
+</script>
+<script type="text/html" id="dian_list_tpl">
+    <% var dian_data = datas.data; %>
+    <%for(var m in dian_data){ var vv = dian_data[m];%>
+    <li class="logistics-item" style="padding-left: 20px;" data-lat="<%=vv.dian_lat%>" data-lng="<%=vv.dian_lng%>">
+        <label class="wq">
+            <div class="logistics-inner" data-id="1">
+                <p class="logistics-name"><%=vv.dian_name%></p>
+                <p class="juli"><%=vv.juli%><span><%=vv.danwei=='km'?'千米':'米'%></span></p>
+                <p class="logistics-address"><%=vv.dian_address%></p>
+                <p class="logistics-tel"><%=vv.dian_phone_arr[0]%></p>
+            </div>
+        </label>
+        <span class="i"></span>
+    </li>
+    <%}%>
+    <% if (hasmore) {%>
+    <li class="loading">
+        <div class="spinner"><i></i></div>
+        数据读取中...
+    </li>
+    <%}%>
+    <% if (hasmore) {%>
+    <li class="loading">
+        <div class="spinner"><i></i></div>
+        数据读取中...
+    </li>
+    <% } %>
+</script>
+<script type="text/html" id="product_red">
+    <div class="bbctouch-bottom-mask-bg"></div>
+    <div class="bbctouch-bottom-mask-block">
+        <div class="bbctouch-bottom-mask-top goods-tags-intro-top">
+            领取优惠券 <a href="red_get_list.html?vid=<%=goods_info.vid%>">去领券中心</a>
+        </div>
+        <div class="bbctouch-bottom-mask-rolling" id="product_red_roll">
+            <div class="goods-red-intro-list">
+                <div class="bbctouch-red-list">
+                    <ul class="bbctouch-tickets" id="red-list">
+                        <% if (red && red.length > 0) { %>
+                        <% for (var k in red) { var v = red[k]; %>
+                        <li class="ticket-item">
+                            <%if(v.have>=v.red_rach_max){%>
+                            <a class="a" href="cwap_product_list.html">
+                                <%}else{%>
+                                <a class="a weiling" href="javascript:void(0)" data-id="<%=v.id%>">
+                                    <%}%>
+                                    <div>
+                                        <%if(v.red_type==2){%><s></s><%}%>
+                                        <h1><em><%= v.redinfo_money %></em> 元</h1>
+                                        <%if(v.have>=v.red_rach_max){%>
+                                        <h6 class="a1">您已领券</h6>
+                                        <h6 class="a2">去使用</h6>
+                                        <%}else{%>
+                                        <%if(v.prent){%>
+                                        <h6 class="a3">已抢<%=v.prent%>% <em><i style="width: <%=v.prent%>%"></i></em></h6>
+                                        <%}%>
+                                        <h6 class="a4" data-id="<%=v.id%>" end_time_str="<%=v.red_receive_end_text%>"><em>领取</em>-</h6>
+                                        <%}%>
+                                        <h2><em><%if(!v.redinfo_full || v.redinfo_money>=v.redinfo_full){%>无门槛优惠券<%}else{%>满<%=v.redinfo_full%>减<%=v.redinfo_money%><%}%></em><%= v.redinfo_start_text %>-<%= v.redinfo_end_text %></h2>
+                                    </div>
+                                </a>
+                                <p><%=v.str%></p>
+                        </li>
+                        <% } %>
+
+                        <% if (hasmore) {%>
+                        <li class="loading"><div class="spinner"><i></i></div>数据读取中</li>
+                        <% } %>
+
+                        <% } else { %>
+                        <div class="bbctouch-norecord red">
+                            <img src="../addons/red/data/images/nothave.png" width="50%" />
+                            <dl>
+                                <dt>暂无优惠券</dt>
+                            </dl>
+                        </div>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</script>
+<script type="text/html" id="product_tags_intro">
+    <div class="bbctouch-bottom-mask-bg"></div>
+    <div class="bbctouch-bottom-mask-block">
+        <div class="bbctouch-bottom-mask-top goods-tags-intro-top">
+            服务
+        </div>
+        <div class="bbctouch-bottom-mask-rolling" id="product_tags_roll">
+            <div class="goods-tags-intro-list">
+                <% for(i in goods_info.goods_label){ %>
+                <div class="goods-tags-intro-item">
+                    <div class="tags-item-name"><%=goods_info.goods_label[i].label_name%></div>
+                    <div class="tags-item-intro"><%=goods_info.goods_label[i].label_desc%></div>
+                </div>
+                <% } %>
+            </div>
+        </div>
+
+    </div>
+</script>
+<script type="text/javascript" src="./js/zepto.min.js"></script>
+<script type="text/javascript" src="./js/cwap_config.js"></script>
+<script type="text/javascript" src="./js/template.js"></script>
+<script type="text/javascript" src="./js/swipe.js"></script>
+<script type="text/javascript" src="./js/cwap_common.js"></script>
+<script type="text/javascript" src="./js/simple-plugin.js"></script>
+<script type="text/javascript" src="./js/requestAnimationFrame.js"></script>
+<script type="text/javascript" src="../addons/pin/data/js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="./js/zepto.fly.min.js"></script>
+<script type="text/javascript" src="./js/cwap_footer.js"></script>
+<script type="text/javascript" src="./js/layer.js"></script>
+<script type="text/javascript" src="https://webapi.amap.com/maps?v=1.3&key=b1d1e551839382e38e9eabe2348aa0db&plugin=AMap.Scale,AMap.ToolBar"></script>
+<script type="text/javascript" src="./js/cwap_product_detail.js"></script>
+<script type="text/javascript" src="../addons/spreader/data/js/product_detail_extend.js"></script>
+<script>
+    $(function () {
+        //屏幕宽度的一半减去2px
+        var imgwidth = $(window).width()/2-2;
+        if(imgwidth>318){
+            imgwidth = 318;
+        }
+        $('.pro_store_recommond a .pic').css('width',imgwidth);
+        $('.pro_store_recommond a .pic').css('height',imgwidth);
+        function vidplay() {
+            var video = document.getElementById("video");
+
+            var i=$('li.check').index();
+
+            if (video.paused) {
+                video.play();
+                $('.vjs-center-start').hide();
+            } else {
+                video.pause();
+                $('.vjs-center-start').show();
+            }
+
+            if(i>=1){
+                $('.vjs-center-start').hide();
+            }
+        }
+
+        $('.video_goods').live('click',function () {
+            vidplay();
+        })
+    });
+    //----------限时折扣标签--start----------------------
+    var addTine = setInterval(timee,1000);
+    function timee(){
+        var start_time = $(".sfm").data('end_time_str');
+        var date = new Date();//获取当前实时时间
+        var moren = new Date(start_time);//获取指定时间
+        var Moren = moren.getTime();//转换成毫秒
+        var Time=date.getTime();//转换成毫秒
+        var t =Moren-Time;//指定时间减去当前时间
+        //------------------获得多少个半个小时------------
+        var d=Math.floor(t/1000/60/60/24);//获取天
+        var h=Math.floor(t/1000/60/60);//获取小时
+        var m=Math.floor(t/1000/60%60);//获取除去天数剩余的分
+        var s=Math.floor(t/1000%60);//获取除去天数剩余的秒
+        if (start_time) {
+            if(h>99){
+                $(".shi").text('99');
+                $(".fen").text(m<10?'0'+m:m);
+                $(".miao").text(s<10?'0'+s:s);
+            }else{
+                $(".shi").text(h<10?'0'+h:h);
+                $(".fen").text(m<10?'0'+m:m);
+                $(".miao").text(s<10?'0'+s:s);
+            }
+
+        }
+        if(h<0||m<0||s<0){
+            clearInterval(addTine);
+            $(".sfm").html("活动已结束")
+        }
+    }
+
+
+
+    //----------限时折扣标签--end----------------------
+
+    //----------优惠套装 推荐组合 更多按钮--start----------------------
+    var index;
+    var name=1;
+    var name1=1;
+
+    $(document).on("click",'.gengduo',function(){
+        index=$(this).index();
+        if(name==1){
+            $(this).parent().css({"transition-timing-function":"linear","transition":"0.5s","height":"auto"});
+            $(this).children('span').text("收起");
+            $(this).children('em').css({"transition-timing-function":"linear","transition":"0.5s","transform":"rotate(-135deg)","position":"relative","bottom":"-0.1rem"});
+            name=2;
+        }else{
+            $(this).parent().css({"transition-timing-function":"linear","transition":"0.5s","height":"6.08rem"});
+            $(this).children('span').text("查看更多");
+            $(this).children('em').css({"transition-timing-function":"linear","transition":"0.5s","transform":"rotate(45deg)","position":"relative","bottom":"0.1rem"});
+            name=1;
+        }
+
+    });
+    // 购买按钮
+    $("body").on("click",".gmBtn",function(e){
+        var bl_id = $(this).data('bl_id') * 1;
+
+        if (bl_id > 0 && gid > 0) {
+            window.location.href="./cwap_youhui_zhuhe.html?bl_id="+bl_id+"&gid="+gid;
+        }
+    });
+    // 推荐组合 购买按钮
+    $("body").on("click",".suite_item_buy",function(e){
+        var gids = $(this).data('gids');
+
+        if (gids && gid > 0) {
+            window.location.href="./cwap_zuhe_cart.html?gids="+gids+"&gid="+gid;
+        }
+    });
+    //----------优惠套装 推荐组合 更多按钮--end----------------------
+    //-*------------------------满减------------------------------------
+    var no=1;
+    $(document).on('click','.btn_open',function(){
+        if(no==1){
+            $(".manjian").css("border-color","#E1E1E1");
+            $(".manjian ins").css({"transform":"rotate(-134deg)"});
+            $(".reduction").css("height","auto");
+            no=2;
+        }else{
+            $(".manjian ins").css({"transform":"rotate(45deg)"});
+            $(".manjian").css("border-color","transparent");
+            $(".reduction").css("height","1.2rem");
+            no=1;
+        }
+
+    })
+
+
+</script>
+
+</body>
+</html>

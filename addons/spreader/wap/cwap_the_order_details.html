@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单明细</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_The_order_detals.css">
+</head>
+<body>
+<header>
+    订单明细
+</header>
+<div id="order-list" style="margin-bottom: 2.7rem;">
+
+</div>
+<footer id="footer"></footer>
+</body>
+<script type="text/html" id="order-list-tmpl">
+    <% if (datas.order_group_list.length > 0){%>
+    <% for(var i = 0;i<datas.order_group_list.length;i++){
+    var orderitem = datas.order_group_list[i];
+    var dl_class_name = 'freeze';
+    switch(orderitem.yj_status){
+        case '-1':
+            dl_class_name = 'failure';
+            break;
+        case '0':
+            dl_class_name = 'freeze';
+            break;
+        case '1':
+            dl_class_name = 'settlement';
+            break;
+    }
+    %>
+    <dl class="<%=dl_class_name%>">
+        <dd><span>订单号: <%=orderitem.order_sn%></span><em>付款金额:  <%=orderitem.order_amount%></em></dd>
+        <dd><span>订单状态: <%=orderitem.state_desc%></span><em>佣金:  <%=orderitem.yj_amount%></em></dd>
+        <dd><span>下单时间:  <%=orderitem.add_time_str%></span><em>佣金状态: <ins><%=orderitem.yj_status_desc%></ins></em></dd>
+    </dl>
+    <%}%>
+    <% if (hasmore) {%>
+    <li class="loading"><div class="spinner"><i></i></div>订单数据读取中...</li>
+    <% } %>
+    <%}else {%>
+    <div style="text-align: center;font-size: 0.5rem;line-height: 0.8rem;padding: 1rem;">
+        <p>您还没有相关的订单</p>
+    </div>
+    <%}%>
+</script>
+<script type="text/javascript" src="jquery/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/simple-plugin.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/cwap_user_order.js"></script>
+<script type="text/javascript" src="js/cwap_footer.js"></script>
+</html>

@@ -1,0 +1,100 @@
+body{
+    padding-top:1.95rem;
+    background:#f6f7fb;
+}
+::-webkit-input-placeholder { /* WebKit browsers */
+    　　color:#aeaeae;
+}
+　　::-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+    　　color:#aeaeae;
+}
+　　::-moz-placeholder { /* Mozilla Firefox 19+ */
+    　　color:#aeaeae;
+}
+　　:-ms-input-placeholder { /* Internet Explorer 10+ */
+    　　color:#aeaeae;
+}
+.header-wrap{
+    background:#FC3357;
+}
+.header-title h1{
+    color: #fff;
+}
+.header-l a{
+    color: #fff;
+    font-family:simsun;
+    line-height:1rem;
+}
+.header-l a img{
+    height: 0.8rem;
+    padding-top: 0.1rem;
+}
+.header-title h1{
+    padding-top:2px;
+}
+#box{
+    width: 100%;
+    text-align: center;
+    padding-top:25px;
+}
+#box form label{
+    display: block;
+    width: 100%;
+    height: 47px;
+    font-weight: normal;
+    position: relative;
+}
+#box form label input{
+    width: 53%;
+    float: left;
+    height: 47px;
+    border: none;
+    padding-left:2%;
+    outline: none;
+    background: #fff;
+    margin-bottom:4%;
+    margin-left: 6%;
+}
+#box form label span{
+    font-weight: normal;
+    position: absolute;
+    right: 6%;
+    top: 0px;
+    display: block;
+    width: 34%;
+    text-align: center;
+    height: 47px;
+    font-size: 0.56rem;
+    color: #5C5C5C;
+    line-height: 47px;
+    background: #E6E9EE;
+}
+#box form input{
+    width: 86%;
+    height: 47px;
+    border: none;
+    margin-bottom:4%;
+    padding-left:2%;
+    outline: none;
+    background: #fff;
+}
+#box form input[type=button].loginlei{
+    margin-top:4%;
+    width: 88%;
+    background:#FC3357;
+    color: #fff;
+    font-size: 0.73rem;
+    -webkit-border-radius:5px;
+    -moz-border-radius:5px;
+    border-radius:5px;
+}
+.Binding{
+    display: inline-block;
+    width: 87%;
+    line-height: 1.9rem;
+    color: #FC3357;
+    font-size: 0.4rem;
+    border-radius: 5px;
+    text-align: center;
+    border: 1px solid #FC3357;
+}

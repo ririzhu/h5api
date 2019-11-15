@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>确认订单(商家自送)</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" type="text/css" href="css/cwap_base.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_main.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_public.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_order_detail.css">
+    <link rel="stylesheet" type="text/css" href="css/cwap_queren_order.css">
+</head>
+<body>
+<header id="header_user" class="fixed" style="position: fixed">
+    <div class="header-wrap transparent">
+        <div class="header-l"><a href="javascript:history.go(-1)"> <i class="white"></i> </a></div>
+        <div class="header-title">
+            <h1 class="colorWhite top_g">确认订单</h1>
+        </div>
+    </div>
+</header>
+<div class="peisong">
+    <div class="peisongBox">
+        <div class="kaiguan hide">
+            <span>商家自送</span>
+            <span class="zq">到店自取</span>
+            <em></em>
+        </div>
+        <div class="map">
+
+        </div>
+    </div>
+</div>
+<div class="state">
+    <span>商家自送</span>
+    <!--未填写地址展示--start---------------->
+    <!--<span class="wudizhi">商家自送</span>-->
+    <!-----未填写地址-end------------------->
+    <em>预计送达时间: </em>
+</div>
+
+<div class="orderList">
+
+</div>
+
+<div class="jiesuan">
+
+</div>
+
+<!--<a href="" class="submit">立即提交</a>-->
+
+<!-------------y有地址显示---------------->
+
+<a class="addbeizhu" href="javascript:;">添加订单备注 <em class="radius"></em></a>
+<p class="banner">配送至：</p>
+<div id="heji">
+    <span>合计<b></b></span><a href="javascript:;" class="sumbit_order">提交订单</a>
+</div>
+<!-------------------选择-配送时间-------------------------->
+<div class="time_alert" id="timeAlert">
+    <div class="timeAlert">
+        <h1><b>×</b><em>选择送达时间</em><span>确定</span></h1>
+        <div class="xuanxiangka">
+            <div class="leftTab">
+                <span class="choose">今天</span>
+                <span>明天</span>
+            </div>
+            <div class="rightTab">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!------------------------备注信息------------------------->
+<div class="beizuAlert" id="bzAl">
+    <div class="beizhutext">
+        <h1><em>取消</em><b>写备注信息</b><span>确定</span></h1>
+        <textarea name="" id="" cols="30" rows="10" placeholder="订单备注30字以内"></textarea>
+    </div>
+</div>
+
+<!--选择地址-->
+<div class="chooseAddr">
+
+</div>
+
+
+<!--地址-->
+<script type="text/html" id="order_addr">
+    <%if(address_id){%>
+    <a href="cwap_address_list.html?type=2"><p class="map_a_top"><img src="./images/dizhi@2x.png" alt=""><%=area_info%>
+        <%=address%></p>
+        <em class="radius bdWhite"></em>
+    </a>
+    <p><a href="cwap_address_list.html?type=2"><%=true_name%> &nbsp;<%=mob_phone%></a></p>
+    <%}else{%>
+    <div class="adddizhi">
+        <a href="cwap_address_list.html?type=2"><em>+</em>添加收货地址</a>
+    </div>
+    <%}%>
+</script>
+
+<!--商品列表-->
+<script type="text/html" id="order_list">
+    <h1 class="biaoti"><%=dian_info.dian_name%></h1>
+    <ul>
+        <% for(var i = 0;i
+        <cart_list.length
+                ;i++){
+                var el=cart_list[i];
+                var sum=el.goods_price*el.goods_num
+                %>
+            <li>
+                <a href="cwap_goods_details.html?gid=<%=el.gid%>&vid=<%=el.vid%>">
+                    <dl>
+                        <dt><img src="<%=el.goods_image%>" alt=""></dt>
+                        <dd class="xq">
+                            <p><%=el.goods_name%></p>
+                            <p>¥<%=el.goods_price%> x <%=el.goods_num%></p>
+                        </dd>
+                        <dd class="jinqian">¥<%=sum%></dd>
+                    </dl>
+                </a>
+            </li>
+            <%}%>
+    </ul>
+    <div class="Clickshow">
+        <%if(cart_list.length>2){%>
+        共<%=cart_list.length%>件 <em class="radius Bottom"></em>
+        <%}else{%>
+        共<%=cart_list.length%>件
+        <%}%>
+    </div>
+</script>
+
+<script type="text/html" id="order_price">
+    <%if(address.address_id){%>
+    <p><span>商品金额</span><span>&yen;<%=goods_all_price%></span></p>
+    <p><span>配送费</span><span>&yen;<%=freight_money%></span></p>
+    <%}else{%>
+    <p><span>优惠券</span><span>无</span></p>
+    <p></p>
+    <%}%>
+</script>
+
+<script type="text/html" id="order_time">
+    <ul>
+        <%for(var i =0;i
+        <first_day.length
+        ;i++){
+        var el = first_day[i];
+        if(i==0){
+        %>
+        <li class="sel" data-time="<%=el%>">今天
+            <time><%=el%></time>
+        </li>
+        <%}else{%>
+        <li class="" data-time="<%=el%>">今天
+            <time><%=el%></time>
+        </li>
+        <%}%>
+        <%}%>
+    </ul>
+    <ul>
+        <%for(var j = 0;j
+        <sencond_day.length
+        ;j++){
+        if(j==0){
+        %>
+        <li class="sel" data-time="<%=sencond_day[j]%>"><%=next%>
+            <time><%=sencond_day[j]%></time>
+        </li>
+        <%}else{%>
+        <li class="" data-time="<%=sencond_day[j]%>"><%=next%>
+            <time><%=sencond_day[j]%></time>
+        </li>
+        <%}%>
+        <%}%>
+    </ul>
+</script>
+
+
+</body>
+<script type="text/javascript" src="js/cwap_config.js"></script>
+<script type="text/javascript" src="js/zepto.min.js"></script>
+<script type="text/javascript" src="js/template.js"></script>
+<script type="text/javascript" src="js/layer.js"></script>
+<script type="text/javascript" src="js/cwap_common.js"></script>
+<script type="text/javascript" src="js/confirm_order.js"></script>
+<script>
+    $(".kaiguan span").click(function () {
+        if ($(this).index() == 0) {
+            $(".kaiguan em").removeClass('zhiqu');
+            $(".kaiguan em").addClass('zishong');
+            $(".kaiguan span").css("color", "#999");
+            $(this).css("color", "#fff");
+        } else {
+            $(".kaiguan em").removeClass('zishong');
+            $(".kaiguan em").addClass('zhiqu');
+            $(".kaiguan span").css("color", "#999");
+            $(this).css("color", "#fff");
+        }
+    })
+
+    //    ------------------d查看更多---------
+    var pd = true;
+    $('body').on('click', '.Clickshow', function () {
+        if (pd == true) {
+            $(".orderList ul").css("height", 'auto');
+            $(".orderList ul").css("max-height", '100rem');
+            pd = false;
+        } else {
+            $(".orderList ul").css("max-height", '6.8rem');
+            pd = true;
+        }
+
+    })
+
+
+    //    --------------添加备注---------------------------
+    $(".addbeizhu").click(function () {
+        $(".beizuAlert").css("display", "flex");
+    });
+
+    $(".beizhutext h1 span").click(function () {
+        var order_message = $('.beizhutext textarea').val();
+        if(order_message.length>30){
+            layer.open({
+                content: '订单备注在30字以内',
+                skin: 'msg',
+                time: 2
+            })
+            return;
+        }
+        $(".beizuAlert").css("display", "none");
+    });
+    $(".beizhutext h1 em").click(function () {
+        $(".beizuAlert").css("display", "none");
+    })
+
+    $('#timeAlert').on('touchmove', function (e) {
+        if (e.target.id == 'timeAlert') {
+            return false;
+        }
+    })
+    $('#bzAl').on('touchmove', function (e) {
+        return false;
+    })
+
+</script>
+</html>

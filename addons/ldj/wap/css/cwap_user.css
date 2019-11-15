@@ -1,0 +1,83 @@
+.user_box {
+    background: url("../images/user_bgm0@2x.png") no-repeat;
+    height: 6.69rem;
+    background-size: 100% 100%;
+    margin-bottom: 0.434rem;
+}
+
+.transparent .header-l a img, .transparent .header-r a img {
+    height: 0.782rem;
+}
+
+.colorWhite {
+    color: #fff !important;
+}
+
+.userName {
+    padding: 3.21rem 0 1.26rem 0;
+    color: #fff;
+    font-size: 0.695rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.userName a {
+    color: #fff;
+}
+
+.userName span {
+    padding: 0 0.5rem;
+}
+
+.userName img {
+    width: 2.17rem;
+    height: 2.17rem;
+    border-radius: 50%;
+    margin-right: 0.521rem;
+    margin-left: 1rem;
+}
+
+.userName dl dd {
+    line-height: 1rem;
+}
+
+.userList {
+    height: 2.391rem;
+    background: #fff;
+    margin-bottom: 0.434rem;
+}
+
+.userList a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.652rem;
+    font-size: 0.695rem;
+    color: #666;
+    height: 100%;
+}
+
+.userList a span {
+    color: #FF2929;
+}
+
+.userList a > div {
+    flex: 0 0 9rem;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.userList a > div span {
+    color: #666;
+}
+
+.userList .img {
+    flex: 0 0 40px;
+}
+
+.userList a img {
+    height: 1rem;
+    margin-right: 0.782rem;
+}
