@@ -851,6 +851,14 @@ class Payment extends Base
         $mySign = self::SignArray($array, $appkey);
         return strtolower($sign) == strtolower($mySign);
     }
+
+    /**
+     * 支付方式列表
+     * @return false|string
+     * @throws \think\exception\DbException
+     * @throws db\exception\DataNotFoundException
+     * @throws db\exception\ModelNotFoundException
+     */
     public function methodList()
     {
         if(!input("member_id")){
@@ -867,7 +875,6 @@ class Payment extends Base
             'member_id' => $member_id,
         ];
         $card = Db::name("member_bankcard")->field($field)->where($condition)->select();
-
         if ($card) {
             foreach ($card as $key => $value) {
                 $card[$key]['status'] = 1;
@@ -898,7 +905,7 @@ class Payment extends Base
             }
         }
 
-        $data['code'] = 0;
+        $data['code'] = 200;
         $data['message'] = '请求成功';
         $data['list'] = $card;
         return json_encode($data,true);
