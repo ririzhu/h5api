@@ -2,6 +2,7 @@
 namespace app\v1\controller;
 
 use app\v1\model\Predeposit;
+use app\v1\model\User;
 use think\db;
 //include("../extend/pay/alipay/AopSdk.php");
 //include("../extend/pay/allinpay/Allinpay.php");
@@ -850,37 +851,56 @@ class Payment extends Base
         $mySign = self::SignArray($array, $appkey);
         return strtolower($sign) == strtolower($mySign);
     }
-    public function methodList(){
+    public function methodList()
+    {
         if(!input("member_id")){
-            return null;
+            $data['code'] = 10001;
+            $data['message'] = '缺少参数';
+            return json_encode($data,true);
         }
-        $user = new \app\v1\model\User();
-        $info = $user->getMemberInfo(input("member_id"),"available_predeposit");
-        $card = db::name("member_bankcard")->where("member_id=".input("member_id"))->field("card,type,bankname,bankimg")->find();
-        if(empty(($card))){
-            $data['cardflag'] = false;
-        }
-        else{
-            $data['cardflag'] = true;
-            if($card['type']==1){
-                $card['type'] = "储蓄卡";
+        $member_id = input('member_id');
+        $model_member = new User();
+        $member_info = $model_member->getMemberInfo(['member_id' => $member_id],"available_predeposit");
+
+        $field = 'card,type,bankcode as code,bankname as name,bankimg as logo';
+        $condition = [
+            'member_id' => $member_id,
+        ];
+        $card = Db::name("member_bankcard")->field($field)->where($condition)->select();
+
+        if ($card) {
+            foreach ($card as $key => $value) {
+                $card[$key]['status'] = 1;
+                if ($value['type'] == 1) {
+                    $card[$key]['type'] = '储蓄卡';
+                } elseif ($card['type'] == 2) {
+                    $card['type'] = "信用卡";
+                }
             }
-            if($card['type']==2){
-                $card['type'] = "信用卡";
-            }
-            $data['card'] = $card;
         }
-        $data['money'] = $info["available_predeposit"];
-        $data['list'][0]['name'] = "余额支付";
-        $data['list'][0]['status'] = false;
-        $data['list'][0]['logo'] = "http://192.168.2.252:7777/static/images/yue.png";
-        $data['list'][1]['name'] = "快捷支付";
-        $data['list'][1]['status'] = true;
-        $data['list'][2]['name'] = "微信支付";
-        $data['list'][2]['logo'] = "http://192.168.2.252:7777/static/images/wxpay.png";
-        $data['list'][2]['status'] = true;
-        $data['list'][3]['name'] = "支付宝";
-        $data['list'][3]['status'] = false;
+
+        $payment_field = 'payment_code as code,payment_name as name,payment_state as status';
+        $payment = Db::name('payment')->field($payment_field)->select();
+        if ($payment){
+            foreach ($payment as $key => $value){
+                $value['card'] = '';
+                $value['type'] = '';
+                if ($value['code'] == 'predeposit'){
+                    $value['logo'] = 'http://192.168.2.252:7777/static/images/yue.png';
+                    $value['name'] = '余额';
+                    $value['predeposit'] = $member_info['available_predeposit'];
+                }elseif ($value['code'] == 'alipay'){
+                    $value['logo'] = 'http://192.168.2.252:7777/static/images/wxpay.png';
+                }elseif ($value['code'] == 'wxpay'){
+                    $value['logo'] = 'http://192.168.2.252:7777/static/images/wxpay.png';
+                }
+                $card[] = $value;
+            }
+        }
+
+        $data['code'] = 0;
+        $data['message'] = '请求成功';
+        $data['list'] = $card;
         return json_encode($data,true);
     }
 
